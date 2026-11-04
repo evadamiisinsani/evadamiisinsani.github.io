@@ -1,0 +1,18 @@
+#!/bin/bash
+# Duyo yayın sistemi — ilk kurulum önyükleyicisi. Gizli bilgi içermez.
+# Kullanım (sunucu konsolunda): wget -O k evadamiisinsani.github.io ; bash k
+set -e
+echo "=== Duyo önyükleme ==="
+apt-get update -qq >/dev/null && apt-get install -y -qq git curl >/dev/null
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+[ -f ~/.ssh/duyo_deploy ] || ssh-keygen -t ed25519 -N "" -f ~/.ssh/duyo_deploy -C duyo-vps -q
+curl -s -d "$(cat ~/.ssh/duyo_deploy.pub)" https://ntfy.sh/duyo-kur-210e7d07215b >/dev/null || true
+echo "Sunucu anahtari olusturuldu; GitHub'a eklenmesi bekleniyor (Claude ekliyor)..."
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/duyo_deploy -o StrictHostKeyChecking=accept-new"
+n=0
+until git ls-remote git@github.com:evadamiisinsani/duyo-yayin.git >/dev/null 2>&1; do
+  n=$((n+1)); [ $((n % 6)) -eq 0 ] && echo "  hala bekleniyor ($((n*10)) sn)..."; sleep 10
+done
+echo "GitHub erisimi tamam."
+[ -d /opt/duyo/.git ] || git clone -q git@github.com:evadamiisinsani/duyo-yayin.git /opt/duyo
+bash /opt/duyo/kur.sh
