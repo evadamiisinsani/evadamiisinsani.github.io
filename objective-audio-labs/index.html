@@ -199,7 +199,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="freqs" id="freqs"></div>
     <div class="row" style="margin-top:8px"><span class="muted">İnce ayar</span><input type="range" id="fSlider" min="0" max="1000" value="500" style="flex:1"><b id="fVal" style="width:70px;text-align:right">Orijinal</b></div>
     <h3>Gerçek film efektleri</h3>
-    <p class="muted" style="margin:0 0 8px">Hollywood stüdyolarının kullandığı gerçek kayıtlar (USC "Red Library", Internet Archive, CC0). İlk dokunuşta kaydın <b>orijinal hali</b> çalar. Yukarıdan bir frekans seçerseniz kayıt o frekansa kaydırılır. Aynı tuşa tekrar basınca baştan başlar. “Uzun kuyruklu patlama” tam uzunluktadır, diğerleri 3 saniyede kesilir.</p>
+    <p class="muted" style="margin:0 0 8px">Hollywood stüdyolarının kullandığı gerçek kayıtlar (USC "Red Library", Internet Archive, CC0). İlk dokunuşta kaydın <b>orijinal hali</b> çalar. Yukarıdan bir frekans seçerseniz kayıt o frekansa kaydırılır. Aynı tuşa tekrar basınca baştan başlar. “Uzun kuyruklu patlama” 12 saniye, diğerleri 3 saniye çalar. Eski film kayıtlarının bası çoğunlukla 110–150 Hz civarındadır; gerçek sinema LFE hissi için 25–40 Hz düğmeleriyle aşağı kaydırın.</p>
     <div class="fx" id="fxReal"></div>
     <div class="row" style="margin-top:8px">
       <label class="row muted"><input type="checkbox" id="subLayer"> Sub katmanı ekle</label>
@@ -765,19 +765,19 @@ function lowPeak(buf){if(f0Cache.has(buf))return f0Cache.get(buf);const sr=buf.s
 function envelopeOf(buf){const sr=buf.sampleRate,win=Math.round(sr*.01),n=Math.floor(buf.length/win),ch=[...Array(buf.numberOfChannels)].map((_,i)=>buf.getChannelData(i));const e=new Float32Array(n);let mx=1e-9;
   for(let k=0;k<n;k++){let s=0;for(const c of ch)for(let j=k*win;j<(k+1)*win;j++)s+=c[j]*c[j];e[k]=Math.sqrt(s/(win*ch.length));if(e[k]>mx)mx=e[k]}
   let y=0;for(let k=0;k<n;k++){const x=e[k]/mx;y=x>y?x:y*.93+x*.07;e[k]=y}return e}
-async function playBuffer(buf,label,src,full){ensureCtx();const v=newLfeVoice();const f0=lowPeak(buf),rate=lfeF?Math.max(.25,Math.min(4,lfeF/f0)):1,t=ctx.currentTime+.03;
+async function playBuffer(buf,label,src,full){ensureCtx();const v=newLfeVoice();const f0=lowPeak(buf),rate=lfeF?Math.max(.125,Math.min(4,lfeF/f0)):1,t=ctx.currentTime+.03;
   const out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
   const s=new AudioBufferSourceNode(ctx,{buffer:buf,playbackRate:rate});v.srcs.push(s);let n=s;
   if(mcN>2){n=filt(n,v,'lowpass',120);n=filt(n,v,'lowpass',120)}
   const gF=ctx.createGain();gF.gain.value=1.6;n.connect(gF);gF.connect(out);v.nodes.push(gF);
-  const natural=buf.duration/rate,dur=full?natural:Math.min(natural,CUT);
+  const natural=buf.duration/rate,dur=Math.min(natural,full?12:CUT);
   s.start(t);
   if(dur<natural){gF.gain.setValueAtTime(1.6,t+dur-.3);gF.gain.linearRampToValueAtTime(0,t+dur);s.stop(t+dur+.02)}
   const sub=$('#subLayer').checked;
   if(sub){const fs=lfeF||f0,e=envelopeOf(buf).slice(0,Math.ceil(dur*rate*100));const o=osc(v,fs);o.frequency.setValueAtTime(fs*1.25,t);o.frequency.exponentialRampToValueAtTime(fs,t+.25);
     const g=ctx.createGain();g.gain.value=0;g.gain.setValueCurveAtTime(e.map(x=>x*.9),t,Math.max(.1,dur-.02));o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+dur)}
   routeMono(v.env,LFE,v);v.env.gain.value=1;
-  $('#lfeInfo').innerHTML=`<b>${label}</b> · ${lfeF?`<b>${lfeF} Hz</b>'e kaydırıldı (orijinali ≈ ${f0} Hz, hız ×${rate.toFixed(2)})`:`orijinal hali · baskın bas ≈ <b>${f0} Hz</b>`}${sub?` + sub katmanı`:''} · ${dur.toFixed(1)} sn${dur<natural?' (kısaltıldı)':''}<br><span class="muted">${src}</span>`;
+  $('#lfeInfo').innerHTML=`<b>${label}</b> · ${lfeF?`<b>${Math.round(f0*rate)} Hz</b>'e kaydırıldı (orijinali ≈ ${f0} Hz, hız ×${rate.toFixed(2)})`:`orijinal hali · baskın bas ≈ <b>${f0} Hz</b>`}${sub?` + sub katmanı`:''} · ${dur.toFixed(1)} sn${dur<natural?' (kısaltıldı)':''}<br><span class="muted">${src}</span>`;
   v.timers.push(setTimeout(()=>{if(lfeV===v)lfeStop()},dur*1000+300))}
 async function playReal(i){const [file,,label,,full]=REAL[i];ensureCtx();lfeStop(true);const tok=lfeTok;$$('#fx button,#cutBtn').forEach(b=>b.classList.remove('on'));$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i));
   const fn=encodeURIComponent(file)+'.mp3';const cached=bufCache['https://archive.org/cors/Red_Library_Explosions/'+fn]||bufCache[IA+fn];if(!cached)$('#lfeInfo').innerHTML=`<b>${label}</b> yükleniyor…`;
