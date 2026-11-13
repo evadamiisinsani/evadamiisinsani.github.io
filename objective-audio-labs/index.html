@@ -307,7 +307,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     </div>
     <canvas id="msCv" height="300" style="margin-top:8px;border-radius:10px;background:#070d1a;touch-action:none"></canvas>
     <div id="msList" style="margin-top:8px"></div>
-    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📂 Ölçüm dosyası yükle (.oal.json / REW .txt)<input type="file" id="msFile" accept=".json,.txt,.frd,text/plain,application/json" multiple hidden></label></div>
+    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple hidden></label></div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -864,11 +864,24 @@ $('#splReset').onclick=resetSpl;
 function wA(f){const f2=f*f,r=(12194**2*f2*f2)/((f2+20.6**2)*Math.sqrt((f2+107.7**2)*(f2+737.9**2))*(f2+12194**2));return 20*Math.log10(r)+2}
 function wC(f){const f2=f*f,r=(12194**2*f2)/((f2+20.6**2)*(f2+12194**2));return 20*Math.log10(r)+.06}
 const BANDS=[];for(let i=-17;i<=13;i++)BANDS.push(1000*Math.pow(2,i/3));
-function micErr(e){const m=String(e&&e.name||e);$('#micMsg').innerHTML=`<div class="note err">Mikrofon açılamadı (${m}). Bu önizleme penceresi mikrofon iznini engeller. Önizleme bağlantısını telefonda açın ve izin isteğine “İzin ver” deyin.</div>`}
-async function startMic(){setSession('play-and-record');
+function micErr(e){const m=String(e&&e.name||e);const why={NotAllowedError:'Mikrofon izni verilmedi. Safari: adres çubuğundaki “aA” → Web Sitesi Ayarları → Mikrofon → İzin Ver. Ardından sayfayı yenileyin.',
+  InvalidStateError:'iOS ses oturumu mikrofonu açmaya izin vermedi. Çalan bir ses varsa durdurup tekrar deneyin; olmazsa sayfayı yenileyin.',NotFoundError:'Mikrofon bulunamadı. UMIK takılıysa çıkarıp yeniden takın.',
+  OverconstrainedError:'Seçili mikrofon bulunamadı; listeden “Varsayılan”ı seçin.',NotReadableError:'Mikrofon başka bir uygulama tarafından kullanılıyor (arama, kayıt vb.).'}[m]||'Tarayıcı mikrofona erişemedi.';
+  $('#micMsg').innerHTML=`<div class="note err">Mikrofon açılamadı (${m}). ${why}</div>`}
+async function startMic(){
   ensureCtx();if(mic)return true;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){micErr('desteklenmiyor');return false}
-  const dev=$('#micSel').value;try{mic=await navigator.mediaDevices.getUserMedia({audio:Object.assign({echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1},dev?{deviceId:{exact:dev}}:{})})}catch(e){micErr(e);return false}
+  try{unlockEl&&unlockEl.pause()}catch(e){}setSession('play-and-record');
+  const base={echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1},dev=$('#micSel').value;
+  const ask=c=>navigator.mediaDevices.getUserMedia({audio:c});
+  try{mic=await ask(Object.assign({},base,dev?{deviceId:{exact:dev}}:{}))}
+  catch(e){let err=e;
+    if(e.name==='InvalidStateError'){/* iOS: ses oturumu "playback"te kalmış → otomatiğe al, sesi kısa duraklat, tekrar dene */
+      setSession('auto');try{await ctx.suspend()}catch(x){}await new Promise(r=>setTimeout(r,250));
+      try{mic=await ask(base);err=null}catch(e2){err=e2}try{await ctx.resume()}catch(x){}}
+    else if(e.name==='OverconstrainedError'&&dev){$('#micSel').value='';try{mic=await ask(base);err=null}catch(e2){err=e2}}
+    if(err){setSession('playback');micErr(err);return false}}
+  if(ctx.state!=='running'){try{await ctx.resume()}catch(e){}}
   listMics();
   micSrc=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=0;micSrc.connect(an);buildCorr();
   $('#micMsg').innerHTML='';$('#micBtn').textContent='■ Mikrofonu durdur';$('#micBtn').classList.add('stop');resetSpl();measLoop();return true;
@@ -1029,11 +1042,77 @@ function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div
   if(meas.length){$('#msA').value=a&&meas[a]?a:meas.length-1;$('#msB').value=b&&meas[b]?b:Math.max(0,meas.length-2)}}
 async function saveFile(blob,name){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
-$('#msFile').onchange=async e=>{for(const fl of e.target.files){const t=await fl.text();let m=null;
-  try{const o=JSON.parse(t);if(o.format==='objective-audio-labs-measurement'){const db=Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f));m={name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db,ir:o.ir?f64b(o.ir):null,ipk:o.ipk}}}catch(er){}
-  if(!m){const f=[],g=[];t.split(/\r?\n/).forEach(l=>{if(/^\s*[*#;]/.test(l))return;const n=l.trim().split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0){f.push(n[0]);g.push(n[1])}});
-    if(f.length>10)m={name:fl.name.replace(/\.(txt|frd)$/i,''),date:new Date().toISOString(),ch:'REW',mic:'',db:Float32Array.from(LOGF,x=>interpLog(f,g,x)),ir:null}}
-  if(m){m.id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);m.on=true;m.col=MCOL[meas.length%MCOL.length];meas.push(m)}else $('#msStat').textContent=fl.name+': okunamadı'}
+/* REW .mdat (Java serileştirme) ve Audyssey .ady (JSON) içe aktarma */
+/* Minimal Java object-serialization reader (for REW .mdat files). Returns top-level contents. */
+function parseJavaSer(u8){
+  const dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);let p=0;const handles=[];
+  const u1=()=>u8[p++],u2=()=>{const v=dv.getUint16(p);p+=2;return v},i4=()=>{const v=dv.getInt32(p);p+=4;return v},
+    i8=()=>{const v=dv.getBigInt64(p);p+=8;return Number(v)},f4=()=>{const v=dv.getFloat32(p);p+=4;return v},f8=()=>{const v=dv.getFloat64(p);p+=8;return v};
+  const td=new TextDecoder();const utf=()=>{const n=u2();const s=td.decode(u8.subarray(p,p+n));p+=n;return s};
+  const lutf=()=>{const n=Number(dv.getBigInt64(p));p+=8;const s=td.decode(u8.subarray(p,p+n));p+=n;return s};
+  if(u2()!==0xACED)throw new Error('Java serileştirme dosyası değil');u2();
+  const nh=o=>{handles.push(o);return o};
+  function classDesc(){const t=u1();
+    if(t===0x70)return null;if(t===0x71){return handles[i4()-0x7E0000]}
+    if(t===0x72){const cd={name:utf(),fields:[]};i8();nh(cd);cd.flags=u1();const n=u2();
+      for(let i=0;i<n;i++){const tc=String.fromCharCode(u1()),name=utf();let cn=null;if(tc==='L'||tc==='[')cn=content();cd.fields.push({tc,name,cn})}
+      cd.ann=annotation();cd.sup=classDesc();return cd}
+    if(t===0x7D){const cd={name:'proxy',fields:[],flags:2};nh(cd);const n=i4();for(let i=0;i<n;i++)utf();cd.ann=annotation();cd.sup=classDesc();return cd}
+    throw new Error('classDesc beklenen, '+t.toString(16)+' @'+(p-1))}
+  function annotation(){const out=[];for(;;){if(u8[p]===0x78){p++;return out}out.push(content())}}
+  function val(tc){switch(tc){case'B':{const v=dv.getInt8(p);p++;return v}case'C':return u2();case'D':return f8();case'F':return f4();case'I':return i4();case'J':return i8();case'S':{const v=dv.getInt16(p);p+=2;return v}case'Z':return u1()!==0;default:return content()}}
+  function content(){const t=u1();
+    switch(t){
+      case 0x70:return null;
+      case 0x71:return handles[i4()-0x7E0000];
+      case 0x74:return nh(utf());
+      case 0x7C:return nh(lutf());
+      case 0x77:{const n=u1();const b=u8.slice(p,p+n);p+=n;return{block:b}}
+      case 0x7A:{const n=i4();const b=u8.slice(p,p+n);p+=n;return{block:b}}
+      case 0x75:{const cd=classDesc();const arr={cls:cd&&cd.name};nh(arr);const n=i4();const ct=cd.name[1];
+        if(ct==='F'){const a=new Float32Array(n);for(let i=0;i<n;i++)a[i]=f4();arr.v=a}
+        else if(ct==='D'){const a=new Float64Array(n);for(let i=0;i<n;i++)a[i]=f8();arr.v=a}
+        else if('BCIJSZ'.includes(ct)){const a=new Array(n);for(let i=0;i<n;i++)a[i]=val(ct);arr.v=a}
+        else{const a=new Array(n);for(let i=0;i<n;i++)a[i]=content();arr.v=a}return arr}
+      case 0x73:{const cd=classDesc();const o={cls:cd&&cd.name,f:{},ann:[]};nh(o);const chain=[];for(let c=cd;c;c=c.sup)chain.unshift(c);
+        for(const c of chain){if(c.flags&0x02){for(const fl of c.fields)o.f[fl.name]=val(fl.tc);if(c.flags&0x01)o.ann.push(...annotation())}else if(c.flags&0x04){o.ann.push(...annotation())}}
+        return o}
+      case 0x7E:{const cd=classDesc();const o={cls:cd&&cd.name,enum:null};nh(o);o.enum=content();return o}
+      case 0x76:{const cd=classDesc();nh(cd);return{classRef:cd}}
+      case 0x72:case 0x7D:{p--;return classDesc()}
+      case 0x79:handles.length=0;return content();
+      case 0x78:return{end:true};
+      default:throw new Error('Bilinmeyen etiket 0x'+t.toString(16)+' @'+(p-1))}}
+  const top=[];while(p<u8.length){top.push(content())}return top}
+
+function relNorm(db){let s=0,n=0;LOGF.forEach((f,i)=>{if(f>=500&&f<=2000){s+=db[i];n++}});const o=75-(n?s/n:0);return db.map(v=>v+o)}
+function irMeas(ir,sr,name,ch,rel){let pk=0,pi=0;for(let i=0;i<ir.length;i++){const a=Math.abs(ir[i]);if(a>pk){pk=a;pi=i}}const st0=Math.max(0,pi-Math.round(sr*.05)),len=Math.min(ir.length-st0,Math.round(sr*.65)),seg=Float32Array.from(ir.subarray(st0,st0+len));
+  let db=frFromIR(seg,pi-st0,sr);if(rel)db=relNorm(db);return{name,ch,mic:'',sr,db,ir:seg,ipk:pi-st0,date:new Date().toISOString()}}
+function importMdat(u8,base){const top=parseJavaSer(u8),out=[];let k=0;
+  top.forEach(o=>{if(!o||o.cls!=='roomeqwizard.MeasData')return;k++;const f=o.f;let db=null;
+    if(f.splValues&&f.splValues.v&&f.isLogSpaced){const sv=f.splValues.v,ls=f.logStep||Math.pow(2,1/(f.ppo||96)),f0=f.freqStep||(f.endFreq/Math.pow(ls,sv.length-1));const fr=Array.from(sv,(_,i)=>f0*Math.pow(ls,i));db=Float32Array.from(LOGF,x=>interpLog(fr,Array.from(sv),x))}
+    let irD=null,sr=f.sampleRate||48000;try{const S=f.irData.f.ir.f;irD=S.data.v;sr=Math.round(1/S.T)||sr}catch(e){}
+    const name=`${base} · ${f.shortDesc||('#'+k)}`;let m;
+    if(irD){m=irMeas(irD,sr,name,'REW',false);if(db)m.db=db;else{const off=(f.irData&&f.irData.f.splOffset)||100;m.db=m.db.map(v=>v+off)}}
+    else if(db)m={name,ch:'REW',mic:'',db,ir:null,date:new Date().toISOString()};
+    if(m){m.mic=(f.sourceFileName||'').replace(/^EXCL:\s*/,'').slice(0,40);out.push(m)}});
+  return out}
+function importAdy(o,base){const out=[];(o.detectedChannels||[]).forEach(c=>{const rd=c.responseData||{};const key=Object.keys(rd)[0];if(!key)return;const ir=Float32Array.from(rd[key],Number);
+  const m=irMeas(ir,48000,`${o.title||base} · ${c.commandId} (Audyssey, poz. ${(+key)+1}, göreli)`,c.commandId,false);out.push(m)});
+  /* kanallar arası seviye farkı korunur: tek ortak ofset, ilk ana kanalın 500 Hz–2 kHz ortalaması 75 dB olacak şekilde */
+  const ref=out.find(m=>!/^SW/i.test(m.ch))||out[0];if(ref){let s_=0,n=0;LOGF.forEach((f,i)=>{if(f>=500&&f<=2000){s_+=ref.db[i];n++}});const off=75-(n?s_/n:0);out.forEach(m=>{m.db=m.db.map(v=>v+off)})}
+  return out}
+$('#msFile').onchange=async e=>{for(const fl of e.target.files){const buf=new Uint8Array(await fl.arrayBuffer()),base=fl.name.replace(/\.[^.]+$/,'');let adds=[];
+  try{if(buf[0]===0xAC&&buf[1]===0xED){adds=importMdat(buf,base)}
+    else{const t=new TextDecoder().decode(buf);let o=null;try{o=JSON.parse(t)}catch(er){}
+      if(o&&o.detectedChannels)adds=importAdy(o,base);
+      else if(o&&o.format==='objective-audio-labs-measurement'){adds=[{name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db:Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f)),ir:o.ir?f64b(o.ir):null,ipk:o.ipk}]}
+      else{const f=[],g=[];t.split(/\r?\n/).forEach(l=>{if(/^\s*[*#;]/.test(l))return;const n=l.trim().split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0){f.push(n[0]);g.push(n[1])}});
+        if(f.length>10)adds=[{name:base,date:new Date().toISOString(),ch:'REW',mic:'',db:Float32Array.from(LOGF,x=>interpLog(f,g,x)),ir:null}]}}}
+  catch(er){$('#msStat').textContent=`${fl.name}: okunamadı (${er.message})`;continue}
+  if(!adds.length){$('#msStat').textContent=fl.name+': içinde ölçüm bulunamadı';continue}
+  adds.forEach((m,i)=>{m.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);m.on=i<2;m.col=MCOL[meas.length%MCOL.length];meas.push(m)});
+  $('#msStat').textContent=`✓ ${fl.name}: ${adds.length} ölçüm eklendi${adds.length>2?' (ilk 2 tanesi grafikte; diğerlerini listeden açın)':''}`}
   e.target.value='';msSave();renderMsList();drawMs()};
 segBind('msView','v',v=>{msView=v;$('#msDiffSel').style.display=v==='diff'?'flex':'none';drawMs()});
 ['#msSm','#msRange','#msA','#msB'].forEach(id=>$(id).onchange=drawMs);
