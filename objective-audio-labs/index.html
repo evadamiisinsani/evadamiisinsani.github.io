@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a1020"><meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a1020"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="data:,">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Objective Audio Labs — Önizleme</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,8 +88,19 @@ th:first-child,td:first-child{text-align:left}
 th{color:var(--mut);font-weight:600;font-size:11.5px}
 .res{background:#0d1628;border-radius:12px;padding:10px;margin-top:8px;font-size:13.5px;line-height:1.55}
 .res b{color:var(--acc)}
-#arWrap{position:relative;width:100%;height:58vh;max-height:560px;background:#050912;border-radius:14px;overflow:hidden;touch-action:none}
+#arWrap{display:none;position:fixed;inset:0;z-index:70;background:#050912;overflow:hidden;touch-action:none;overscroll-behavior:none}
+#arWrap.on{display:block}
 #arWrap video,#arWrap canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.arTop{position:absolute;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;display:flex;justify-content:space-between;gap:8px;z-index:2}
+.arTop .btn{background:rgba(10,16,32,.75);backdrop-filter:blur(6px)}
+.arBot{position:absolute;left:0;right:0;bottom:0;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(5,9,18,.92) 22%);z-index:2}
+.arBot .guide{margin-top:0;background:rgba(13,22,40,.88)}
+.arpos{font-size:12.5px;color:#cfe9f7;margin:6px 2px;line-height:1.4}
+.arch{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.arch .chip{flex:none}
+#cone,#objDot{pointer-events:none}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.pgrid button{border:1px solid var(--line);background:#0d1628;border-radius:10px;padding:8px 4px;font-size:12px;font-weight:600}.pgrid button.on{background:#0e3a52;border-color:var(--acc)}
+#sp3d{height:320px;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0f1d38,#050912);position:relative;touch-action:none;margin-top:10px}
+#sp3d .hint{position:absolute;left:8px;bottom:6px;font-size:11px;color:var(--mut);pointer-events:none}
 .guide{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;background:#0d1628;border-radius:12px;padding:10px 12px}
 .guide .arrow{font-size:30px;font-weight:800}
 .guide .gt{font-weight:700;font-size:15px}
@@ -146,8 +157,9 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
   <div>
     <div class="card">
       <h2>Uzamsal demo <span class="badge pro">PRO</span></h2>
-      <p class="muted" style="margin-top:0">Aynı melodi, seçili hoparlör düzeni üzerinden odada dolaşır. Kulaklıkta her sanal hoparlör ayrı HRTF ile çalınır. “2.0 ile karşılaştır” ile farkı duyun.</p>
-      <div class="seg" id="pathSeg"><button data-p="orbit" class="on">Daire</button><button data-p="fly">Üstten geçiş</button><button data-p="spiral">Spiral</button></div>
+      <p class="muted" style="margin-top:0">Aynı melodi, seçili hoparlör düzeni üzerinden odada dolaşır; 3D görüntüdeki top sesin olduğu yerdedir ve o an çalan hoparlörler yanar. Kulaklıkta her sanal hoparlör ayrı HRTF ile çalınır. “2.0 ile karşılaştır” ile farkı duyun.</p>
+      <div class="pgrid" id="pathSeg"></div>
+      <div id="sp3d"><div class="hint">Sürükleyerek döndürün · iki parmakla yakınlaştırın</div></div>
       <div class="row" style="margin-top:10px">
         <button class="btn pri" id="objBtn">▶ Melodiyi başlat</button>
         <button class="btn" id="cmpBtn">2.0 ile karşılaştır</button>
@@ -172,7 +184,15 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <h3>Temel frekans</h3>
     <div class="freqs" id="freqs"></div>
     <div class="row" style="margin-top:8px"><span class="muted">İnce ayar</span><input type="range" id="fSlider" min="0" max="1000" value="500" style="flex:1"><b id="fVal" style="width:64px;text-align:right">40 Hz</b></div>
-    <h3>Efektler</h3>
+    <h3>Gerçek film efektleri</h3>
+    <p class="muted" style="margin:0 0 8px">Hollywood stüdyolarının kullandığı gerçek kayıtlar (USC "Red Library", Internet Archive, CC0 – ticari kullanım serbest). Seçtiğiniz frekansta, kaydın kendi zarfını izleyen bir <b>sub katmanı</b> eklenir; sinema LFE miksajı da böyle yapılır.</p>
+    <div class="fx" id="fxReal"></div>
+    <div class="row" style="margin-top:8px">
+      <label class="row muted"><input type="checkbox" id="subLayer" checked> Sub katmanı (seçili frekans)</label>
+      <label class="row muted"><input type="checkbox" id="heavy"> Ağırlaştır (yarım hız, bir oktav aşağı)</label>
+      <label class="btn sm" style="cursor:pointer">📂 Kendi kaydınız<input type="file" id="ownFx" accept="audio/*" hidden></label>
+    </div>
+    <h3>Ölçüm sinyalleri</h3>
     <div class="fx" id="fx"></div>
     <h3>Testler</h3>
     <div class="row">
@@ -180,7 +200,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
       <button class="btn" id="extBtn">⤓ Alt sınır testi</button>
       <button class="btn" id="lfeStop">■ Durdur</button>
     </div>
-    <div class="res" id="lfeInfo">Bir frekans seçip efekte dokunun. Sesler sentezlenir ve frekansı ayarlanabilir. Kaynak <b>LFE</b> kanalıdır: Çok kanal modunda 4. kanala (LFE), diğer modlarda her iki kanala gider.</div>
+    <div class="res" id="lfeInfo">Bir frekans seçip efekte dokunun. Kaynak <b>LFE</b> kanalıdır: Çok kanal modunda 4. kanala (LFE, 120 Hz altı), diğer modlarda her iki kanala gider.</div>
   </div>
 </section>
 
@@ -228,8 +248,29 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <details style="margin-top:10px"><summary class="muted">Kalibrasyon</summary>
       <div class="row" style="margin-top:6px"><span class="muted">Ofset</span><input type="range" id="calOff" min="60" max="140" step="0.5" value="104" style="flex:1"><b id="calV" style="width:60px;text-align:right">104</b></div>
       <div class="row" style="margin-top:6px"><input type="number" id="refDb" placeholder="Gerçek ölçer değeri (dB)" style="flex:1"><button class="btn sm" id="calBtn">Eşitle</button></div>
-      <p class="muted">Telefon mikrofonları fabrika kalibrasyonlu değildir. Bilinen bir ölçerle (veya UMIK) bir kez eşitleyin. Ofset bu cihazda saklanır. Ticari sürümde model bazlı düzeltme eğrileri bulunur.</p>
+      <p class="muted">Seviye ofseti: bilinen bir ölçerle (UMIK + REW, el SPL ölçeri) aynı anda okuyup değeri yazın ve "Eşitle"ye basın. Ofset bu cihazda saklanır.</p>
     </details>
+  </div>
+  <div class="card">
+    <h2>Mikrofon ve eşleştirme <span class="badge pro">PRO</span></h2>
+    <label class="f">Mikrofon</label>
+    <select id="micSel"><option value="">Varsayılan (telefon mikrofonu)</option></select>
+    <p class="muted" style="margin:4px 0 0">UMIK-1/UMIK-2 iPhone 15 ve sonrasına USB-C ile, Android'e OTG ile takılabilir. Listede görünmüyorsa mikrofonu bir kez başlatın.</p>
+    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📄 UMIK kalibrasyon dosyası<input type="file" id="umikFile" accept=".txt,.cal,.frd,text/plain" hidden></label><span id="umikInfo" class="muted"></span></div>
+    <label class="row muted" style="margin-top:6px"><input type="checkbox" id="umikOn"> Seçili mikrofon UMIK — kalibrasyon dosyasını uygula</label>
+    <h3>Telefonu UMIK ile eşleştir</h3>
+    <ol class="muted" style="padding-left:18px;margin:0 0 8px;line-height:1.55">
+      <li>Telefonu ve UMIK'i dinleme noktasında, yan yana ve aynı yöne bakacak şekilde sabitleyin (kılıfı çıkarın).</li>
+      <li>Pembe gürültüyü başlatın; seviye 70–80 dB civarında olsun ve ölçüm boyunca değişmesin.</li>
+      <li>Listeden UMIK'i seçip <b>1</b>'e, sonra "Varsayılan (telefon mikrofonu)"nu seçip <b>2</b>'ye basın.</li>
+    </ol>
+    <input type="text" id="pfModel" placeholder="Cihaz modeli (örn. iPhone 17 Pro Max)">
+    <div class="row" style="margin-top:8px"><button class="btn" id="pfPink">▶ Pembe gürültü</button><button class="btn pri" id="pfRef">1 · UMIK'i ölç</button><button class="btn pri" id="pfPhone">2 · Telefonu ölç</button></div>
+    <div class="res" id="pfRes">Henüz profil yok.</div>
+    <canvas id="pfCv" height="120" style="margin-top:8px"></canvas>
+    <label class="row muted" style="margin-top:6px"><input type="checkbox" id="pfApply"> Telefon mikrofonu kullanılırken bu profili uygula</label>
+    <div class="row" style="margin-top:8px"><button class="btn sm" id="pfCopy">Profil kodunu kopyala</button><input type="text" id="pfPaste" placeholder="Profil kodunu yapıştırın" style="flex:1;min-width:140px"><button class="btn sm" id="pfImport">İçe al</button></div>
+    <p class="muted">Aynı model telefonu olan biri bu kodu içe alınca, kendisi eşleştirme yapmadan sizin ölçtüğünüz düzeltmeyi kullanır. Uygulama sürümünde bu profiller sunucuda modele göre otomatik dağıtılır.</p>
   </div>
   <div class="card">
     <h2>RTA — 1/3 oktav</h2>
@@ -255,21 +296,41 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 <section id="t-place">
   <div class="card">
     <h2>Kamerayla hoparlör yerleşimi <span class="badge pro">PRO</span></h2>
-    <p class="muted" style="margin-top:0">Dinleme koltuğuna oturun ve telefonu kulak hizasında, kamera önde olacak şekilde dik tutun. Önce ekranın/merkez hoparlörün ortasına doğrultup <b>0° yap</b>'a basın. Ardından hedef seçin ve oku takip edin. Yeşil olduğunda o nokta, Dolby açı önerisine uyan hoparlör konumudur.</p>
-    <div class="row"><button class="btn pri" id="arStart">📷 Kamera + sensör başlat</button><button class="btn" id="arZero">⌖ 0° yap</button><button class="btn sm" id="arSim">Simülasyon</button></div>
-    <div id="arMsg"></div>
-    <div id="arWrap" style="margin-top:10px"><video id="arVid" playsinline muted></video><canvas id="arCv"></canvas></div>
-    <div class="guide"><div><div class="gt" id="gTarget">Hedef: —</div><div class="muted" id="gRange"></div></div><div class="arrow" id="gArrow">·</div></div>
-    <div class="chiprow" id="arChips" style="margin-top:10px"></div>
-    <div class="row" style="margin-top:10px"><span class="muted">Kamera görüş açısı</span><input type="range" id="fov" min="40" max="80" value="56" style="flex:1"><b id="fovV">56°</b></div>
-    <div class="grid g2" style="margin-top:10px">
-      <div><label class="f">Tavan yüksekliği (m)</label><input type="number" id="rmH" step="0.05"></div>
+    <p class="muted" style="margin-top:0">Her hoparlörün tek bir açısı değil, Dolby'nin önerdiği bir <b>açı aralığı</b> var. Araç bu aralığı kamerada bir bölge olarak gösterir ve odanızın ölçülerine göre duvarda/tavanda hoparlörün konabileceği <b>konum aralığını metre olarak</b> hesaplar.</p>
+    <h3>Sistem</h3>
+    <div class="grid g4">
+      <div><label class="f">Hazır düzen</label><select id="pPreset"></select></div>
+      <div><label class="f">Ana</label><select id="pBed"></select></div>
+      <div><label class="f">Subwoofer</label><select id="pSub"></select></div>
+      <div><label class="f">Tavan</label><select id="pH"></select></div>
+    </div>
+    <h3>Oda</h3>
+    <div class="grid g4">
+      <div><label class="f">Boy (m)</label><input type="number" id="rmL" step="0.1"></div>
+      <div><label class="f">En (m)</label><input type="number" id="rmW" step="0.1"></div>
+      <div><label class="f">Tavan (m)</label><input type="number" id="rmH" step="0.05"></div>
       <div><label class="f">Koltuk–ön duvar (m)</label><input type="number" id="rmS" step="0.1"></div>
     </div>
-    <p class="muted" style="margin:6px 0 0">Tavan hoparlörlerinin yan açısı bu ölçülerden hesaplanır (sitedeki Ev Sineması Hoparlör Yerleşimi aracıyla aynı model: kulak 1,2 m, tavan hoparlörleri L/R hizasında).</p>
+    <p class="muted" style="margin:6px 0 0">Model, sitedeki Ev Sineması Hoparlör Yerleşimi aracıyla aynıdır: kulak 1,2 m, koltuk odanın ortasında, tavan hoparlörleri L/R hizasında.</p>
+    <div class="row" style="margin-top:12px"><button class="btn pri" id="arStart">📷 Kamerayla yerleştir (tam ekran)</button><button class="btn" id="arSim">Simülasyon</button></div>
+    <div id="arMsg"></div>
     <div class="note info" id="devNote"></div>
   </div>
+  <div class="card">
+    <h2>Konum aralıkları</h2>
+    <p class="muted" style="margin-top:0">Ölçüler: duvar boyunca, belirtilen köşeden. Aralığın ortası genelde en iyi tercihtir; mobilya/pencere varsa aralık içinde kaydırın.</p>
+    <div id="posTable" style="overflow-x:auto"></div>
+  </div>
 </section>
+<div id="arWrap"><video id="arVid" playsinline muted></video><canvas id="arCv"></canvas>
+  <div class="arTop"><button class="btn sm" id="arClose">✕ Kapat</button><button class="btn sm" id="arZero">⌖ Ekranı 0° yap</button></div>
+  <div class="arBot">
+    <div class="guide"><div style="min-width:0"><div class="gt" id="gTarget">Hedef: —</div><div class="muted" id="gRange"></div></div><div class="arrow" id="gArrow">·</div></div>
+    <div id="arPos" class="arpos"></div>
+    <div class="chiprow arch" id="arChips"></div>
+    <div class="row" style="margin-top:6px"><span class="muted" style="font-size:11px">Görüş açısı</span><input type="range" id="fov" min="40" max="80" value="56" style="flex:1"><b id="fovV" style="font-size:12px">56°</b></div>
+  </div>
+</div>
 
 <!-- ============ HESAPLA ============ -->
 <section id="t-calc">
@@ -425,7 +486,7 @@ function renderDiagram(){
   speakers.forEach((s,i)=>{const[x,y]=spkXY(s);const w=s.g==='sub'?40:40,hh=s.g==='sub'?24:26;const lab=s.id;
     h+=`<g class="spk ${available(s)?'':'dis'}" data-i="${i}" transform="translate(${x},${y})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="6" ${s.g==='height'?'stroke-dasharray="0"':''}/><text font-size="${lab.length>3?10:12}">${lab}</text></g>`});
   svg.innerHTML=h;
-  $$('#diag .spk').forEach(g=>g.onclick=()=>{const s=speakers[+g.dataset.i];stopSeq();if(active===s&&cur){stopAll();return}playSpk(s)});
+  $$('#diag .spk').forEach(g=>g.onclick=()=>{const s=speakers[+g.dataset.i];stopSeq();if(active&&cur&&active.id===s.id){stopAll();return}playSpk(s)});
   renderChips();if(active){const k=speakers.find(s=>s.id===active.id);if(k)highlight(k);}
 }
 function renderChips(){
@@ -437,12 +498,12 @@ function renderChips(){
   if(subs.length)h+=`<div class="chiprow"><b>${lay.sub}</b>${subs.map(chip).join('')}</div>`;
   if(hs.length)h+=`<div class="chiprow"><b>${lay.h}</b>${hs.map(chip).join('')}</div>`;
   $('#chips').innerHTML=h;
-  $$('#chips .chip').forEach(c=>c.onclick=()=>{const s=speakers.find(x=>x.id===c.dataset.id);stopSeq();if(active===s&&cur){stopAll();return}playSpk(s)});
+  $$('#chips .chip').forEach(c=>c.onclick=()=>{const s=speakers.find(x=>x.id===c.dataset.id);stopSeq();if(active&&cur&&active.id===s.id){stopAll();return}playSpk(s)});
 }
 function highlight(s){
   $$('#diag .spk').forEach(g=>{const on=speakers[+g.dataset.i]===s;g.classList.toggle('act',on);g.querySelector('rect').style.fill=on?GCOL[s.g]:''});
   $$('#chips .chip').forEach(c=>{const on=s&&c.dataset.id===s.id;c.classList.toggle('act',on);c.style.background=on?GCOL[s.g]:'';});
-  const cone=$('#cone');if(!cone)return;if(!s){cone.innerHTML='';$('#nowName').textContent='Bir hoparlöre dokun';$('#nowSub').textContent='';return}
+  const cone=$('#cone');if(!cone)return;if(!s){cone.innerHTML='';$('#nowName').textContent='Bir hoparlöre dokun';$('#nowSub').textContent='Dokununca çalar, aynı hoparlöre tekrar dokununca durur';return}
   const[x,y]=spkXY(s),col=GCOL[s.g];const dx=x-CX,dy=y-CY,L=Math.hypot(dx,dy)||1,px=-dy/L*20,py=dx/L*20;
   cone.innerHTML=`<circle cx="${x}" cy="${y}" r="36" fill="${col}" opacity=".32"><animate attributeName="r" values="30;40;30" dur="1.2s" repeatCount="indefinite"/></circle><polygon points="${CX},${CY} ${x+px},${y+py} ${x-px},${y-py}" fill="${col}" opacity=".45"/>`;
   $('#nowName').textContent=s.n.toLocaleUpperCase('tr');$('#nowName').style.color=col;
@@ -477,44 +538,98 @@ function fillSel(){
   $('#cBed').innerHTML=[2,3,4,5,7,9,11].map(v=>`<option>${v}</option>`).join('');
   $('#cSub').innerHTML=[0,1,2,3,4,5,6,7,8].map(v=>`<option>${v}</option>`).join('');
   $('#cH').innerHTML=[0,2,4,6,8].map(v=>`<option>${v}</option>`).join('');
+  $('#pPreset').innerHTML=$('#preset').innerHTML;$('#pBed').innerHTML=$('#cBed').innerHTML;$('#pSub').innerHTML=$('#cSub').innerHTML;$('#pH').innerHTML=$('#cH').innerHTML;
 }
-function setLayout(L,fromPreset){lay=L;speakers=buildLayout(lay);$('#cBed').value=L.bed;$('#cSub').value=L.sub;$('#cH').value=L.h;
-  const nm=layoutName(L);$('#preset').value=PRESETS.includes(nm)||PRESETS.includes(L.bed+'.'+L.sub)?(L.h?nm:L.bed+'.'+L.sub):'custom';
-  stopSeq();stopAll();renderDiagram();arChips();store.set('lay',L);if(objOn)rebuildObj();}
-$('#preset').onchange=e=>{if(e.target.value==='custom')return;const p=e.target.value.split('.').map(Number);setLayout({bed:p[0],sub:p[1],h:p[2]||0})};
+function setLayout(L,fromPreset){lay=L;speakers=buildLayout(lay);$('#cBed').value=$('#pBed').value=L.bed;$('#cSub').value=$('#pSub').value=L.sub;$('#cH').value=$('#pH').value=L.h;
+  const nm=layoutName(L);$('#preset').value=$('#pPreset').value=PRESETS.includes(nm)||PRESETS.includes(L.bed+'.'+L.sub)?(L.h?nm:L.bed+'.'+L.sub):'custom';
+  stopSeq();stopAll();renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips();posTable();store.set('lay',L);if(objOn)rebuildObj();else if(T3){build3DSpeakers();draw3D()}}
+['#preset','#pPreset'].forEach(id=>$(id).onchange=e=>{if(e.target.value==='custom')return;const p=e.target.value.split('.').map(Number);setLayout({bed:p[0],sub:p[1],h:p[2]||0})});
 ['#cBed','#cSub','#cH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#cBed').value,sub:+$('#cSub').value,h:+$('#cH').value}));
+['#pBed','#pSub','#pH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#pBed').value,sub:+$('#pSub').value,h:+$('#pH').value}));
 segBind('modeSeg','m',m=>{mode=m;stopSeq();stopAll();stopObj();if(ctx)configureOut();else{updateModeMsg();renderDiagram()}});
 $('#vol').value=volDb;$('#volv').textContent=volDb+' dB';
 $('#vol').oninput=e=>{volDb=+e.target.value;$('#volv').textContent=volDb+' dB';store.set('vol',volDb);if(ctx){master.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03);if(mcGain)mcGain.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03)}};
 
 /* ---------------- spatial object demo ---------------- */
 let objOn=false,objBus=null,objGains=[],objRaf=0,objT0=0,objPath='orbit',cmp2=false,melT=null,objVoice=null;
-segBind('pathSeg','p',p=>{objPath=p});
+/* 10 hareket: konum vektörü [x sağ, y ön, z yukarı] (metre, kulak = 0) */
+const PATHS={
+ orbit:['Daire',t=>{const a=t*1.05;return[2*Math.sin(a),2*Math.cos(a),0]}],
+ over:['Önden arkaya, üstten',t=>{const th=(90+90*Math.sin(t*.7))*D2R;return[0,2*Math.cos(th),2*Math.sin(th)]}],
+ spiral:['Spiral',t=>{const a=t*1.4,e=(35+35*Math.sin(t*.6))*D2R;return[2*Math.sin(a)*Math.cos(e),2*Math.cos(a)*Math.cos(e),2*Math.sin(e)]}],
+ eight:['Sekiz',t=>{const a=70*Math.sin(t*.9)*D2R,e=25*Math.sin(t*1.8)*D2R;return[2*Math.sin(a)*Math.cos(e),2*Math.cos(a)*Math.cos(e),2*Math.sin(e)]}],
+ ring:['Tavan halkası',t=>{const a=t*1.2,e=60*D2R;return[2*Math.sin(a)*Math.cos(e),2*Math.cos(a)*Math.cos(e),2*Math.sin(e)]}],
+ bee:['Arı',t=>{const a=(150*Math.sin(t*.37)+50*Math.sin(t*1.3))*D2R,e=(25+25*Math.sin(t*.53)+10*Math.sin(t*1.7))*D2R,r=1.4+.5*Math.sin(t*.9);return[r*Math.sin(a)*Math.cos(e),r*Math.cos(a)*Math.cos(e),r*Math.sin(e)]}],
+ pong:['Sol–sağ ping-pong',t=>{const a=80*Math.tanh(4*Math.sin(t*1.4))*D2R;return[2*Math.sin(a),2*Math.cos(a),.1]}],
+ flyby:['Önden geçiş',t=>{const x=((t*1.6)%9)-4.5;return[x,1.6,.4]}],
+ lateral:['Yandan dikey daire',t=>{const th=t*1.1;return[2*Math.cos(th),.3,2*Math.sin(th)]}],
+ heli:['Helikopter',t=>{const a=t*.6,r=1.6+.8*Math.sin(t*.25);return[r*Math.sin(a),r*Math.cos(a),1.3+.3*Math.sin(t*.4)]}]};
+$('#pathSeg').innerHTML=Object.entries(PATHS).map(([k,[n]])=>`<button data-p="${k}" class="${k===objPath?'on':''}">${n}</button>`).join('');
+segBind('pathSeg','p',p=>{objPath=p;if(T3)T3.trailPts.length=0});
 function renderSet(){return cmp2?buildLayout({bed:2,sub:0,h:0}):speakers.filter(s=>s.g!=='sub'&&available(s))}
-function rebuildObj(){if(!objVoice)return;objGains.forEach(o=>{try{o.g.disconnect()}catch(e){}});objGains=[];
+function rebuildObj(){if(objVoice){objGains.forEach(o=>{try{o.g.disconnect()}catch(e){}});objGains=[];
   renderSet().forEach(s=>{const g=ctx.createGain();g.gain.value=0;objBus.connect(g);routeMono(g,s,objVoice);objGains.push({g,s})});
-  $('#objInfo').style.display='block';$('#objInfo').innerHTML=`Render: <b>${cmp2?'2.0 (yalnız L/R)':layoutName(lay)+' — '+objGains.length+' hoparlör'}</b>. ${mode==='hp'?'Kulaklıkla dinleyin.':''}`}
-function objDir(t){const p=objPath;if(p==='orbit')return{az:(t*60)%360-180,el:0};if(p==='fly'){const ph=(t%6)/6;return{az:ph<.5?0:180,el:ph<.5?-10+ph*2*190:180-((ph-.5)*2*190)-10}}
-  return{az:(t*80)%360-180,el:35+35*Math.sin(t*.7)}}
+  $('#objInfo').style.display='block';$('#objInfo').innerHTML=`Render: <b>${cmp2?'2.0 (yalnız L/R)':layoutName(lay)+' — '+objGains.length+' hoparlör'}</b> · Hareket: <b>${PATHS[objPath][0]}</b>. ${mode==='hp'?'Kulaklıkla dinleyin.':''}`}
+  build3DSpeakers()}
 function vec(az,el){const a=az*D2R,e=el*D2R;return[Math.sin(a)*Math.cos(e),Math.cos(a)*Math.cos(e),Math.sin(e)]}
-function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;objVoice.start(.2);objOn=true;objT0=ctx.currentTime;rebuildObj();
-  // melody scheduler
+/* ---- 3D sahne (three.js) ---- */
+let T3=null,t3Loading=null;
+function loadThree(){if(window.THREE)return Promise.resolve();if(t3Loading)return t3Loading;t3Loading=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='tools/three.min.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)});return t3Loading}
+const to3=(p,r)=>new THREE.Vector3(p[0]*r,p[2]*r,-p[1]*r);
+async function init3D(){if(T3)return T3;try{await loadThree()}catch(e){$('#sp3d').insertAdjacentHTML('beforeend','<div class="hint">3D yüklenemedi</div>');return null}
+  const box=$('#sp3d'),W=box.clientWidth||340,H=box.clientHeight||320;const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(2,devicePixelRatio||1));renderer.setSize(W,H);box.prepend(renderer.domElement);
+  const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(50,W/H,.1,100);
+  scene.add(new THREE.AmbientLight(0xffffff,.55));const dl=new THREE.DirectionalLight(0xffffff,.6);dl.position.set(2,5,3);scene.add(dl);
+  const room=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(6,3,7)),new THREE.LineBasicMaterial({color:0x3b5b8a,transparent:true,opacity:.6}));room.position.set(0,.3,0);scene.add(room);
+  const grid=new THREE.GridHelper(6,12,0x2a4a7a,0x1a2d4d);grid.position.y=-1.2;scene.add(grid);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.17,24,16),new THREE.MeshStandardMaterial({color:0xdbe7ff,roughness:.6}));scene.add(head);
+  const nose=new THREE.Mesh(new THREE.ConeGeometry(.05,.14,12),new THREE.MeshStandardMaterial({color:0x38bdf8}));nose.rotation.x=-Math.PI/2;nose.position.set(0,0,-.2);scene.add(nose);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.22,.28,.5,20),new THREE.MeshStandardMaterial({color:0x334155}));body.position.y=-.45;scene.add(body);
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.35),new THREE.MeshBasicMaterial({color:0x0b1220,side:THREE.DoubleSide}));screen.position.set(0,.2,-3.45);scene.add(screen);
+  const obj=new THREE.Mesh(new THREE.SphereGeometry(.13,24,16),new THREE.MeshBasicMaterial({color:0x7dd3fc}));obj.visible=false;scene.add(obj);
+  const glow=new THREE.PointLight(0x38bdf8,1.6,3);obj.add(glow);
+  const halo=new THREE.Mesh(new THREE.SphereGeometry(.26,20,14),new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:.18}));obj.add(halo);
+  const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(240*3),3));const trail=new THREE.Line(tg,new THREE.LineBasicMaterial({color:0x38bdf8,transparent:true,opacity:.55}));scene.add(trail);
+  const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(48*6),3));const rays=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0xfde68a,transparent:true,opacity:.5}));scene.add(rays);
+  T3={renderer,scene,camera,obj,trail,trailPts:[],rays,spk:[],yaw:.5,pitch:.42,dist:7.2};
+  // döndürme / yakınlaştırma
+  let dr=null,pinch=null;const el=renderer.domElement;el.style.touchAction='none';
+  el.addEventListener('pointerdown',e=>{dr=[e.clientX,e.clientY,T3.yaw,T3.pitch];el.setPointerCapture(e.pointerId)});
+  el.addEventListener('pointermove',e=>{if(!dr)return;T3.yaw=dr[2]-(e.clientX-dr[0])*.008;T3.pitch=Math.max(-.2,Math.min(1.45,dr[3]+(e.clientY-dr[1])*.006));draw3D()});
+  el.addEventListener('pointerup',()=>dr=null);el.addEventListener('wheel',e=>{e.preventDefault();T3.dist=Math.max(3,Math.min(14,T3.dist+e.deltaY*.005));draw3D()},{passive:false});
+  el.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinch){T3.dist=Math.max(3,Math.min(14,T3.dist*pinch/d));draw3D()}pinch=d;dr=null}},{passive:true});el.addEventListener('touchend',()=>pinch=null);
+  new ResizeObserver(()=>{const w=box.clientWidth,h=box.clientHeight;if(!w)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();draw3D()}).observe(box);
+  build3DSpeakers();draw3D();return T3}
+function build3DSpeakers(){if(!T3)return;T3.spk.forEach(m=>T3.scene.remove(m.mesh));T3.spk=[];
+  const set=objOn?objGains.map(o=>o.s):renderSet();
+  set.forEach(s=>{const col=new THREE.Color(GCOL[s.g]);const m=new THREE.Mesh(new THREE.BoxGeometry(.26,.34,.22),new THREE.MeshStandardMaterial({color:0x1e293b,emissive:col,emissiveIntensity:.15}));
+    m.position.copy(to3(vec(s.az,s.el),2.4));m.lookAt(0,0,0);T3.scene.add(m);T3.spk.push({mesh:m,s})})}
+function draw3D(p,w){if(!T3)return;const c=T3.camera;c.position.set(T3.dist*Math.sin(T3.yaw)*Math.cos(T3.pitch),T3.dist*Math.sin(T3.pitch)+.2,T3.dist*Math.cos(T3.yaw)*Math.cos(T3.pitch));c.lookAt(0,-.1,0);
+  if(p){T3.obj.visible=true;T3.obj.position.copy(to3(p,1));T3.trailPts.push(T3.obj.position.clone());if(T3.trailPts.length>240)T3.trailPts.shift();
+    const arr=T3.trail.geometry.attributes.position.array;T3.trailPts.forEach((v,i)=>{arr[i*3]=v.x;arr[i*3+1]=v.y;arr[i*3+2]=v.z});T3.trail.geometry.setDrawRange(0,T3.trailPts.length);T3.trail.geometry.attributes.position.needsUpdate=true;
+    const ra=T3.rays.geometry.attributes.position.array;let n=0;
+    T3.spk.forEach((m,i)=>{const wi=w?w[i]||0:0;m.mesh.material.emissiveIntensity=.12+1.6*wi;m.mesh.scale.setScalar(1+.35*wi);
+      if(wi>.15&&n<48){const a=m.mesh.position,b=T3.obj.position;ra.set([a.x,a.y,a.z,b.x,b.y,b.z],n*6);n++}});
+    T3.rays.geometry.setDrawRange(0,n*2);T3.rays.geometry.attributes.position.needsUpdate=true}
+  else{T3.obj.visible=false;T3.trailPts.length=0;T3.trail.geometry.setDrawRange(0,0);T3.rays.geometry.setDrawRange(0,0);T3.spk.forEach(m=>{m.mesh.material.emissiveIntensity=.15;m.mesh.scale.setScalar(1)})}
+  T3.renderer.render(T3.scene,c)}
+async function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;objVoice.start(.2);objOn=true;objT0=ctx.currentTime;rebuildObj();$('#objBtn').textContent='■ Melodiyi durdur';
   const notes=[57,60,64,69,67,64,60,62,65,69,72,69,65,62,64,67],step=.24;let nt=ctx.currentTime+.1,k=0;
   const sched=()=>{while(nt<ctx.currentTime+.15){const f=440*Math.pow(2,(notes[k%notes.length]-69)/12);
       [[ 'triangle',1,.22],['sine',2,.08],['sine',.5,.12]].forEach(([ty,m,a])=>{const o=new OscillatorNode(ctx,{type:ty,frequency:f*m});const g=ctx.createGain();g.gain.setValueAtTime(0,nt);g.gain.linearRampToValueAtTime(a,nt+.006);g.gain.exponentialRampToValueAtTime(.0005,nt+.5);o.connect(g);g.connect(objBus);o.start(nt);o.stop(nt+.55)});
       nt+=step;k++}};
   melT=setInterval(sched,25);sched();
-  const dot=()=>$('#objDot');
-  const tick=()=>{if(!objOn)return;const t=ctx.currentTime-objT0,d=objDir(t);let el=d.el,az=d.az;if(el>90){el=180-el;az=az+180}
-    const v=vec(az,el);let w=objGains.map(o=>{const s=vec(o.s.az,o.s.el);const c=Math.max(0,v[0]*s[0]+v[1]*s[1]+v[2]*s[2]);return Math.pow(c,5)+1e-4});
-    const sum=Math.sqrt(w.reduce((a,b)=>a+b*b,0));objGains.forEach((o,i)=>o.g.gain.setTargetAtTime(w[i]/sum,ctx.currentTime,.03));
-    const r=RB*Math.cos(el*D2R),x=CX+r*Math.sin(az*D2R),y=CY-r*Math.cos(az*D2R);const el_=dot();if(el_){el_.setAttribute('cx',x);el_.setAttribute('cy',y);el_.setAttribute('opacity',1)}
-    objRaf=requestAnimationFrame(tick)};tick();
-  $('#objBtn').textContent='■ Melodiyi durdur';
+  init3D().then(()=>build3DSpeakers());
+  const tick=()=>{if(!objOn)return;const t=ctx.currentTime-objT0;const p=PATHS[objPath][1](t);const r=Math.hypot(...p)||1;const v=[p[0]/r,p[1]/r,p[2]/r];
+    const dist=1.8/Math.max(1.8,r);// uzaklaştıkça kısılır
+    let w=objGains.map(o=>{const s=vec(o.s.az,o.s.el);const c=Math.max(0,v[0]*s[0]+v[1]*s[1]+v[2]*s[2]);return Math.pow(c,5)+1e-4});
+    const sum=Math.sqrt(w.reduce((a,b)=>a+b*b,0));w=w.map(x=>x/sum);objGains.forEach((o,i)=>o.g.gain.setTargetAtTime(w[i]*dist,ctx.currentTime,.03));
+    const az=Math.atan2(v[0],v[1])/D2R,el=Math.asin(v[2])/D2R,rr=RB*Math.cos(el*D2R)*Math.min(1,r/2),x=CX+rr*Math.sin(az*D2R),y=CY-rr*Math.cos(az*D2R);const d_=$('#objDot');if(d_){d_.setAttribute('cx',x);d_.setAttribute('cy',y);d_.setAttribute('opacity',1)}
+    draw3D(p,w);objRaf=requestAnimationFrame(tick)};tick();
 }
-function stopObj(){if(!objOn)return;objOn=false;clearInterval(melT);cancelAnimationFrame(objRaf);objVoice&&objVoice.stop(.2);objVoice=null;objGains=[];const d=$('#objDot');if(d)d.setAttribute('opacity',0);$('#objBtn').textContent='▶ Melodiyi başlat';$('#objInfo').style.display='none'}
+function stopObj(){if(!objOn)return;objOn=false;clearInterval(melT);cancelAnimationFrame(objRaf);objVoice&&objVoice.stop(.2);objVoice=null;objGains=[];const d=$('#objDot');if(d)d.setAttribute('opacity',0);$('#objBtn').textContent='▶ Melodiyi başlat';$('#objInfo').style.display='none';build3DSpeakers();draw3D()}
 $('#objBtn').onclick=()=>{stopSeq();stopAll();objOn?stopObj():startObj()};
-$('#cmpBtn').onclick=()=>{cmp2=!cmp2;$('#cmpBtn').classList.toggle('on',cmp2);$('#cmpBtn').textContent=cmp2?'Tam düzene dön':'2.0 ile karşılaştır';if(objOn)rebuildObj()};
+$('#cmpBtn').onclick=()=>{cmp2=!cmp2;$('#cmpBtn').classList.toggle('on',cmp2);$('#cmpBtn').textContent=cmp2?'Tam düzene dön':'2.0 ile karşılaştır';if(objOn)rebuildObj();else{build3DSpeakers();draw3D()}};
 
 /* ---------------- LFE lab ---------------- */
 const LFEF=[10,12,15,18,20,25,30,35,40,45,50,55,60,70,80,90,100,120,150,200];
@@ -522,14 +637,49 @@ let lfeF=40,lfeV=null,lfeRaf=0;const LFE={id:'LFE',g:'sub',az:0,el:0};
 $('#freqs').innerHTML=LFEF.map(f=>`<button data-f="${f}" class="${f===40?'on':''}">${f}</button>`).join('');
 const sl2f=v=>10*Math.pow(20,v/1000), f2sl=f=>Math.log(f/10)/Math.log(20)*1000;
 function setLfeF(f,fromSl){lfeF=Math.round(f*10)/10;$('#fVal').textContent=(lfeF<100?lfeF.toFixed(lfeF%1?1:0):Math.round(lfeF))+' Hz';if(!fromSl)$('#fSlider').value=f2sl(f);$$('#freqs button').forEach(b=>b.classList.toggle('on',+b.dataset.f===lfeF))}
-$$('#freqs button').forEach(b=>b.onclick=()=>{setLfeF(+b.dataset.f);if(lastFx)playFx(lastFx)});
+$$('#freqs button').forEach(b=>b.onclick=()=>{setLfeF(+b.dataset.f);if(!lastFx||lastFx==='own')return;if(lastFx[0]==='r')playReal(+lastFx.slice(1));else playFx(lastFx)});
 $('#fSlider').oninput=e=>setLfeF(sl2f(+e.target.value),true);
 const FX=[['impact','💥','Çarpışma','Metal/araç darbesi'],['explosion','🔥','Patlama','Uzun kuyruklu gövde'],['kick','🥁','Davul (kick)','Kısa, sert vuruş'],['heart','❤️','Kalp atışı','Çift darbe ritim'],
  ['rumble','🌋','Deprem','Sürekli gürleme'],['thunder','⛈️','Gök gürültüsü','Dağınık patlamalar'],['burst','〰️','Ton patlaması','5 periyot, hız testi'],['sine','∿','Sinüs (4 sn)','Saf ton']];
-$('#fx').innerHTML=FX.map(([k,e,t,d])=>`<button data-k="${k}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
-let lastFx=null;
+const FXSHOW=['heart','kick','burst','sine'];
+$('#fx').innerHTML=FX.filter(x=>FXSHOW.includes(x[0])).map(([k,e,t,d])=>`<button data-k="${k}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
+/* gerçek kayıtlar: USC Red Library (Internet Archive, CC0) */
+const IA='https://archive.org/download/Red_Library_Explosions/';
+const REAL=[['R09-53-Huge Explosion','💥','Büyük patlama','Tek, dolgun patlama','explosion'],
+ ['R09-52-Huge Explosion with Long Decay','🌋','Uzun kuyruklu patlama','Yavaş sönen gövde','explosion'],
+ ['R29-33-Large Explosion with Metal and Glass Debris','🧨','Metal ve cam saçılan','Patlama + enkaz','explosion'],
+ ['R30-12-Large Gun Shells Fly By and Explode','🚀','Top mermisi','Geçiş ve isabet','impact'],
+ ['R29-59-Three Large Explosions or Shells','💣','Üç büyük patlama','Art arda darbeler','explosion'],
+ ['R11-54-Thunderous Blasts','⛈️','Gök gürültüsü gibi','Dağınık patlamalar','thunder'],
+ ['R29-03-Long Rumble for Earthquake or Explosion','🏚️','Deprem gürlemesi','Uzun alçak gürleme','rumble'],
+ ['R20-34-Steam Engine Explodes','🚂','Buhar kazanı','Mekanik patlama','explosion'],
+ ['R09-51-Long Whistle and Hit','🎯','Islık ve isabet','Düşen bomba','impact']];
+$('#fxReal').innerHTML=REAL.map(([f,e,t,d],i)=>`<button data-r="${i}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
+let lastFx=null;const bufCache={};
 $$('#fx button').forEach(b=>b.onclick=()=>{lastFx=b.dataset.k;playFx(lastFx)});
-function lfeStop(){if(lfeV){lfeV.stop(.1);lfeV=null}cancelAnimationFrame(lfeRaf);$$('#fx button').forEach(b=>b.classList.remove('on'));extOn=false}
+$$('#fxReal button').forEach(b=>b.onclick=()=>{lastFx='r'+b.dataset.r;playReal(+b.dataset.r)});
+function lfeStop(){if(lfeV){lfeV.stop(.1);lfeV=null}cancelAnimationFrame(lfeRaf);$$('#fx button,#fxReal button').forEach(b=>b.classList.remove('on'));extOn=false}
+async function getBuf(url){if(bufCache[url])return bufCache[url];const r=await fetch(url,{mode:'cors'});if(!r.ok)throw new Error('HTTP '+r.status);const ab=await r.arrayBuffer();const b=await ctx.decodeAudioData(ab);bufCache[url]=b;return b}
+function envelopeOf(buf,rate){const sr=buf.sampleRate,win=Math.round(sr*.01),n=Math.floor(buf.length/win),ch=[...Array(buf.numberOfChannels)].map((_,i)=>buf.getChannelData(i));const e=new Float32Array(n);let mx=1e-9;
+  for(let k=0;k<n;k++){let s=0;for(const c of ch)for(let j=k*win;j<(k+1)*win;j++)s+=c[j]*c[j];e[k]=Math.sqrt(s/(win*ch.length));if(e[k]>mx)mx=e[k]}
+  // tepeyi yakala, yavaş bırak (sub için yumuşak zarf)
+  let y=0;for(let k=0;k<n;k++){const x=e[k]/mx;y=x>y?x:y*.93+x*.07;e[k]=y}return e}
+async function playBuffer(buf,label,src){ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const f=lfeF,heavy=$('#heavy').checked,rate=heavy?.5:1,t=ctx.currentTime+.05;
+  const out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
+  const s=new AudioBufferSourceNode(ctx,{buffer:buf,playbackRate:rate});v.srcs.push(s);let n=s;
+  if(mcN>2){n=filt(n,v,'lowpass',120);n=filt(n,v,'lowpass',120)}
+  const gF=gainN(n,v,1.6);gF.connect(out);s.start(t);
+  const dur=buf.duration/rate;
+  if($('#subLayer').checked){const e=envelopeOf(buf);const o=osc(v,f);o.frequency.setValueAtTime(f*1.25,t);o.frequency.exponentialRampToValueAtTime(f,t+.25);
+    const g=ctx.createGain();g.gain.value=0;g.gain.setValueCurveAtTime(e.map(x=>x*.9),t,dur);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+dur+.05)}
+  routeMono(v.env,LFE,v);v.env.gain.value=1;
+  $('#lfeInfo').innerHTML=`<b>${label}</b>${$('#subLayer').checked?` + sub katmanı @ <b>${f} Hz</b>`:''}${heavy?' · yarım hız':''} · ${dur.toFixed(1)} sn<br><span class="muted">${src}</span>`;
+  v.timers.push(setTimeout(()=>{if(lfeV===v)lfeStop()},dur*1000+400))}
+async function playReal(i){const [file,,label,,fb]=REAL[i];ensureCtx();$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i));
+  $('#lfeInfo').innerHTML=`<b>${label}</b> yükleniyor…`;
+  try{const fn=encodeURIComponent(file)+'.mp3';let buf;try{buf=await getBuf('https://archive.org/cors/Red_Library_Explosions/'+fn)}catch(e1){buf=await getBuf(IA+fn)}if(lastFx!=='r'+i)return;await playBuffer(buf,label,`Kaynak: USC Red Library "${file}" — Internet Archive, CC0`);$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i))}
+  catch(e){playFx(fb);$('#lfeInfo').innerHTML+=`<br><span style="color:var(--warn)">Gerçek kayıt yüklenemedi (${e.message||e}); yerine sentez çalındı. İnternet bağlantınızı kontrol edin.</span>`}}
+$('#ownFx').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;ensureCtx();try{const b=await ctx.decodeAudioData(await fl.arrayBuffer());lastFx='own';await playBuffer(b,fl.name,'Kendi dosyanız')}catch(er){$('#lfeInfo').textContent='Dosya çözülemedi: '+er.message}};
 function env(g,t,a,tau,peak=1){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,tau)}
 function osc(v,f,type='sine'){const o=new OscillatorNode(ctx,{type,frequency:f});v.srcs.push(o);return o}
 function playFx(k){
@@ -608,26 +758,61 @@ function micErr(e){const m=String(e&&e.name||e);$('#micMsg').innerHTML=`<div cla
 async function startMic(){
   ensureCtx();if(mic)return true;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){micErr('desteklenmiyor');return false}
-  try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}})}catch(e){micErr(e);return false}
-  micSrc=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=0;micSrc.connect(an);
+  const dev=$('#micSel').value;try{mic=await navigator.mediaDevices.getUserMedia({audio:Object.assign({echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1},dev?{deviceId:{exact:dev}}:{})})}catch(e){micErr(e);return false}
+  listMics();
+  micSrc=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=0;micSrc.connect(an);buildCorr();
   $('#micMsg').innerHTML='';$('#micBtn').textContent='■ Mikrofonu durdur';$('#micBtn').classList.add('stop');resetSpl();measLoop();return true;
 }
-function stopMic(){if(!mic)return;mic.getTracks().forEach(t=>t.stop());mic=null;try{micSrc.disconnect()}catch(e){}cancelAnimationFrame(mRaf);$('#micBtn').textContent='🎙 Mikrofonu başlat';$('#micBtn').classList.remove('stop')}
+function stopMic(){if(!mic)return;capt=null;mic.getTracks().forEach(t=>t.stop());mic=null;try{micSrc.disconnect()}catch(e){}cancelAnimationFrame(mRaf);$('#micBtn').textContent='🎙 Mikrofonu başlat';$('#micBtn').classList.remove('stop')}
 $('#micBtn').onclick=()=>mic?stopMic():startMic();
 $('#calBtn').onclick=()=>{const r=parseFloat($('#refDb').value);if(!isFinite(r)||!mic)return;calOff=Math.round((calOff+(r-lastDb))*2)/2;$('#calOff').value=calOff;$('#calV').textContent=calOff;store.set('cal',calOff)};
 let lastDb=0,lastT=0,freqData,timeData,xoMaxV=-1e9;
+/* ---- mikrofon seçimi, UMIK kalibrasyonu, telefon profili ---- */
+let corrBin=null,lastBands=null,capt=null,umikCal=store.get('umik',null),profile=store.get('profile',null),refBands=null;
+async function listMics(){try{const ds=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');const cur=$('#micSel').value;
+  $('#micSel').innerHTML='<option value="">Varsayılan (telefon mikrofonu)</option>'+ds.filter(d=>d.deviceId&&d.deviceId!=='default').map(d=>`<option value="${d.deviceId}">${d.label||'Mikrofon'}</option>`).join('');$('#micSel').value=cur;
+  const sel=ds.find(d=>d.deviceId===$('#micSel').value);if(sel&&/umik|minidsp/i.test(sel.label)&&umikCal)$('#umikOn').checked=true}catch(e){}}
+$('#micSel').onchange=async()=>{const lab=$('#micSel').selectedOptions[0].textContent;$('#umikOn').checked=!!(umikCal&&/umik|minidsp/i.test(lab));buildCorr();if(mic){stopMic();await startMic()}};
+function parseCal(txt){const f=[],g=[];let sens=null;txt.split(/\r?\n/).forEach(l=>{const m=l.match(/Sens\s*Factor\s*=\s*(-?[\d.]+)/i);if(m){sens=parseFloat(m[1]);return}
+  const n=l.trim().replace(/"/g,'').split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0)(f.push(n[0]),g.push(n[1]))});return f.length>10?{f,g,sens}:null}
+$('#umikFile').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;const c=parseCal(await fl.text());if(!c){$('#umikInfo').textContent='Dosya okunamadı';return}umikCal=c;store.set('umik',c);$('#umikOn').checked=true;showUmik();buildCorr()};
+function showUmik(){$('#umikInfo').textContent=umikCal?`✓ ${umikCal.f.length} nokta${umikCal.sens!=null?', Sens Factor '+umikCal.sens+' dB':''}`:''}
+$('#umikOn').onchange=buildCorr;$('#pfApply').onchange=()=>{store.set('pfApply',$('#pfApply').checked);buildCorr()};
+function interpLog(fs,gs,f){if(f<=fs[0])return gs[0];if(f>=fs[fs.length-1])return gs[gs.length-1];let lo=0,hi=fs.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(fs[m]>f)hi=m;else lo=m}const t=Math.log(f/fs[lo])/Math.log(fs[hi]/fs[lo]);return gs[lo]+(gs[hi]-gs[lo])*t}
+function buildCorr(){if(!an){corrBin=null;return}const N=an.frequencyBinCount,sr=ctx.sampleRate;corrBin=new Float32Array(N).fill(1);
+  const useU=$('#umikOn').checked&&umikCal,useP=$('#pfApply').checked&&profile&&!$('#micSel').value;
+  for(let i=1;i<N;i++){const f=i*sr/an.fftSize;let dB=0;if(useU)dB-=interpLog(umikCal.f,umikCal.g,f);if(useP)dB+=interpLog(BANDS,profile.b,Math.max(20,Math.min(20000,f)));corrBin[i]=Math.pow(10,dB/10)}}
+async function capture(sec){if(!(await startMic()))return null;await new Promise(r=>setTimeout(r,600));capt={n:0,acc:new Array(BANDS.length).fill(0)};
+  for(let t=sec;t>0;t--){$('#pfRes').textContent=`Ölçülüyor… ${t} sn — sessiz olun`;await new Promise(r=>setTimeout(r,1000))}
+  const c=capt;capt=null;return c.n?c.acc.map(v=>10*Math.log10(v/c.n)):null}
+$('#pfPink').onclick=()=>{if(genV){genStop();$('#pfPink').textContent='▶ Pembe gürültü';return}gen='pink';route='LR';genPlay();$('#pfPink').textContent='■ Gürültüyü durdur'};
+$('#pfRef').onclick=async()=>{if(!$('#micSel').value){$('#pfRes').innerHTML='Önce yukarıdaki listeden <b>UMIK</b>\'i seçin.';return}const b=await capture(8);if(!b)return;refBands=b;$('#pfRes').innerHTML='✓ UMIK ölçüldü. Şimdi listeden <b>Varsayılan (telefon mikrofonu)</b>\'nu seçip <b>2</b>\'ye basın.'};
+$('#pfPhone').onclick=async()=>{if(!refBands){$('#pfRes').textContent='Önce 1. adımı yapın.';return}if($('#micSel').value){$('#micSel').value='';$('#umikOn').checked=false;if(mic){stopMic()}}
+  const keep=$('#pfApply').checked;$('#pfApply').checked=false;buildCorr();const b=await capture(8);$('#pfApply').checked=keep;if(!b)return;
+  const diff=refBands.map((r,i)=>r-b[i]);// telefonu UMIK'e eşitleyen düzeltme
+  const sm=diff.map((v,i)=>{const a=diff.slice(Math.max(0,i-1),i+2);return a.reduce((x,y)=>x+y,0)/a.length});
+  profile={m:$('#pfModel').value||'Bilinmeyen model',d:new Date().toISOString().slice(0,10),b:sm.map(v=>Math.round(v*10)/10)};store.set('profile',profile);$('#pfApply').checked=true;store.set('pfApply',true);buildCorr();showProfile()};
+function showProfile(){if(!profile){$('#pfRes').textContent='Henüz profil yok.';return}const lo=profile.b.slice(4,8).reduce((a,b)=>a+b,0)/4,mid=profile.b.slice(14,20).reduce((a,b)=>a+b,0)/6,hi=profile.b.slice(25,29).reduce((a,b)=>a+b,0)/4;
+  $('#pfRes').innerHTML=`<b>${profile.m}</b> profili (${profile.d}) · düzeltme: bas ${lo>=0?'+':''}${lo.toFixed(1)} dB, orta ${mid>=0?'+':''}${mid.toFixed(1)} dB, tiz ${hi>=0?'+':''}${hi.toFixed(1)} dB`;
+  const cv=$('#pfCv'),d=devicePixelRatio||1,W=cv.width=cv.getBoundingClientRect().width*d||600,H=cv.height=120*d,x=cv.getContext('2d');x.clearRect(0,0,W,H);
+  x.strokeStyle='rgba(148,163,184,.3)';[0].forEach(v=>{x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke()});x.strokeStyle='#38bdf8';x.lineWidth=2*d;x.beginPath();
+  profile.b.forEach((v,i)=>{const px=i/(profile.b.length-1)*W,py=H/2-Math.max(-15,Math.min(15,v))/15*(H/2-6*d);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+  x.fillStyle='#8ea0bb';x.font=`${10*d}px Inter`;x.fillText('20 Hz',2*d,H-3*d);x.fillText('20 kHz',W-40*d,H-3*d);x.fillText('±15 dB',2*d,11*d)}
+$('#pfCopy').onclick=async()=>{if(!profile)return;const code='OAL1.'+btoa(unescape(encodeURIComponent(JSON.stringify(profile))));try{await navigator.clipboard.writeText(code);$('#pfCopy').textContent='✓ Kopyalandı'}catch(e){$('#pfPaste').value=code;$('#pfCopy').textContent='Kod aşağıda'}};
+$('#pfImport').onclick=()=>{try{const t=$('#pfPaste').value.trim().replace(/^OAL1\./,'');const pr=JSON.parse(decodeURIComponent(escape(atob(t))));if(!Array.isArray(pr.b)||pr.b.length!==BANDS.length)throw 0;profile=pr;store.set('profile',pr);$('#pfApply').checked=true;store.set('pfApply',true);buildCorr();showProfile()}catch(e){$('#pfRes').textContent='Kod okunamadı.'}};
+
 function measLoop(){
   const N=an.frequencyBinCount,sr=ctx.sampleRate;if(!freqData){freqData=new Float32Array(N);timeData=new Float32Array(an.fftSize)}
   const loop=(ts)=>{if(!mic)return;an.getFloatFrequencyData(freqData);an.getFloatTimeDomainData(timeData);
     let ms=0;for(let i=0;i<timeData.length;i++)ms+=timeData[i]*timeData[i];ms/=timeData.length;
-    let pz=0,pw=0,pk=-1e9,pkf=0;const bp=new Float64Array(BANDS.length);
-    for(let i=1;i<N;i++){const f=i*sr/an.fftSize,p=Math.pow(10,freqData[i]/10);pz+=p;const w=wSel==='A'?wA(f):wSel==='C'?wC(f):0;pw+=p*Math.pow(10,w/10);
+    let pz=0,pw=0,pk=-1e9,pkf=0;const bp=new Float64Array(BANDS.length);if(!corrBin||corrBin.length!==N)buildCorr();
+    for(let i=1;i<N;i++){const f=i*sr/an.fftSize,p0=Math.pow(10,freqData[i]/10);pz+=p0;const p=p0*corrBin[i];const w=wSel==='A'?wA(f):wSel==='C'?wC(f):0;pw+=p*Math.pow(10,w/10);
       if(f>15&&freqData[i]>pk){pk=freqData[i];pkf=f}
       const bi=Math.round(Math.log2(f/1000)*3)+17;if(bi>=0&&bi<BANDS.length)bp[bi]+=p}
     const k=pz>0?ms/pz:0,inst=k*pw;const dt=lastT?(ts-lastT)/1000:.016;lastT=ts;const tau=tSel==='F'?.125:1;lvlP+= (inst-lvlP)*(1-Math.exp(-dt/tau));
     const db=10*Math.log10(lvlP+1e-20)+calOff;lastDb=db;if(db>maxDb)maxDb=db;leqSum+=inst;leqN++;const leq=10*Math.log10(leqSum/leqN+1e-20)+calOff;
     $('#splBig').innerHTML=`${db.toFixed(1)}<small>dB${wSel}</small>`;$('#splMax').textContent=maxDb.toFixed(1);$('#splLeq').textContent=leq.toFixed(1);$('#domF').textContent=pkf<1000?Math.round(pkf)+' Hz':(pkf/1000).toFixed(2)+' kHz';
-    drawRta(bp.map(p=>10*Math.log10(k*p+1e-20)+calOff));
+    const bandDb=bp.map(p=>10*Math.log10(k*p+1e-20)+calOff);lastBands=bandDb;if(capt){capt.n++;bandDb.forEach((v,i)=>capt.acc[i]+=Math.pow(10,v/10))}drawRta(bandDb);
     // crossover narrowband
     const xf=+$('#xoF').value,xi=Math.round(xf*an.fftSize/sr);let xp=0;for(let j=xi-2;j<=xi+2;j++)xp+=Math.pow(10,freqData[j]/10);const xdb=10*Math.log10(k*xp+1e-20)+calOff;
     if(xoOn){if(xdb>xoMaxV)xoMaxV=xdb;$('#xoNow').textContent=xdb.toFixed(1);$('#xoMax').textContent=xoMaxV.toFixed(1);$('#xoDiff').textContent=(xdb-xoMaxV).toFixed(1)}
@@ -680,24 +865,26 @@ $('#lrBtn').onclick=async()=>{const box=$('#lrRes');box.style.display='block';if
 /* ---------------- placement AR ---------------- */
 let arOn=false,arSim=false,az=0,el=0,az0=null,arRaf=0,tgt=null,lastIn=false,gotOri=false;
 const arCv=$('#arCv'),actx=arCv.getContext('2d');
-function arResize(){const r=$('#arWrap').getBoundingClientRect(),d=devicePixelRatio||1;arCv.width=r.width*d;arCv.height=r.height*d}
+function arResize(){const d=devicePixelRatio||1;arCv.width=innerWidth*d;arCv.height=innerHeight*d}
 function wrap(a){return((a+540)%360)-180}
 function onOri(e){if(e.alpha==null)return;gotOri=true;const a=e.alpha*D2R,b=e.beta*D2R,g=e.gamma*D2R;const cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
   const vx=-(cG*sA*sB+cA*sG),vy=-(sA*sG-cA*cG*sB),vz=-(cB*cG);const naz=Math.atan2(vx,vy)/D2R,nel=Math.asin(Math.max(-1,Math.min(1,vz)))/D2R;
   az=az+wrap(naz-az)*.35;el=el+(nel-el)*.35}
-$('#arStart').onclick=async()=>{arResize();$('#arMsg').innerHTML='';let msgs=[];
+function arOpen(){$('#arWrap').classList.add('on');document.body.style.overflow='hidden';arResize();arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()}
+function arCloseFn(){arOn=false;cancelAnimationFrame(arRaf);$('#arWrap').classList.remove('on');document.body.style.overflow='';const st=$('#arVid').srcObject;if(st){st.getTracks().forEach(t=>t.stop());$('#arVid').srcObject=null}arSim=false;$('#arSim').classList.remove('on')}
+$('#arClose').onclick=arCloseFn;window.addEventListener('resize',()=>{if(arOn){arResize();arLoop()}});
+$('#arStart').onclick=async()=>{arSim=false;arOpen();$('#arMsg').innerHTML='';let msgs=[];
   try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')msgs.push('Hareket sensörü izni verilmedi.')}}catch(e){msgs.push('Hareket sensörü bu pencerede engelli.')}
   window.addEventListener('deviceorientation',onOri);
   try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('#arVid').srcObject=st;await $('#arVid').play()}catch(e){msgs.push('Kamera açılamadı ('+(e.name||e)+').')}
-  setTimeout(()=>{if(!gotOri)msgs.push('Sensör verisi gelmiyor.');if(msgs.length){$('#arMsg').innerHTML=`<div class="note err">${msgs.join(' ')} Tarayıcı izin vermedi ya da bu cihazda sensör yok. Arayüzü denemek için <b>Simülasyon</b>'a basıp ekranı parmakla sürükleyin.</div>`}},1200);
-  arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()};
-$('#arSim').onclick=()=>{arSim=!arSim;$('#arSim').classList.toggle('on',arSim);arResize();arOn=true;if(az0==null)az0=0;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()};
+  setTimeout(()=>{if(!gotOri)msgs.push('Sensör verisi gelmiyor.');if(msgs.length){arCloseFn();$('#arMsg').innerHTML=`<div class="note err">${msgs.join(' ')} Tarayıcı izin vermedi ya da bu cihazda sensör yok. Arayüzü denemek için <b>Simülasyon</b>'a basın.</div>`}},1500)};
+$('#arSim').onclick=()=>{arSim=true;if(az0==null)az0=0;arOpen()};
 $('#arZero').onclick=()=>{az0=az};
 let drag=null;$('#arWrap').addEventListener('pointerdown',e=>{if(!arSim)return;drag=[e.clientX,e.clientY,az,el]});
-window.addEventListener('pointermove',e=>{if(!drag)return;az=drag[2]-(e.clientX-drag[0])*.25;el=Math.max(-60,Math.min(85,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
+window.addEventListener('pointermove',e=>{if(!drag)return;az=drag[2]-(e.clientX-drag[0])*.25;el=Math.max(-60,Math.min(89,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
 $('#fov').oninput=e=>$('#fovV').textContent=e.target.value+'°';
 function arChips(){$('#arChips').innerHTML=speakers.filter(s=>s.g!=='sub').map(s=>`<button class="chip" data-id="${s.id}" style="${tgt&&tgt.id===s.id?'background:'+GCOL[s.g]+';color:#04111f':''}">${s.id}</button>`).join('');
-  $$('#arChips .chip').forEach(c=>c.onclick=()=>{tgt=speakers.find(s=>s.id===c.dataset.id);arChips()});if(tgt&&!speakers.includes(tgt))tgt=speakers.find(s=>s.id===tgt.id)||null}
+  $$('#arChips .chip').forEach(c=>c.onclick=()=>{tgt=speakers.find(s=>s.id===c.dataset.id);arChips()});$('#arPos').textContent=tgt?('📐 '+posText(tgt)):'';if(tgt&&!speakers.includes(tgt))tgt=speakers.find(s=>s.id===tgt.id)||null}
 function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d=devicePixelRatio||1;
   const fr=()=>{if(!arOn)return;actx.clearRect(0,0,W,H);if(!$('#arVid').srcObject){actx.fillStyle='#070d1a';actx.fillRect(0,0,W,H);for(let i=-180;i<=180;i+=15){}}
     const raz=wrap(az-(az0||0)),hf=+$('#fov').value*D2R/2,vf=Math.atan(Math.tan(hf)*H/W);
@@ -716,7 +903,7 @@ function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d
         const E0=-10,E1=12,mid=(lo+hi)/2,half=(hi-lo)/2,dA=wrap(raz-mid);
         for(let k=0;k<=10;k++)poly.push([lo+(hi-lo)*k/10,E1]);for(let k=10;k>=0;k--)poly.push([lo+(hi-lo)*k/10,E0]);
         const okA=Math.abs(dA)<=half,okE=el>=E0&&el<=E1;inside=okA&&okE;
-        if(!okA){const need=Math.abs(dA)-half;arrowTxt+=(dA<0?'→ ':'← ')+need.toFixed(0)+'° '}
+        if(!okA){const need=Math.abs(dA)-half;arrowTxt+=need>100?'↻ Arkaya dönün ':(dA<0?'→ ':'← ')+need.toFixed(0)+'° '}
         if(!okE)arrowTxt+=el<E0?'↑ kulak hizası':'↓ kulak hizası';
         nowTxt=`Şu an ${Math.abs(raz).toFixed(0)}° ${raz<-0.5?'sol':raz>0.5?'sağ':''} · hedef aralık ${rangeText(tgt)}`;
       }else{
@@ -724,8 +911,9 @@ function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d
         for(let k=0;k<=12;k++)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L1));for(let k=12;k>=0;k--)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L0));
         const okS=curSweep>=tgt.elMin&&curSweep<=tgt.elMax,okL=curLam>=L0&&curLam<=L1;inside=okS&&okL;
         const back=cf_<0; // arkaya bakarken yön okları ters döner
+        const midS=(tgt.elMin+tgt.elMax)/2;if(midS>100&&!back&&curSweep<80){arrowTxt='↻ Arkaya dönün, sonra yukarı bakın'}else
         if(!okS){const inc=curSweep<tgt.elMin,amt=inc?tgt.elMin-curSweep:curSweep-tgt.elMax;arrowTxt+=((inc!==back)?'↑ ':'↓ ')+amt.toFixed(0)+'° '}
-        if(!okL){const inc=curLam<L0,amt=inc?L0-curLam:curLam-L1;arrowTxt+=((inc!==back)?'→ ':'← ')+amt.toFixed(0)+'°'}
+        if(!okL&&!arrowTxt.startsWith('↻')){const inc=curLam<L0,amt=inc?L0-curLam:curLam-L1;arrowTxt+=((inc!==back)?'→ ':'← ')+amt.toFixed(0)+'°'}
         nowTxt=`Şu an tavan açısı ${curSweep.toFixed(0)}° · hedef ${tgt.elMin}–${tgt.elMax}°`;
       }
       const pp=poly.map(([a,e])=>proj(a,e));
@@ -734,8 +922,8 @@ function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d
     }
     // crosshair
     actx.strokeStyle=inside?'#22c55e':'#fff';actx.lineWidth=2*d;actx.beginPath();actx.arc(W/2,H/2,26*d,0,7);actx.moveTo(W/2-40*d,H/2);actx.lineTo(W/2-12*d,H/2);actx.moveTo(W/2+12*d,H/2);actx.lineTo(W/2+40*d,H/2);actx.moveTo(W/2,H/2-40*d);actx.lineTo(W/2,H/2-12*d);actx.moveTo(W/2,H/2+12*d);actx.lineTo(W/2,H/2+40*d);actx.stroke();
-    actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,8*d,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,24*d);actx.fillText(`Eğim: ${el.toFixed(1)}°`,16*d,40*d);
-    if(tgt&&tgt.elMin!=null){actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,50*d,150*d,22*d);actx.fillStyle='#fde68a';actx.fillText(`Tavan açısı: ${curSweep.toFixed(0)}°`,16*d,66*d)}
+    const oy=60*d;actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,oy+16*d);actx.fillText(`Eğim: ${el.toFixed(1)}°`,16*d,oy+32*d);
+    if(tgt&&tgt.elMin!=null){actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy+42*d,150*d,22*d);actx.fillStyle='#fde68a';actx.fillText(`Tavan açısı: ${curSweep.toFixed(0)}°`,16*d,oy+58*d)}
     if(tgt){$('#gTarget').textContent=`Hedef: ${tgt.id} — ${tgt.n}`;$('#gRange').textContent=nowTxt;
       $('#gArrow').innerHTML=inside?'<span style="color:var(--ok)">✓ aralıkta</span>':arrowTxt;$('#gArrow').style.fontSize=inside?'22px':'16px';
       if(inside&&!lastIn){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}lastIn=inside}
@@ -846,8 +1034,27 @@ $('#toolFrame').addEventListener('load',()=>{try{const u=$('#toolFrame').content
 if(location.hash.startsWith('#arac-')){const k=location.hash.slice(6);setTimeout(()=>{$$('#tabs button').find(b=>b.dataset.t==='t-calc').click();openTool(k)},50)}
 
 /* oda ölçüleri (yerleşim) */
-$('#rmH').value=room.H;$('#rmS').value=room.seat;
-['#rmH','#rmS'].forEach(id=>$(id).onchange=()=>{const H=parseFloat($('#rmH').value),S=parseFloat($('#rmS').value);if(H>1.8&&H<8&&S>1&&S<20){room={H,seat:S};store.set('room',room);speakers=buildLayout(lay);renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips()}});
+room=Object.assign({L:6,W:4.2,H:2.7,seat:3.5},room);
+$('#rmL').value=room.L;$('#rmW').value=room.W;$('#rmH').value=room.H;$('#rmS').value=room.seat;
+['#rmL','#rmW','#rmH','#rmS'].forEach(id=>$(id).onchange=()=>{const L=parseFloat($('#rmL').value),W=parseFloat($('#rmW').value),H=parseFloat($('#rmH').value),S=parseFloat($('#rmS').value);
+  if(L>2&&L<30&&W>2&&W<30&&H>1.8&&H<8&&S>.8&&S<L-.3){room={L,W,H,seat:S};store.set('room',room);speakers=buildLayout(lay);renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips();posTable()}});
+/* açı aralığı → duvar/tavan konum aralığı (metre) */
+const WALLN={F:'Ön duvar',B:'Arka duvar',Lw:'Sol duvar',Rw:'Sağ duvar'};
+function wallHit(az){const mx=room.W/2,my=room.seat,dx=Math.sin(az*D2R),dy=-Math.cos(az*D2R);let best=null;
+  const t=(w,tt)=>{if(tt>1e-6&&(!best||tt<best.t))best={w,t:tt}};
+  if(dy<-1e-6)t('F',-my/dy);if(dy>1e-6)t('B',(room.L-my)/dy);if(dx<-1e-6)t('Lw',-mx/dx);if(dx>1e-6)t('Rw',(room.W-mx)/dx);
+  const x=mx+dx*best.t,y=my+dy*best.t;// duvar boyunca konum
+  const along=best.w==='F'||best.w==='B'?x:y;return{w:best.w,along,dist:best.t}}
+function posText(s){if(s.g==='sub')return '';
+  if(s.elMin==null){const a0=s.side===0?0:s.side*s.azMin,a1=s.side===0?0:s.side*s.azMax;const seg={};
+    for(let k=0;k<=40;k++){const h=wallHit(a0+(a1-a0)*k/40);(seg[h.w]=seg[h.w]||[]).push(h)}
+    return Object.entries(seg).map(([w,arr])=>{const v=arr.map(h=>h.along),lo=Math.min(...v),hi=Math.max(...v),ref=(w==='F'||w==='B')?'sol duvardan':'ön duvardan';const dd=arr.map(h=>h.dist);
+      return `${WALLN[w]}, ${ref} ${lo.toFixed(2)}${hi-lo>.02?'–'+hi.toFixed(2):''} m (koltuğa ${Math.min(...dd).toFixed(1)}–${Math.max(...dd).toFixed(1)} m)`}).join(' · ')}
+  const g=geo();const ys=[s.elMin,s.elMax].map(sw=>room.seat-g.rise/Math.tan(sw*D2R));let lo=Math.min(...ys),hi=Math.max(...ys);const cl=lo<0||hi>room.L;lo=Math.max(0,lo);hi=Math.min(room.L,hi);
+  const x=room.W/2+s.side*g.lat;return `Tavanda, ön duvardan ${lo.toFixed(2)}–${hi.toFixed(2)} m · ${s.side<0?'sol':'sağ'} duvardan ${(s.side<0?x:room.W-x).toFixed(2)} m (L/R hizası)${cl?' · ⚠ aralığın bir kısmı oda dışında kalıyor':''}`}
+function posTable(){if(!$('#posTable'))return;let h='<table><tr><th>Kanal</th><th>Açı aralığı</th><th>Konum aralığı</th></tr>';
+  speakers.forEach(s=>{h+=`<tr><td><b style="color:${GCOL[s.g]}">${s.id}</b></td><td style="white-space:nowrap">${s.g==='sub'?'—':rangeText(s).replace(' (0°=ön, 90°=tepe)','')}</td><td style="text-align:left">${s.g==='sub'?(SUBTXT[Math.min(lay.sub,4)]||'Köşeler + duvar ortaları'):posText(s)}</td></tr>`});
+  $('#posTable').innerHTML=h+'</table><p class="muted">Tavan açıları: 0° = tam ön, 90° = tam tepe, 180° = tam arka (dinleme noktasından).</p>'}
 /* cihaz yeteneği notu */
 (function(){const ua=navigator.userAgent;let t='';
  if(/iPhone|iPad/.test(ua))t='iPhone/iPad algılandı. Web sürümü jiroskopla açı ölçer. Uygulama sürümünde LiDAR\'lı modellerde (iPhone 12 Pro → 17 Pro / Pro Max, iPad Pro 2020+) ARKit + RoomPlan ile oda taranır; duvarlar ve mesafeler otomatik çıkar.';
@@ -855,7 +1062,7 @@ $('#rmH').value=room.H;$('#rmS').value=room.seat;
  else t='Bilgisayar algılandı. Yerleşim rehberi telefonda kullanılmak içindir; burada Simülasyon ile deneyebilirsiniz.';
  $('#devNote').textContent=t})();
 /* ---------------- init ---------------- */
-fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));setLfeF(40);updateModeMsg();rtaResize();
+fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));posTable();setTimeout(()=>init3D(),400);showUmik();$('#pfApply').checked=!!store.get('pfApply',false);if(profile)setTimeout(showProfile,100);setLfeF(40);updateModeMsg();rtaResize();
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSeq();stopAll();stopObj();lfeStop();genStop()}});
 </script>
 </body>
