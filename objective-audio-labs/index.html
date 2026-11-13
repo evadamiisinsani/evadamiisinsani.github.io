@@ -103,6 +103,8 @@ th{color:var(--mut);font-weight:600;font-size:11.5px}
 .xrc{position:fixed;left:50%;top:45%;width:44px;height:44px;margin:-22px 0 0 -22px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.4)}
 .xrc:after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;background:#22c55e;border-radius:50%}
 .xrbar{position:fixed;left:10px;right:10px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(10,16,32,.9);border-radius:14px;padding:12px;text-align:center;color:#fff;font-size:15px;font-weight:600}
+.calopt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:12px;margin-top:8px;color:var(--tx)}.calopt b{display:block;font-size:15px}.calopt span{display:block;color:var(--mut);font-size:12.5px;margin-top:3px}
+.calok{font-weight:700;font-size:15px;margin-top:8px}.calh{margin:4px 0 6px;color:#fff;font-size:17px;text-transform:none;letter-spacing:0}
 .calstep{font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.6px;text-transform:uppercase}
 .lvl{display:flex;align-items:center;gap:10px}.lvlbar{flex:1;height:10px;border-radius:6px;background:#1e293b;position:relative;overflow:hidden}
 .lvlbar:before{content:'';position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(34,197,94,.35)}
@@ -139,7 +141,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     </div>
   </div>
   <div class="vol">🔉 <input id="vol" type="range" min="-50" max="0" step="1" value="-14"><b id="volv" style="width:58px;text-align:right;color:var(--tx)">-14 dB</b></div>
-  <div id="modeMsg" class="muted" style="margin-top:4px;font-size:11.5px"></div>
+  <div class="row" style="margin-top:4px;justify-content:space-between;flex-wrap:nowrap"><div id="modeMsg" class="muted" style="font-size:11.5px"></div><button class="btn sm" id="fixAudio" style="flex:none;white-space:nowrap">🔇 Ses yok mu?</button></div>
 </header>
 
 <main>
@@ -216,7 +218,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
       <button class="btn" id="extBtn">⤓ Alt sınır testi</button>
       <button class="btn" id="lfeStop">■ Durdur</button>
     </div>
-    <div class="res" id="lfeInfo">Bir frekans seçip efekte dokunun. Kaynak <b>LFE</b> kanalıdır: Çok kanal modunda 4. kanala (LFE, 120 Hz altı), diğer modlarda her iki kanala gider.</div>
+    <div class="res" id="lfeInfo"><b>Not:</b> Telefon hoparlörü ve çoğu kulaklık 80 Hz altını çok zayıf verir. LFE testlerini telefon amfiye/subwoofer'a bağlıyken yapın. Bir frekans seçip efekte dokunun. Kaynak <b>LFE</b> kanalıdır: Çok kanal modunda 4. kanala (LFE, 120 Hz altı), diğer modlarda her iki kanala gider.</div>
   </div>
 </section>
 
@@ -374,23 +376,13 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 </section>
 <div id="arWrap"><video id="arVid" playsinline muted></video><canvas id="arCv"></canvas>
   <div class="arTop"><button class="btn sm" id="arClose">✕ Kapat</button><button class="btn sm" id="arZero">↺ Yeniden başlat</button></div>
-  <div id="arCal"><div class="calbox">
-    <div class="calstep">1/2 · Referans</div>
-    <h3 style="margin:4px 0 6px;color:#fff;font-size:17px;text-transform:none;letter-spacing:0">Merkez hoparlörünüzü referans seçin</h3>
-    <ol class="muted" style="margin:0 0 10px;padding-left:18px;line-height:1.5">
-      <li>Dinleme koltuğuna oturun, telefonu kulak hizasında <b>dik</b> tutun.</li>
-      <li>Ortadaki artıyı <b>merkez hoparlörün</b> (yoksa ekranın) tam ortasına getirin.</li>
-      <li>Telefonu öne/arkaya yatırmayın; aşağıdaki çubuk yeşil olunca butona basın.</li>
-    </ol>
-    <div class="lvl"><div class="lvlbar"><i id="lvlDot"></i></div><span id="lvlTxt">Eğim —</span></div>
-    <button class="btn pri" id="arRef" style="width:100%;margin-top:10px">⌖ Merkez hoparlörü referans al</button>
-  </div></div>
+  <div id="arCal"><div class="calbox" id="calBox"></div></div>
   <div id="arToast"></div>
   <div class="arBot">
     <div class="guide"><div style="min-width:0"><div class="gt" id="gTarget">Hedef: —</div><div class="muted" id="gRange"></div></div><div class="arrow" id="gArrow">·</div></div>
     <div id="arPos" class="arpos"></div>
     <div class="chiprow arch" id="arChips"></div>
-    <div class="row" style="margin-top:6px"><span class="muted" style="font-size:11px">Görüş açısı</span><input type="range" id="fov" min="40" max="80" value="56" style="flex:1"><b id="fovV" style="font-size:12px">56°</b></div>
+    <div class="row" style="margin-top:6px"><span class="muted" style="font-size:11px">Kamera görüş açısı</span><input type="range" id="fov" min="45" max="90" value="65" style="flex:1"><b id="fovV" style="font-size:12px">65°</b></div>
   </div>
 </div>
 
@@ -426,7 +418,7 @@ const D2R=Math.PI/180, C_SOUND=343;
 const store={get(k,d){try{const v=localStorage.getItem('oal_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('oal_'+k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------------- tabs ---------------- */
-$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='t-place')arResize();if(b.dataset.t==='t-meas'){rtaResize();drawMs()}});
+$$('#tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.t!=='t-meas'&&mic&&!xoOn)stopMic();$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='t-place')arResize();if(b.dataset.t==='t-meas'){rtaResize();drawMs()}});
 function segBind(id,attr,cb){$$('#'+id+' button').forEach(b=>b.onclick=()=>{$$('#'+id+' button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset[attr],b)});}
 
 /* ---------------- speaker model ---------------- */
@@ -477,13 +469,21 @@ const AC=window.AudioContext||window.webkitAudioContext;
 let ctx=null,master,comp,outBus,merger=null,mcGain=null,mode='hp',mcN=2,bufs={};
 let volDb=store.get('vol',-14);
 const dbg=d=>Math.pow(10,d/20);
+function setSession(t){try{if(navigator.audioSession&&navigator.audioSession.type!==t)navigator.audioSession.type=t}catch(e){}}
+let unlockEl=null,needRebuild=false;
+function iosUnlock(){/* iOS sessiz moda ve kesintiye karşı: kısa sessiz HTML ses çalmak oturumu "playback"e alır */
+  try{if(!unlockEl){unlockEl=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=');unlockEl.setAttribute('playsinline','');}unlockEl.play().catch(()=>{})}catch(e){}}
+function rebuildAudio(){try{stopSeq();stopAll();stopObj();lfeStop();genStop()}catch(e){}try{if(mic)stopMic()}catch(e){}
+  try{ctx&&ctx.close()}catch(e){}ctx=null;merger=null;mcGain=null;an=null;corrBin=null;ensureCtx();
+  const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(0,ctx.currentTime);g.gain.linearRampToValueAtTime(.2,ctx.currentTime+.02);g.gain.linearRampToValueAtTime(0,ctx.currentTime+.25);o.connect(g);g.connect(master);o.start();o.stop(ctx.currentTime+.3)}
 function ensureCtx(){
-  if(!ctx){ctx=new AC({latencyHint:'interactive'});try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(ctx&&(ctx.state==='closed'||(needRebuild&&ctx.state!=='running'))){needRebuild=false;$('#fixAudio').classList.remove('stop');const nm=!!mic;try{ctx.close()}catch(e){}ctx=null;merger=null;mcGain=null;if(nm){try{stopMic()}catch(e){}}}
+  if(!ctx){if(!mic)setSession('playback');iosUnlock();ctx=new AC({latencyHint:'interactive'});
     master=ctx.createGain();master.gain.value=dbg(volDb);
     comp=ctx.createDynamicsCompressor();comp.threshold.value=-2;comp.knee.value=0;comp.ratio.value=20;comp.attack.value=0.002;comp.release.value=0.15;
     outBus=ctx.createGain();master.connect(comp);comp.connect(outBus);outBus.connect(ctx.destination);
     makeBuffers();configureOut();}
-  if(ctx.state!=='running')ctx.resume();
+  if(ctx.state!=='running'){iosUnlock();const c0=ctx;ctx.resume().catch(()=>{});setTimeout(()=>{if(ctx===c0&&ctx.state!=='running'){/* iOS "interrupted": bir sonraki dokunuşta yeniden kur */needRebuild=true;$('#fixAudio').classList.add('stop')}},600)}
   return ctx;
 }
 function configureOut(){
@@ -608,6 +608,7 @@ function setLayout(L,fromPreset){lay=L;speakers=buildLayout(lay);$('#cBed').valu
 ['#preset','#pPreset'].forEach(id=>$(id).onchange=e=>{if(e.target.value==='custom')return;const p=e.target.value.split('.').map(Number);setLayout({bed:p[0],sub:p[1],h:p[2]||0})});
 ['#cBed','#cSub','#cH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#cBed').value,sub:+$('#cSub').value,h:+$('#cH').value}));
 ['#pBed','#pSub','#pH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#pBed').value,sub:+$('#pSub').value,h:+$('#pH').value}));
+$('#fixAudio').onclick=()=>{rebuildAudio();$('#modeMsg').textContent='Ses motoru yeniden kuruldu. Bip sesi duymadıysanız: telefonun sessiz anahtarını kapatın, ses düğmesiyle sesi açın, Bluetooth/AirPlay bağlantısını kontrol edin.'};
 segBind('modeSeg','m',m=>{mode=m;stopSeq();stopAll();stopObj();if(ctx)configureOut();else{updateModeMsg();renderDiagram()}});
 $('#vol').value=volDb;$('#volv').textContent=volDb+' dB';
 $('#vol').oninput=e=>{volDb=+e.target.value;$('#volv').textContent=volDb+' dB';store.set('vol',volDb);if(ctx){master.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03);if(mcGain)mcGain.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03)}};
@@ -864,7 +865,7 @@ function wA(f){const f2=f*f,r=(12194**2*f2*f2)/((f2+20.6**2)*Math.sqrt((f2+107.7
 function wC(f){const f2=f*f,r=(12194**2*f2)/((f2+20.6**2)*(f2+12194**2));return 20*Math.log10(r)+.06}
 const BANDS=[];for(let i=-17;i<=13;i++)BANDS.push(1000*Math.pow(2,i/3));
 function micErr(e){const m=String(e&&e.name||e);$('#micMsg').innerHTML=`<div class="note err">Mikrofon açılamadı (${m}). Bu önizleme penceresi mikrofon iznini engeller. Önizleme bağlantısını telefonda açın ve izin isteğine “İzin ver” deyin.</div>`}
-async function startMic(){
+async function startMic(){setSession('play-and-record');
   ensureCtx();if(mic)return true;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){micErr('desteklenmiyor');return false}
   const dev=$('#micSel').value;try{mic=await navigator.mediaDevices.getUserMedia({audio:Object.assign({echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1},dev?{deviceId:{exact:dev}}:{})})}catch(e){micErr(e);return false}
@@ -872,7 +873,7 @@ async function startMic(){
   micSrc=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=0;micSrc.connect(an);buildCorr();
   $('#micMsg').innerHTML='';$('#micBtn').textContent='■ Mikrofonu durdur';$('#micBtn').classList.add('stop');resetSpl();measLoop();return true;
 }
-function stopMic(){if(!mic)return;capt=null;mic.getTracks().forEach(t=>t.stop());mic=null;try{micSrc.disconnect()}catch(e){}cancelAnimationFrame(mRaf);$('#micBtn').textContent='🎙 Mikrofonu başlat';$('#micBtn').classList.remove('stop')}
+function stopMic(){if(!mic)return;setSession('playback');capt=null;mic.getTracks().forEach(t=>t.stop());mic=null;try{micSrc.disconnect()}catch(e){}cancelAnimationFrame(mRaf);$('#micBtn').textContent='🎙 Mikrofonu başlat';$('#micBtn').classList.remove('stop')}
 $('#micBtn').onclick=()=>mic?stopMic():startMic();
 $('#calBtn').onclick=()=>{const r=parseFloat($('#refDb').value);if(!isFinite(r)||!mic)return;calOff=Math.round((calOff+(r-lastDb))*2)/2;$('#calOff').value=calOff;$('#calV').textContent=calOff;store.set('cal',calOff)};
 let lastDb=0,lastT=0,freqData,timeData,xoMaxV=-1e9;
@@ -1071,79 +1072,124 @@ function drawMs(){const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=Math.max(
   x.fillStyle='#8ea0bb';[20,30,50,80,100,150,200,300].forEach(f=>{const i=Math.log(f/fA)/Math.log(fB/fA)*(pts-1);x.fillText(f,lx(i)-5*d,H-6*d)});
   x.fillText(`Waterfall · ${m.name} · ${S} dilim × ${stepMs} ms (arkaya doğru zaman)`,pl,pt+10*d);x.fillText('Uzun süren tepeler = çınlama (ringing)',pl,pt+24*d)}
 msLoad();
-/* ---------------- placement AR ---------------- */
-let arOn=false,arSim=false,az=0,el=0,az0=null,el0=0,arCalOn=false,arRaf=0,tgt=null,lastIn=false,gotOri=false;
+/* ---------------- placement AR ----------------
+   Tam 3B yönelim: cihazın dönüş matrisi (alpha/beta/gamma) ile her hedef, kameranın gerçek açısına göre
+   iğne deliği kamera modeliyle çizilir. Telefon yatırılsa/döndürülse de işaretler odada sabit kalır. */
+let arOn=false,arSim=false,Rm=null,azRef=0,azWall=null,arStage='choose',refMode=null,arRaf=0,tgt=null,lastIn=false,gotOri=false,simYaw=0,simPitch=0;
+let az=0,el=0;// geriye uyum: kameranın oda çerçevesindeki yönü (derece)
 const arCv=$('#arCv'),actx=arCv.getContext('2d');
 function arResize(){const d=devicePixelRatio||1;arCv.width=innerWidth*d;arCv.height=innerHeight*d}
 function wrap(a){return((a+540)%360)-180}
-function onOri(e){if(e.alpha==null)return;gotOri=true;const a=e.alpha*D2R,b=e.beta*D2R,g=e.gamma*D2R;const cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
-  const vx=-(cG*sA*sB+cA*sG),vy=-(sA*sG-cA*cG*sB),vz=-(cB*cG);const naz=Math.atan2(vx,vy)/D2R,nel=Math.asin(Math.max(-1,Math.min(1,vz)))/D2R;
-  az=az+wrap(naz-az)*.35;el=el+((nel-el0)-el)*.35}
-function arOpen(){$('#arWrap').classList.add('on');document.body.style.overflow='hidden';arResize();arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop();arCalStart()}
-function arCalStart(){arCalOn=true;el0=0;$('#arCal').classList.add('on');$('#arWrap').classList.add('cal');$('#arToast').style.display='none';const C=speakers.find(s=>s.id==='C');tgt=C||speakers.find(s=>s.g!=='sub');arChips()}
-$('#arRef').onclick=()=>{if($('#arRef').disabled)return;az0=az;if(!arSim)el0+=el;el=0;arCalOn=false;$('#arCal').classList.remove('on');$('#arWrap').classList.remove('cal');
-  const t=$('#arToast');t.innerHTML='✓ Referans alındı<br><span style="font-weight:500;font-size:13px">Şimdi devam edebilirsiniz: alttan bir hoparlör seçip oku takip edin.</span>';t.style.display='block';setTimeout(()=>t.style.display='none',2600);
-  const nx=speakers.find(s=>s.id==='L')||speakers.find(s=>s.g!=='sub');if(nx){tgt=nx;arChips()}};
-function arCloseFn(){arOn=false;cancelAnimationFrame(arRaf);$('#arWrap').classList.remove('on');document.body.style.overflow='';const st=$('#arVid').srcObject;if(st){st.getTracks().forEach(t=>t.stop());$('#arVid').srcObject=null}arSim=false;$('#arSim').classList.remove('on')}
+function ortho(M){// sütunları ortonormal yap
+  let x=[M[0],M[3],M[6]],y=[M[1],M[4],M[7]];const n=v=>{const l=Math.hypot(...v)||1;return v.map(c=>c/l)};x=n(x);const d=x[0]*y[0]+x[1]*y[1]+x[2]*y[2];y=n([y[0]-d*x[0],y[1]-d*x[1],y[2]-d*x[2]]);
+  const z=[x[1]*y[2]-x[2]*y[1],x[2]*y[0]-x[0]*y[2],x[0]*y[1]-x[1]*y[0]];return[x[0],y[0],z[0],x[1],y[1],z[1],x[2],y[2],z[2]]}
+function onOri(e){if(e.alpha==null)return;gotOri=true;const a=e.alpha*D2R,b=e.beta*D2R,g=e.gamma*D2R,cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
+  const R=[cA*cG-sA*sB*sG,-cB*sA,cG*sA*sB+cA*sG, cG*sA+cA*sB*sG,cA*cB,sA*sG-cA*cG*sB, -cB*sG,sB,cB*cG];
+  if(!Rm)Rm=R;else{for(let i=0;i<9;i++)Rm[i]+=(R[i]-Rm[i])*.35;Rm=ortho(Rm)}}
+function simR(){const h=(azRef+simYaw)*D2R,p=Math.max(-85,Math.min(89,simPitch))*D2R;const f=[Math.sin(h)*Math.cos(p),Math.cos(h)*Math.cos(p),Math.sin(p)];
+  let u=[-f[2]*f[0],-f[2]*f[1],1-f[2]*f[2]];const l=Math.hypot(...u);u=u.map(c=>c/l);const r=[f[1]*u[2]-f[2]*u[1],f[2]*u[0]-f[0]*u[2],f[0]*u[1]-f[1]*u[0]];
+  return[r[0],u[0],-f[0],r[1],u[1],-f[1],r[2],u[2],-f[2]]}
+const camFwd=M=>[-M[2],-M[5],-M[8]],camRight=M=>[M[0],M[3],M[6]],camUp=M=>[M[1],M[4],M[7]];
+const headingOf=v=>Math.atan2(v[0],v[1])/D2R;
+function roomToWorld(v){const h=azRef*D2R,c=Math.cos(h),s_=Math.sin(h);return[c*v[0]+s_*v[1],-s_*v[0]+c*v[1],v[2]]}
+function worldToRoom(w){const h=azRef*D2R,c=Math.cos(h),s_=Math.sin(h);return[c*w[0]-s_*w[1],s_*w[0]+c*w[1],w[2]]}
+function aeVec(a,e){a*=D2R;e*=D2R;return[Math.sin(a)*Math.cos(e),Math.cos(a)*Math.cos(e),Math.sin(e)]}
+function arOpen(){$('#arWrap').classList.add('on');document.body.style.overflow='hidden';arResize();arOn=true;Rm=null;arChips();arLoop();calShow('choose')}
+function arCloseFn(){arOn=false;cancelAnimationFrame(arRaf);$('#arWrap').classList.remove('on');document.body.style.overflow='';const st=$('#arVid').srcObject;if(st){st.getTracks().forEach(t=>t.stop());$('#arVid').srcObject=null}arSim=false;window.removeEventListener('deviceorientation',onOri);setSession('playback')}
 $('#arClose').onclick=arCloseFn;window.addEventListener('resize',()=>{if(arOn){arResize();arLoop()}});
-$('#arStart').onclick=async()=>{arSim=false;arOpen();$('#arMsg').innerHTML='';let msgs=[];
+$('#arStart').onclick=async()=>{arSim=false;gotOri=false;arOpen();$('#arMsg').innerHTML='';let msgs=[];
   try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')msgs.push('Hareket sensörü izni verilmedi.')}}catch(e){msgs.push('Hareket sensörü bu pencerede engelli.')}
   window.addEventListener('deviceorientation',onOri);
-  try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('#arVid').srcObject=st;await $('#arVid').play()}catch(e){msgs.push('Kamera açılamadı ('+(e.name||e)+').')}
+  try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1440}},audio:false});$('#arVid').srcObject=st;await $('#arVid').play()}catch(e){msgs.push('Kamera açılamadı ('+(e.name||e)+').')}
   setTimeout(()=>{if(!gotOri)msgs.push('Sensör verisi gelmiyor.');if(msgs.length){arCloseFn();$('#arMsg').innerHTML=`<div class="note err">${msgs.join(' ')} Tarayıcı izin vermedi ya da bu cihazda sensör yok. Arayüzü denemek için <b>Simülasyon</b>'a basın.</div>`}},1500)};
-$('#arSim').onclick=()=>{arSim=true;if(az0==null)az0=0;arOpen()};
-$('#arZero').onclick=arCalStart;
-let drag=null;$('#arWrap').addEventListener('pointerdown',e=>{if(!arSim)return;drag=[e.clientX,e.clientY,az,el]});
-window.addEventListener('pointermove',e=>{if(!drag)return;az=drag[2]-(e.clientX-drag[0])*.25;el=Math.max(-60,Math.min(89,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
-$('#fov').oninput=e=>$('#fovV').textContent=e.target.value+'°';
+$('#arSim').onclick=()=>{arSim=true;simYaw=0;simPitch=0;arOpen()};
+$('#arZero').onclick=()=>calShow('choose');
+let drag=null;$('#arWrap').addEventListener('pointerdown',e=>{if(!arSim||e.target.closest('button,input,.calbox,.arBot'))return;drag=[e.clientX,e.clientY,simYaw,simPitch]});
+window.addEventListener('pointermove',e=>{if(!drag)return;simYaw=drag[2]-(e.clientX-drag[0])*.25;simPitch=Math.max(-60,Math.min(89,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
+$('#fov').value=store.get('fov',65);$('#fovV').textContent=$('#fov').value+'°';$('#fov').oninput=e=>{$('#fovV').textContent=e.target.value+'°';store.set('fov',+e.target.value)};
 function arChips(){$('#arChips').innerHTML=speakers.filter(s=>s.g!=='sub').map(s=>`<button class="chip" data-id="${s.id}" style="${tgt&&tgt.id===s.id?'background:'+GCOL[s.g]+';color:#04111f':''}">${s.id}</button>`).join('');
-  $$('#arChips .chip').forEach(c=>c.onclick=()=>{tgt=speakers.find(s=>s.id===c.dataset.id);arChips()});$('#arPos').textContent=tgt?('📐 '+posText(tgt)):'';if(tgt&&!speakers.includes(tgt))tgt=speakers.find(s=>s.id===tgt.id)||null}
+  $$('#arChips .chip').forEach(c=>c.onclick=()=>{tgt=speakers.find(s=>s.id===c.dataset.id);arChips()});
+  if(tgt&&!speakers.includes(tgt))tgt=speakers.find(s=>s.id===tgt.id)||null;
+  const rear=tgt&&((tgt.elMin!=null&&tgt.elMin>=100)||(tgt.azMin!=null&&tgt.azMin>=115));
+  $('#arPos').innerHTML=tgt?('📐 '+posText(tgt)+(rear?'<br><span style="color:#fde68a">📱 Arkaya dönerken telefonu yerinden oynatmayın: telefonu kulak hizasında sabit tutup kendi etrafınızda değil, telefonun etrafında dönün (mümkünse telefon tutucu/tripod).</span>':'')):''}
+/* ---- referans akışı ---- */
+const CAL_TIP='<p class="muted" style="margin:10px 0 0;font-size:12px">📱 Telefonu baştan sona <b>kulak hizasında</b> tutun ve yerinden oynatmamaya çalışın. Dönerken kendi etrafınızda değil, telefonun etrafında dönün. Mümkünse telefon tutucu/tripod kullanın. Telefonun 20 cm kayması, 3 m uzaktaki hoparlörde yaklaşık 4° hata demektir.</p>';
+function calShow(st){arStage=st;const box=$('#calBox');$('#arCal').classList.toggle('on',st!=='run');$('#arWrap').classList.toggle('cal',st!=='run');$('#arToast').style.display='none';
+  if(st==='choose'){box.innerHTML=`<div class="calstep">Başlarken</div><h3 class="calh">Neyi referans alalım?</h3>
+    <button class="calopt" id="cmSeat"><b>🪑 Koltuğum sabit</b><span>Koltuğum yerinde kalacak. Merkez hoparlörün ve diğer hoparlörlerin nereye konacağını göster.</span></button>
+    <button class="calopt" id="cmCenter"><b>🔈 Merkez hoparlörüm sabit</b><span>Merkez hoparlörümün yeri değişemez. Onu işaretleyeyim; tam karşısına oturmam için beni yönlendir.</span></button>${CAL_TIP}`;
+    $('#cmSeat').onclick=()=>{refMode='seat';calShow('wall')};$('#cmCenter').onclick=()=>{refMode='center';calShow('wall')}}
+  else if(st==='wall'){box.innerHTML=`<div class="calstep">1/2 · Odanın ön yönü</div><h3 class="calh">Telefonu ön duvara dayayın</h3>
+    <p class="muted" style="margin:0">Ekranın / merkez hoparlörün bulunduğu <b>ön duvara</b> gidin. Telefonun <b>arkasını (kamerayı) duvara düz dayayın</b>, ekran size baksın. Böylece uygulama odanın tam ileri yönünü öğrenir.</p>
+    <div class="calok" id="calLive">—</div><button class="btn pri" id="calWallBtn" style="width:100%;margin-top:10px">✓ Ön yönü kaydet</button>
+    <button class="btn sm" id="calQuick" style="width:100%;margin-top:8px">Duvara ulaşamıyorum: koltuktan tam karşıya bakarak kaydet</button>`;
+    $('#calWallBtn').onclick=()=>{if($('#calWallBtn').disabled)return;azWall=curHeading();calShow(refMode==='seat'?'seat':'align')};
+    $('#calQuick').onclick=()=>{azWall=curHeading();azRef=azWall;calDone('Ön yön, koltuktan baktığınız yön olarak kaydedildi.')}}
+  else if(st==='seat'){box.innerHTML=`<div class="calstep">2/2 · Koltuk</div><h3 class="calh">Koltuğunuza oturun</h3>
+    <p class="muted" style="margin:0">Telefonu kulak hizasında tutun. Merkez hoparlör, koltuğun <b>tam karşısında (0°)</b> gösterilecek; diğer hoparlörler buna göre çizilecek.</p>
+    <button class="btn pri" id="calSeatBtn" style="width:100%;margin-top:10px">Koltuktayım, başla</button>${CAL_TIP}`;
+    $('#calSeatBtn').onclick=()=>{azRef=azWall;calDone('Merkez hoparlör tam karşınızda olmalı. Alttan bir hoparlör seçip oku takip edin.');tgt=speakers.find(s=>s.id==='C')||tgt;arChips()}}
+  else if(st==='align'){box.innerHTML=`<div class="calstep">2/2 · Merkezin karşısına geçin</div><h3 class="calh">Merkez hoparlörü işaretleyin</h3>
+    <p class="muted" style="margin:0">Koltuğa oturun ve ortadaki artıyı <b>merkez hoparlörünüzün ortasına</b> getirin. Tam karşısında olup olmadığınızı söyleyeceğiz.</p>
+    <div class="calok" id="calLive">—</div><button class="btn pri" id="calAlignBtn" style="width:100%;margin-top:10px">⌖ Burayı referans al</button>
+    <button class="btn sm" id="calAnyway" style="width:100%;margin-top:8px">Yerimi değiştiremiyorum: merkeze göre yine de devam et</button>${CAL_TIP}`;
+    $('#calAlignBtn').onclick=()=>{if($('#calAlignBtn').disabled)return;azRef=azWall;calDone('Merkezin tam karşısındasınız. Alttan bir hoparlör seçip oku takip edin.')};
+    $('#calAnyway').onclick=()=>{azRef=curHeading();calDone('Referans: merkez hoparlöre olan yön. Açılar buna göre gösteriliyor.')}}
+  else{}}
+function calDone(msg){calShow('run');const t=$('#arToast');t.innerHTML='✓ Referans alındı<br><span style="font-weight:500;font-size:13px">'+msg+'</span>';t.style.display='block';setTimeout(()=>t.style.display='none',3000);
+  if(!tgt||tgt.id==='C')tgt=speakers.find(s=>s.id==='L')||speakers.find(s=>s.g!=='sub');arChips()}
+function curM(){return arSim?simR():(Rm||simR())}
+function curHeading(){return headingOf(camFwd(curM()))}
+function calLive(){if(arStage==='wall'){const f=camFwd(curM()),ok=arSim||Math.abs(f[2])<.12;$('#calLive').innerHTML=ok?'<span style="color:var(--ok)">✓ Telefon duvara dik</span>':'<span style="color:var(--warn)">Telefonu dik tutun (öne/arkaya yatık)</span>';$('#calWallBtn').disabled=!ok}
+  else if(arStage==='align'){const dev=wrap(curHeading()-azWall),dist=(seats.find(x=>x.spk==='C')||{}).d||Math.max(1.5,room.seat-.1),cm=Math.abs(Math.tan(dev*D2R)*dist*100),ok=Math.abs(dev)<=2;
+    $('#calLive').innerHTML=ok?'<span style="color:var(--ok)">✓ Şu an merkez hoparlörün tam karşısındasınız</span>':`<span style="color:var(--warn)">Merkez hoparlör ${Math.abs(dev).toFixed(0)}° ${dev>0?'sağınızda':'solunuzda'} → koltuğu/kendinizi yaklaşık <b>${cm.toFixed(0)} cm ${dev>0?'sağa':'sola'}</b> kaydırın</span>`;
+    $('#calAlignBtn').disabled=Math.abs(dev)>3}}
+function camF(){const vd=$('#arVid'),W=arCv.width,H=arCv.height;let vw=vd.videoWidth,vh=vd.videoHeight;if(!vw||!vh){vw=1440;vh=1920}
+  const sc=Math.max(W/vw,H/vh),long=Math.max(vw,vh),F=+$('#fov').value*D2R;return long*sc/2/Math.tan(F/2)}
 function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d=devicePixelRatio||1;
-  const fr=()=>{if(!arOn)return;actx.clearRect(0,0,W,H);if(!$('#arVid').srcObject){actx.fillStyle='#070d1a';actx.fillRect(0,0,W,H);for(let i=-180;i<=180;i+=15){}}
-    const raz=wrap(az-(az0||0)),hf=+$('#fov').value*D2R/2,vf=Math.atan(Math.tan(hf)*H/W);
-    const proj=(a,e)=>{const da=wrap(a-raz)*D2R,de=(e-el)*D2R;if(Math.abs(da)>1.3||Math.abs(de)>1.3)return null;return[W/2+Math.tan(da)/Math.tan(hf)*W/2,H/2-Math.tan(de)/Math.tan(vf)*H/2]};
-    // horizon + grid
-    actx.strokeStyle='rgba(56,189,248,.35)';actx.lineWidth=1*d;for(let a=-180;a<180;a+=15){const p=proj(a,0);if(p){actx.beginPath();actx.moveTo(p[0],p[1]-8*d);actx.lineTo(p[0],p[1]+8*d);actx.stroke();actx.fillStyle='rgba(148,197,255,.7)';actx.font=`${10*d}px Inter`;actx.textAlign='center';actx.fillText(a+'°',p[0],p[1]+20*d)}}
-    const h0=proj(raz-60,0),h1=proj(raz+60,0);if(h0&&h1){actx.beginPath();actx.moveTo(0,h0[1]);actx.lineTo(W,h1[1]);actx.stroke()}
-    speakers.filter(s=>s.g!=='sub').forEach(s=>{const p=proj(s.az,s.el);if(!p)return;const on=tgt&&s.id===tgt.id;actx.fillStyle=GCOL[s.g]+(on?'':'99');actx.beginPath();actx.arc(p[0],p[1],(on?22:14)*d,0,7);actx.fill();actx.fillStyle='#04111f';actx.font=`bold ${(on?12:10)*d}px Inter`;actx.textAlign='center';actx.textBaseline='middle';actx.fillText(s.id,p[0],p[1]);actx.textBaseline='alphabetic'});
-    // hedef açı ARALIĞI (bölge) — sitedeki Dolby aralıkları
+  const fr=()=>{if(!arOn)return;actx.clearRect(0,0,W,H);if(!$('#arVid').srcObject){actx.fillStyle='#070d1a';actx.fillRect(0,0,W,H)}
+    const M=curM(),R_=camRight(M),U_=camUp(M),F_=camFwd(M),fp=camF();
+    const projW=w=>{const cz=w[0]*F_[0]+w[1]*F_[1]+w[2]*F_[2];if(cz<.08)return null;const cx=w[0]*R_[0]+w[1]*R_[1]+w[2]*R_[2],cy=w[0]*U_[0]+w[1]*U_[1]+w[2]*U_[2];return[W/2+cx/cz*fp,H/2-cy/cz*fp]};
+    const proj=(a,e)=>projW(roomToWorld(aeVec(a,e)));
+    const fr_=worldToRoom(F_);az=Math.atan2(fr_[0],fr_[1])/D2R;el=Math.asin(Math.max(-1,Math.min(1,fr_[2])))/D2R;
+    const raz=az,curSweep=Math.atan2(fr_[2],fr_[1])/D2R,curLam=Math.asin(Math.max(-1,Math.min(1,fr_[0])))/D2R;
+    if(arStage==='run'){
+    // ufuk (kulak hizası) ve açı işaretleri
+    actx.strokeStyle='rgba(56,189,248,.45)';actx.lineWidth=1.2*d;actx.beginPath();let st=false;for(let a=-180;a<=180;a+=2){const p=proj(a,0);if(!p){st=false;continue}st?actx.lineTo(p[0],p[1]):actx.moveTo(p[0],p[1]);st=true}actx.stroke();
+    actx.fillStyle='rgba(148,197,255,.8)';actx.font=`${10*d}px Inter`;actx.textAlign='center';for(let a=-165;a<=180;a+=15){const p=proj(a,0);if(p){actx.fillRect(p[0]-.5*d,p[1]-6*d,1*d,12*d);actx.fillText(a+'°',p[0],p[1]+18*d)}}
+    speakers.filter(s=>s.g!=='sub').forEach(s=>{const p=proj(s.az,s.el);if(!p)return;const on=tgt&&s.id===tgt.id;actx.fillStyle=GCOL[s.g]+(on?'':'99');actx.beginPath();actx.arc(p[0],p[1],(on?22:14)*d,0,7);actx.fill();actx.fillStyle='#04111f';actx.font=`bold ${(on?12:10)*d}px Inter`;actx.textAlign='center';actx.textBaseline='middle';actx.fillText(s.id,p[0],p[1]);actx.textBaseline='alphabetic'});}
     let inside=false,arrowTxt='',nowTxt='';
-    const cx_=Math.sin(raz*D2R)*Math.cos(el*D2R),cf_=Math.cos(raz*D2R)*Math.cos(el*D2R),cz_=Math.sin(el*D2R);
-    const curSweep=Math.atan2(cz_,cf_)/D2R,curLam=Math.asin(Math.max(-1,Math.min(1,cx_)))/D2R;
-    if(tgt){const col=GCOL[tgt.g];let poly=[];
+    if(tgt&&arStage==='run'){const col=GCOL[tgt.g];let poly=[];const back=fr_[1]<0;
       if(tgt.elMin==null){
         let lo,hi;if(tgt.side===0){lo=-3;hi=3}else{lo=Math.min(tgt.side*tgt.azMin,tgt.side*tgt.azMax);hi=Math.max(tgt.side*tgt.azMin,tgt.side*tgt.azMax);if(lo===hi){lo-=3;hi+=3}}
-        const E0=-10,E1=12,mid=(lo+hi)/2,half=(hi-lo)/2,dA=wrap(raz-mid);
+        const E0=-12,E1=12,mid=(lo+hi)/2,half=(hi-lo)/2,dA=wrap(raz-mid);
         for(let k=0;k<=10;k++)poly.push([lo+(hi-lo)*k/10,E1]);for(let k=10;k>=0;k--)poly.push([lo+(hi-lo)*k/10,E0]);
         const okA=Math.abs(dA)<=half,okE=el>=E0&&el<=E1;inside=okA&&okE;
         if(!okA){const need=Math.abs(dA)-half;arrowTxt+=need>100?'↻ Arkaya dönün ':(dA<0?'→ ':'← ')+need.toFixed(0)+'° '}
-        if(!okE)arrowTxt+=el<E0?'↑ kulak hizası':'↓ kulak hizası';
+        if(!okE)arrowTxt+=el<E0?'↑ kulak hizasına':'↓ kulak hizasına';
         nowTxt=`Şu an ${Math.abs(raz).toFixed(0)}° ${raz<-0.5?'sol':raz>0.5?'sağ':''} · hedef aralık ${rangeText(tgt)}`;
       }else{
         const L0=tgt.lam-12,L1=tgt.lam+12;const toAE=(sw,lm)=>{const x=Math.sin(lm*D2R),r=Math.cos(lm*D2R),f=r*Math.cos(sw*D2R),z=r*Math.sin(sw*D2R);return[Math.atan2(x,f)/D2R,Math.asin(z)/D2R]};
         for(let k=0;k<=12;k++)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L1));for(let k=12;k>=0;k--)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L0));
-        const okS=curSweep>=tgt.elMin&&curSweep<=tgt.elMax,okL=curLam>=L0&&curLam<=L1;inside=okS&&okL;
-        const back=cf_<0; // arkaya bakarken yön okları ters döner
-        const midS=(tgt.elMin+tgt.elMax)/2;if(midS>100&&!back&&curSweep<80){arrowTxt='↻ Arkaya dönün, sonra yukarı bakın'}else
-        if(!okS){const inc=curSweep<tgt.elMin,amt=inc?tgt.elMin-curSweep:curSweep-tgt.elMax;arrowTxt+=((inc!==back)?'↑ ':'↓ ')+amt.toFixed(0)+'° '}
-        if(!okL&&!arrowTxt.startsWith('↻')){const inc=curLam<L0,amt=inc?L0-curLam:curLam-L1;arrowTxt+=((inc!==back)?'→ ':'← ')+amt.toFixed(0)+'°'}
-        nowTxt=`Şu an tavan açısı ${curSweep.toFixed(0)}° · hedef ${tgt.elMin}–${tgt.elMax}°`;
+        const sw=curSweep<-90?curSweep+360:curSweep;const okS=sw>=tgt.elMin&&sw<=tgt.elMax,okL=curLam>=L0&&curLam<=L1;inside=okS&&okL;
+        const midS=(tgt.elMin+tgt.elMax)/2;if(midS>100&&!back&&sw<80){arrowTxt='↻ Arkaya dönün, sonra yukarı bakın'}
+        else{if(!okS){const inc=sw<tgt.elMin,amt=inc?tgt.elMin-sw:sw-tgt.elMax;arrowTxt+=((inc!==back)?'↑ ':'↓ ')+amt.toFixed(0)+'° '}
+          if(!okL){const inc=curLam<L0,amt=inc?L0-curLam:curLam-L1;arrowTxt+=((inc!==back)?'→ ':'← ')+amt.toFixed(0)+'°'}}
+        nowTxt=`Şu an tavan açısı ${sw.toFixed(0)}° · hedef ${tgt.elMin}–${tgt.elMax}°`;
       }
       const pp=poly.map(([a,e])=>proj(a,e));
-      if(pp.filter(Boolean).length>3){actx.beginPath();let st=false;pp.forEach(p=>{if(!p)return;if(!st){actx.moveTo(p[0],p[1]);st=true}else actx.lineTo(p[0],p[1])});actx.closePath();
+      if(pp.filter(Boolean).length>3){actx.beginPath();let s0=false;pp.forEach(p=>{if(!p)return;if(!s0){actx.moveTo(p[0],p[1]);s0=true}else actx.lineTo(p[0],p[1])});actx.closePath();
         actx.fillStyle=(inside?'#22c55e':col)+'33';actx.fill();actx.strokeStyle=inside?'#22c55e':col;actx.lineWidth=2*d;actx.setLineDash([6*d,4*d]);actx.stroke();actx.setLineDash([])}
     }
-    if(arCalOn){const ok=arSim||Math.abs(el+el0-0)<6||Math.abs(el)<6;const tilt=arSim?el:el;$('#lvlDot').style.left=(50+Math.max(-45,Math.min(45,tilt*2)))+'%';$('#lvlDot').style.background=ok?'#22c55e':'#f59e0b';
-      $('#lvlTxt').textContent=`Eğim ${tilt>0?'+':''}${tilt.toFixed(0)}°${ok?' ✓':''}`;$('#arRef').disabled=!ok}
-    // crosshair
+    if(arStage==='wall'||arStage==='align')calLive();
+    // artı işareti
     actx.strokeStyle=inside?'#22c55e':'#fff';actx.lineWidth=2*d;actx.beginPath();actx.arc(W/2,H/2,26*d,0,7);actx.moveTo(W/2-40*d,H/2);actx.lineTo(W/2-12*d,H/2);actx.moveTo(W/2+12*d,H/2);actx.lineTo(W/2+40*d,H/2);actx.moveTo(W/2,H/2-40*d);actx.lineTo(W/2,H/2-12*d);actx.moveTo(W/2,H/2+12*d);actx.lineTo(W/2,H/2+40*d);actx.stroke();
-    const oy=60*d;actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,oy+16*d);actx.fillText(`Eğim: ${el.toFixed(1)}°`,16*d,oy+32*d);
-    if(tgt&&tgt.elMin!=null){actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy+42*d,150*d,22*d);actx.fillStyle='#fde68a';actx.fillText(`Tavan açısı: ${curSweep.toFixed(0)}°`,16*d,oy+58*d)}
-    if(tgt){$('#gTarget').textContent=`Hedef: ${tgt.id} — ${tgt.n}`;$('#gRange').textContent=nowTxt;
-      $('#gArrow').innerHTML=inside?'<span style="color:var(--ok)">✓ aralıkta</span>':arrowTxt;$('#gArrow').style.fontSize=inside?'22px':'16px';
-      if(inside&&!lastIn){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}lastIn=inside}
+    if(arStage==='run'){const oy=60*d;actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,oy+16*d);actx.fillText(`Yükseklik: ${el.toFixed(1)}°`,16*d,oy+32*d);
+      if(tgt&&tgt.elMin!=null){const sw=curSweep<-90?curSweep+360:curSweep;actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy+42*d,150*d,22*d);actx.fillStyle='#fde68a';actx.fillText(`Tavan açısı: ${sw.toFixed(0)}°`,16*d,oy+58*d)}
+      if(tgt){$('#gTarget').textContent=`Hedef: ${tgt.id} — ${tgt.n}`;$('#gRange').textContent=nowTxt;
+        $('#gArrow').innerHTML=inside?'<span style="color:var(--ok)">✓ aralıkta</span>':arrowTxt;$('#gArrow').style.fontSize=inside?'22px':'16px';
+        if(inside&&!lastIn){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}lastIn=inside}}
     arRaf=requestAnimationFrame(fr)};fr()}
-
 /* ---------------- koltuk–merkez mesafesi ---------------- */
 let seats=store.get('seats',[]),acRefT=null;
 function fillSeatSpk(){const cur=$('#seatSpk').value;const opts=speakers.filter(s=>s.g!=='height');$('#seatSpk').innerHTML=opts.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');$('#seatSpk').value=cur&&opts.find(s=>s.id===cur)?cur:(opts.find(s=>s.id==='C')||opts[0]||{}).id}
@@ -1313,7 +1359,7 @@ function posTable(){if(!$('#posTable'))return;let h='<table><tr><th>Kanal</th><t
  $('#devNote').textContent=t})();
 /* ---------------- init ---------------- */
 fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));posTable();setTimeout(()=>init3D(),400);fillMsCh();renderMsList();fillSeatSpk();renderSeats();showUmik();$('#pfApply').checked=!!store.get('pfApply',false);if(profile)setTimeout(showProfile,100);setLfeF(0);updateModeMsg();rtaResize();
-document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSeq();stopAll();stopObj();lfeStop();genStop()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSeq();stopAll();stopObj();lfeStop();genStop()}else if(ctx&&ctx.state!=='running'){ctx.resume().catch(()=>{})}});
 </script>
 </body>
 </html>
