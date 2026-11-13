@@ -1,0 +1,88 @@
+{
+ "order": [
+  "ev-sinemasi-hoparlor-yerlesimi",
+  "aci-hesaplama",
+  "altin-oran-hoparlor-yerlesimi",
+  "sahne-derinligi-phantom-kanal",
+  "oda-modu-room-modes-hesaplayici",
+  "rt60-akustik-panel-hesaplayici",
+  "ilk-yansima-noktalari",
+  "sbir-simulatoru",
+  "ideal-subwoofer-yerlesimi",
+  "subwoofer-yeri-bulma-araci",
+  "gerekli-guc-hesaplayici",
+  "hoparlor-kablosu-kesit-hesaplayici",
+  "dalga-boyu-hesaplayici",
+  "ses-yayilma-suresi-hesaplayici",
+  "rew-olcum-analizi",
+  "objective-tune"
+ ],
+ "meta": {
+  "ev-sinemasi-hoparlor-yerlesimi": {
+   "t": "Ev Sineması Hoparlör Yerleşimi Hesaplayıcı",
+   "d": "5.1’den 9.1.6’ya kadar Dolby Atmos konfigürasyonları için hoparlör açılarını ve konumlarını odanıza göre hesaplar."
+  },
+  "aci-hesaplama": {
+   "t": "Hoparlör Açı Hesaplama Aracı",
+   "d": "Dinleme noktasına göre hoparlör açılarını ölçümlerinizden hesaplar; ITU-R BS.775 önerileriyle karşılaştırır."
+  },
+  "altin-oran-hoparlor-yerlesimi": {
+   "t": "Altın Oran Hoparlör Yerleşimi",
+   "d": "Cardas altın oran yöntemine göre stereo hoparlörlerin ve dinleme noktasının ideal koordinatlarını verir."
+  },
+  "sahne-derinligi-phantom-kanal": {
+   "t": "Sahne Derinliği ve Phantom Kanal Hesaplayıcı",
+   "d": "Stereo sahne genişliğini, phantom merkez kanalın kararlılığını ve dinleme üçgenini değerlendirir."
+  },
+  "oda-modu-room-modes-hesaplayici": {
+   "t": "Oda Modu (Room Modes) Hesaplayıcı",
+   "d": "Oda ölçülerinize göre eksenel, teğetsel ve eğik oda modlarını (rezonans frekanslarını) hesaplar ve 3 boyutlu gösterir."
+  },
+  "rt60-akustik-panel-hesaplayici": {
+   "t": "RT60 ve Akustik Panel İhtiyacı Hesaplayıcı",
+   "d": "Odanızın yankılanma süresini (RT60) Sabine formülüyle hesaplar ve hedefe ulaşmak için kaç m² akustik panel gerektiğini gösterir."
+  },
+  "ilk-yansima-noktalari": {
+   "t": "İlk Yansıma Noktaları Hesaplayıcı",
+   "d": "Yan duvar, tavan ve zemindeki ilk yansıma noktalarını hesaplar; akustik panellerin tam yerini gösterir."
+  },
+  "sbir-simulatoru": {
+   "t": "SBIR Simülatörü (Hoparlör-Duvar Etkileşimi)",
+   "d": "Hoparlörün arka ve yan duvara mesafesinden doğan iptal (null) ve güçlenme frekanslarını hesaplar, 3 boyutlu gösterir."
+  },
+  "ideal-subwoofer-yerlesimi": {
+   "t": "İdeal Subwoofer Yerleşimi",
+   "d": "Bir, iki veya dört subwoofer için oda modlarını en çok dengeleyen yerleşimi hesaplar; subwooferları sürükleyerek deneyin."
+  },
+  "subwoofer-yeri-bulma-araci": {
+   "t": "Subwoofer Yeri Bulma Aracı (Subwoofer Crawl)",
+   "d": "Ölçüm cihazınız yoksa “subwoofer crawl” yöntemiyle subwoofer için en iyi yeri adım adım bulun."
+  },
+  "gerekli-guc-hesaplayici": {
+   "t": "Gerekli Güç (Watt) Hesaplayıcı",
+   "d": "Hoparlör hassasiyeti, dinleme mesafesi ve hedef ses şiddetine göre clipping olmadan ihtiyaç duyacağınız amplifikatör gücünü hesaplar."
+  },
+  "hoparlor-kablosu-kesit-hesaplayici": {
+   "t": "Hoparlör Kablosu Kesit Hesaplayıcı",
+   "d": "Kablo uzunluğu ve hoparlör empedansına (isterseniz bilinen en düşük empedansa) göre gereken en ince kablo kesitini mm² ve AWG olarak hesaplar; kayıp ve direnç tablosu verir."
+  },
+  "dalga-boyu-hesaplayici": {
+   "t": "Ses Dalga Boyu Hesaplayıcı",
+   "d": "Frekanstan dalga boyunu (ve tersini) hesaplar; çeyrek dalga boyu ve SBIR mesafeleri için kullanılır."
+  },
+  "ses-yayilma-suresi-hesaplayici": {
+   "t": "Ses Yayılma Süresi (Gecikme) Hesaplayıcı",
+   "d": "Mesafeye göre sesin ulaşma süresini milisaniye olarak hesaplar; hoparlör ve subwoofer gecikme ayarı için."
+  },
+  "rew-olcum-analizi": {
+   "t": "REW Ölçüm Analizi",
+   "d": "REW ile aldığınız ölçüm dosyasını (.mdat) yükleyin; kanal seviyeleri, varış zamanları, oda modları ve bas çukurları, arka duvar etkisi (SBIR), erken yansımalar, yankı süresi (RT60), şelale grafiği, subwoofer seçenekleri ve distorsiyon tek raporda, ne yapmanız gerektiğiyle birlikte gelsin. İlk analiz ücretsiz.",
+   "ext": "https://objectiveaudio.com.tr/hesaplama-araclari/rew-olcum-analizi/"
+  },
+  "objective-tune": {
+   "t": "Objective Tune — Audyssey kalibrasyon aracı",
+   "d": "Denon/Marantz amfinizin Audyssey MultEQ Editor uygulamasında kaydettiğiniz kalibrasyon dosyasını (.ady) yükleyin. Ölçümlerinizden her hoparlöre uygun crossover’ı seçer, ölçüm verisini ana koltuğun düzeltilecek haliyle yeniden yazar (tepeler tamamen kesilir, oda modu çukurları zorlanmaz) ve amfinize geri yükleyebileceğiniz 4 düzeltilmiş dosya (Normal, Hpy ve ikisinin Bass+ sürümü) ile bir rapor hazırlarız; düzeltme ana dinleme koltuğunuza göre yapılır, subwoofer ile hoparlörlerin zaman hizalaması da yapılır. İlk kalibrasyon ücretsiz.",
+   "ext": "https://objectiveaudio.com.tr/hesaplama-araclari/objective-tune/"
+  }
+ }
+}

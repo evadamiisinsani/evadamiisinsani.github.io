@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1020"><meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Objective Audio Labs — Önizleme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1020;--card:#111a2e;--card2:#16223b;--line:rgba(148,163,184,.18);--tx:#e5edf7;--mut:#8ea0bb;--acc:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;
+--front:#22c55e;--wide:#14b8a6;--surr:#a855f7;--rear:#3b82f6;--height:#f59e0b;--sub:#ef4444}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+button{font:inherit;color:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:20;background:rgba(10,16,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:10px 14px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand h1{font-size:17px;margin:0;font-weight:800;letter-spacing:-.2px}
+.brand h1 span{color:var(--acc)}
+.badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:#1e293b;color:var(--mut);letter-spacing:.4px}
+.pro{background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:#0d1628;border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{flex:1;border:0;background:transparent;padding:7px 9px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--mut);white-space:nowrap}
+.seg button.on{background:var(--card2);color:var(--tx);box-shadow:0 0 0 1px var(--line)}
+.vol{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--mut)}
+.vol input{flex:1}
+input[type=range]{accent-color:var(--acc)}
+main{padding:12px 12px 96px;max-width:980px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card h3{font-size:13px;margin:14px 0 8px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.muted{color:var(--mut);font-size:12.5px;line-height:1.5}
+.btn{border:1px solid var(--line);background:var(--card2);padding:9px 13px;border-radius:11px;font-weight:600;font-size:13.5px}
+.btn.pri{background:var(--acc);color:#04111f;border-color:transparent}
+.btn.stop{background:var(--bad);color:#fff;border-color:transparent}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.btn.on{background:#0e3a52;border-color:var(--acc)}
+.btn:disabled{opacity:.4}
+.grid{display:grid;gap:8px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(min-width:760px){.wide2{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}}
+select,input[type=number],input[type=text]{background:#0d1628;border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;width:100%}
+label.f{display:block;font-size:12px;color:var(--mut);margin-bottom:4px}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(10,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:600;color:var(--mut);padding:4px 0}
+nav.tabs button .i{font-size:19px;line-height:1}
+nav.tabs button.on{color:var(--acc)}
+section{display:none}section.on{display:block}
+/* diagram */
+#diag{width:100%;max-width:470px;display:block;margin:0 auto;touch-action:manipulation}
+.spk rect{fill:#0d1628;stroke:#94a3b8;stroke-width:1.4;transition:.15s}
+.spk text{fill:#e2e8f0;font-size:12px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.spk{cursor:pointer}
+.spk.dis rect{stroke-dasharray:3 3;opacity:.45}.spk.dis text{opacity:.45}
+.spk.act rect{stroke:#fff;stroke-width:2}
+.nowname{text-align:center;font-size:30px;font-weight:800;letter-spacing:-.5px;min-height:38px;margin-top:4px}
+.nowsub{text-align:center;color:var(--mut);font-size:12px;min-height:16px;letter-spacing:1.5px;text-transform:uppercase}
+.chips{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.chiprow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.chiprow b{width:16px;font-size:18px;font-weight:800}
+.chip{border:1px solid var(--line);background:#0d1628;border-radius:9px;padding:5px 8px;font-size:12.5px;font-weight:700}
+.chip i{font-style:normal;color:var(--mut);font-weight:500;margin-right:3px;font-size:11px}
+.chip.act{color:#04111f}
+.chip.dis{opacity:.35}
+.freqs{display:flex;flex-wrap:wrap;gap:6px}
+.freqs button{min-width:52px;border:1px solid var(--line);background:#0d1628;border-radius:10px;padding:8px 6px;font-weight:700;font-size:13px}
+.freqs button.on{background:var(--sub);border-color:transparent;color:#fff}
+.fx{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:560px){.fx{grid-template-columns:repeat(4,1fr)}}
+.fx button{border:1px solid var(--line);background:var(--card2);border-radius:14px;padding:12px 8px;text-align:left}
+.fx button .e{font-size:22px}.fx button .t{font-weight:700;font-size:13.5px;margin-top:4px}.fx button .d{color:var(--mut);font-size:11px;margin-top:2px}
+.fx button.on{border-color:var(--sub);box-shadow:0 0 0 1px var(--sub) inset}
+.big{font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1;text-align:center;font-variant-numeric:tabular-nums}
+.big small{font-size:20px;color:var(--mut);letter-spacing:0;margin-left:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;text-align:center}
+.stats div{background:#0d1628;border-radius:10px;padding:8px}
+.stats b{display:block;font-size:18px;font-variant-numeric:tabular-nums}.stats span{font-size:11px;color:var(--mut)}
+canvas{width:100%;display:block}
+.note{border-left:3px solid var(--warn);background:rgba(245,158,11,.08);padding:9px 11px;border-radius:8px;font-size:12.5px;line-height:1.5;color:#f6dfb3;margin:8px 0}
+.note.info{border-color:var(--acc);background:rgba(56,189,248,.07);color:#cfe9f7}
+.note.err{border-color:var(--bad);background:rgba(239,68,68,.08);color:#fecaca}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 5px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:600;font-size:11.5px}
+.res{background:#0d1628;border-radius:12px;padding:10px;margin-top:8px;font-size:13.5px;line-height:1.55}
+.res b{color:var(--acc)}
+#arWrap{position:relative;width:100%;height:58vh;max-height:560px;background:#050912;border-radius:14px;overflow:hidden;touch-action:none}
+#arWrap video,#arWrap canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.guide{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;background:#0d1628;border-radius:12px;padding:10px 12px}
+.guide .arrow{font-size:30px;font-weight:800}
+.guide .gt{font-weight:700;font-size:15px}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.kv span{color:var(--mut)}
+details summary{cursor:pointer;font-weight:700;padding:4px 0}
+.calc{margin-bottom:10px}
+.tl{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:11px 12px;margin-bottom:8px;color:var(--tx);text-decoration:none}
+.tl b{display:block;font-size:14px}.tl span{display:block;color:var(--mut);font-size:12px;margin-top:3px;line-height:1.4}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Objective Audio <span>Labs</span></h1>
+    <span class="badge">ÖNİZLEME</span>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <div class="seg" id="modeSeg" style="flex:1">
+      <button data-m="hp" class="on">🎧 Kulaklık 3D</button>
+      <button data-m="st">🔈 Stereo amfi</button>
+      <button data-m="mc">🔊 Çok kanal</button>
+    </div>
+  </div>
+  <div class="vol">🔉 <input id="vol" type="range" min="-50" max="0" step="1" value="-14"><b id="volv" style="width:58px;text-align:right;color:var(--tx)">-14 dB</b></div>
+  <div id="modeMsg" class="muted" style="margin-top:4px;font-size:11.5px"></div>
+</header>
+
+<main>
+<!-- ============ KANALLAR ============ -->
+<section id="t-ch" class="on">
+  <div class="wide2">
+  <div class="card">
+    <h2>Sistem düzeni</h2>
+    <div class="grid g2">
+      <div><label class="f">Hazır düzen</label><select id="preset"></select></div>
+      <div><label class="f">Test sinyali</label>
+        <select id="sig"><option value="band">Pembe gürültü 500–2k (AVR tipi)</option><option value="wide">Geniş bant pembe gürültü</option><option value="tone">1 kHz sinüs</option></select></div>
+    </div>
+    <div class="grid g3" style="margin-top:8px">
+      <div><label class="f">Ana (yatay)</label><select id="cBed"></select></div>
+      <div><label class="f">Subwoofer</label><select id="cSub"></select></div>
+      <div><label class="f">Tavan</label><select id="cH"></select></div>
+    </div>
+    <svg id="diag" viewBox="0 0 440 440" style="margin-top:10px"></svg>
+    <div class="nowname" id="nowName">Bir hoparlöre dokun</div>
+    <div class="nowsub" id="nowSub" lang="en"></div>
+    <div class="chips" id="chips"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn pri" id="seqBtn">▶ Sırayla çal</button>
+      <button class="btn" id="stopBtn">■ Durdur</button>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <h2>Uzamsal demo <span class="badge pro">PRO</span></h2>
+      <p class="muted" style="margin-top:0">Aynı melodi, seçili hoparlör düzeni üzerinden odada dolaşır. Kulaklıkta her sanal hoparlör ayrı HRTF ile çalınır. “2.0 ile karşılaştır” ile farkı duyun.</p>
+      <div class="seg" id="pathSeg"><button data-p="orbit" class="on">Daire</button><button data-p="fly">Üstten geçiş</button><button data-p="spiral">Spiral</button></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn pri" id="objBtn">▶ Melodiyi başlat</button>
+        <button class="btn" id="cmpBtn">2.0 ile karşılaştır</button>
+      </div>
+      <div class="res" id="objInfo" style="display:none"></div>
+    </div>
+    <div class="card">
+      <h2>Bu ekran ne işe yarar?</h2>
+      <p class="muted" style="margin:0">• <b>Kulaklık 3D:</b> Düzeni kulaklıkla binaural (HRTF) olarak duyarsınız. Satış/demo ve eğitim içindir.<br>
+      • <b>Stereo amfi:</b> Telefon → kablo/Bluetooth/AirPlay → amfi. Sol ve sağ kanal ayrı test edilir.<br>
+      • <b>Çok kanal:</b> Tarayıcı veya işletim sistemi 6–8 kanallı çıkış sunarsa (bilgisayar + HDMI, USB ses kartı) kanallar ayrı ayrı gider. Atmos tavan kanalları için Dolby kodlaması gerekir (bkz. ürün planı).</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============ LFE ============ -->
+<section id="t-lfe">
+  <div class="card">
+    <h2>LFE laboratuvarı</h2>
+    <div class="note">Düşük seviyede başlayın. 10–25 Hz sesleri çoğu kulaklık ve küçük hoparlör üretemez, bu frekanslar duyulmaktan çok <b>hissedilir</b>. Yüksek seviyede uzun süre çalmak sürücülere zarar verebilir.</div>
+    <h3>Temel frekans</h3>
+    <div class="freqs" id="freqs"></div>
+    <div class="row" style="margin-top:8px"><span class="muted">İnce ayar</span><input type="range" id="fSlider" min="0" max="1000" value="500" style="flex:1"><b id="fVal" style="width:64px;text-align:right">40 Hz</b></div>
+    <h3>Efektler</h3>
+    <div class="fx" id="fx"></div>
+    <h3>Testler</h3>
+    <div class="row">
+      <button class="btn" id="sweepBtn">↘ Tarama 200→10 Hz</button>
+      <button class="btn" id="extBtn">⤓ Alt sınır testi</button>
+      <button class="btn" id="lfeStop">■ Durdur</button>
+    </div>
+    <div class="res" id="lfeInfo">Bir frekans seçip efekte dokunun. Sesler sentezlenir ve frekansı ayarlanabilir. Kaynak <b>LFE</b> kanalıdır: Çok kanal modunda 4. kanala (LFE), diğer modlarda her iki kanala gider.</div>
+  </div>
+</section>
+
+<!-- ============ SİNYAL ============ -->
+<section id="t-sig">
+  <div class="card">
+    <h2>Sinyal üreteci</h2>
+    <h3>Kaynak</h3>
+    <div class="seg" id="genSeg">
+      <button data-g="pink" class="on">Pembe</button><button data-g="white">Beyaz</button><button data-g="brown">Kahverengi</button><button data-g="sine">Sinüs</button><button data-g="sweep">Tarama</button><button data-g="pulse">Polarite</button>
+    </div>
+    <div id="sineCtl" style="display:none;margin-top:10px">
+      <div class="row"><input type="range" id="sineF" min="0" max="1000" value="500" style="flex:1"><b id="sineV" style="width:80px;text-align:right">1000 Hz</b></div>
+      <div class="freqs" id="sineQuick" style="margin-top:6px"></div>
+    </div>
+    <h3>Yönlendirme</h3>
+    <div class="seg" id="routeSeg">
+      <button data-r="L">Sol</button><button data-r="R">Sağ</button><button data-r="LR" class="on">İkisi (aynı faz)</button><button data-r="inv">İkisi (ters faz)</button><button data-r="dec">Dekorele</button>
+    </div>
+    <div class="row" style="margin-top:8px"><span class="muted">Seviye</span><input type="range" id="genLvl" min="-40" max="0" value="-20" style="flex:1"><b id="genLv" style="width:70px;text-align:right">-20 dBFS</b></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn pri" id="genPlay">▶ Çal</button>
+      <button class="btn" id="phaseAB">⇄ Faz A/B testi</button>
+      <button class="btn" id="genStop">■ Durdur</button>
+    </div>
+    <div class="res" id="genInfo">Pembe gürültü seviye eşitlemek için, beyaz gürültü tiz kontrolü için, kahverengi gürültü bas/oda testi için kullanılır. <b>Faz A/B:</b> 4 saniyede bir aynı faz/ters faz arasında geçer. “Aynı faz”da ses ortada ve dolgun duyulmalıdır. Tersi duyuluyorsa bir hoparlörün kablosu ters bağlıdır.</div>
+  </div>
+</section>
+
+<!-- ============ ÖLÇÜM ============ -->
+<section id="t-meas">
+  <div class="card">
+    <h2>Canlı SPL metre</h2>
+    <div id="micMsg"></div>
+    <div class="row" style="justify-content:space-between">
+      <div class="seg" id="wSeg"><button data-w="A">dBA</button><button data-w="C" class="on">dBC</button><button data-w="Z">dBZ</button></div>
+      <div class="seg" id="tSeg"><button data-t="F" class="on">Hızlı</button><button data-t="S">Yavaş</button></div>
+    </div>
+    <div class="big" id="splBig" style="margin-top:14px">--<small>dB</small></div>
+    <div class="stats"><div><b id="splMax">--</b><span>Maks</span></div><div><b id="splLeq">--</b><span>Leq</span></div><div><b id="domF">--</b><span>Baskın frekans</span></div></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn pri" id="micBtn">🎙 Mikrofonu başlat</button>
+      <button class="btn" id="splReset">Sıfırla</button>
+    </div>
+    <details style="margin-top:10px"><summary class="muted">Kalibrasyon</summary>
+      <div class="row" style="margin-top:6px"><span class="muted">Ofset</span><input type="range" id="calOff" min="60" max="140" step="0.5" value="104" style="flex:1"><b id="calV" style="width:60px;text-align:right">104</b></div>
+      <div class="row" style="margin-top:6px"><input type="number" id="refDb" placeholder="Gerçek ölçer değeri (dB)" style="flex:1"><button class="btn sm" id="calBtn">Eşitle</button></div>
+      <p class="muted">Telefon mikrofonları fabrika kalibrasyonlu değildir. Bilinen bir ölçerle (veya UMIK) bir kez eşitleyin. Ofset bu cihazda saklanır. Ticari sürümde model bazlı düzeltme eğrileri bulunur.</p>
+    </details>
+  </div>
+  <div class="card">
+    <h2>RTA — 1/3 oktav</h2>
+    <canvas id="rta" height="190"></canvas>
+    <div class="row" style="margin-top:8px"><button class="btn sm" id="rtaHold">Tepe tutma: açık</button><button class="btn sm" id="rtaClr">Temizle</button></div>
+  </div>
+  <div class="card">
+    <h2>Stereo L/R analizi <span class="badge pro">PRO</span></h2>
+    <p class="muted" style="margin-top:0">Dinleme noktasına oturun, telefonu kulak hizasında tutun. Sol ve sağ hoparlörden sırayla kısa bir tarama sinyali çalınır. Uygulama <b>varış zamanı farkını (mesafe)</b>, <b>seviye farkını</b>, <b>göreli polariteyi</b> ve <b>oktav bantlarında tonal farkı</b> hesaplar. Stereo amfi modunda kullanın.</p>
+    <button class="btn pri" id="lrBtn">▶ Analizi başlat (3 tekrar)</button>
+    <div class="res" id="lrRes" style="display:none"></div>
+  </div>
+  <div class="card">
+    <h2>Subwoofer faz/mesafe hizalama <span class="badge pro">PRO</span></h2>
+    <p class="muted" style="margin-top:0">Crossover frekansında ton çalın. AVR'deki subwoofer mesafesini/fazını adım adım değiştirin ve bu frekanstaki seviyenin <b>en yüksek</b> olduğu ayarı bırakın.</p>
+    <div class="row"><select id="xoF" style="width:auto"><option>60</option><option selected>80</option><option>100</option><option>120</option></select><span class="muted">Hz</span>
+      <button class="btn" id="xoPlay">▶ Ton çal</button><button class="btn sm" id="xoRst">Maks sıfırla</button></div>
+    <div class="stats"><div><b id="xoNow">--</b><span>Şimdi (dB)</span></div><div><b id="xoMax">--</b><span>Maks (dB)</span></div><div><b id="xoDiff">--</b><span>Maks'a fark</span></div></div>
+  </div>
+</section>
+
+<!-- ============ YERLEŞİM ============ -->
+<section id="t-place">
+  <div class="card">
+    <h2>Kamerayla hoparlör yerleşimi <span class="badge pro">PRO</span></h2>
+    <p class="muted" style="margin-top:0">Dinleme koltuğuna oturun ve telefonu kulak hizasında, kamera önde olacak şekilde dik tutun. Önce ekranın/merkez hoparlörün ortasına doğrultup <b>0° yap</b>'a basın. Ardından hedef seçin ve oku takip edin. Yeşil olduğunda o nokta, Dolby açı önerisine uyan hoparlör konumudur.</p>
+    <div class="row"><button class="btn pri" id="arStart">📷 Kamera + sensör başlat</button><button class="btn" id="arZero">⌖ 0° yap</button><button class="btn sm" id="arSim">Simülasyon</button></div>
+    <div id="arMsg"></div>
+    <div id="arWrap" style="margin-top:10px"><video id="arVid" playsinline muted></video><canvas id="arCv"></canvas></div>
+    <div class="guide"><div><div class="gt" id="gTarget">Hedef: —</div><div class="muted" id="gRange"></div></div><div class="arrow" id="gArrow">·</div></div>
+    <div class="chiprow" id="arChips" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:10px"><span class="muted">Kamera görüş açısı</span><input type="range" id="fov" min="40" max="80" value="56" style="flex:1"><b id="fovV">56°</b></div>
+    <div class="grid g2" style="margin-top:10px">
+      <div><label class="f">Tavan yüksekliği (m)</label><input type="number" id="rmH" step="0.05"></div>
+      <div><label class="f">Koltuk–ön duvar (m)</label><input type="number" id="rmS" step="0.1"></div>
+    </div>
+    <p class="muted" style="margin:6px 0 0">Tavan hoparlörlerinin yan açısı bu ölçülerden hesaplanır (sitedeki Ev Sineması Hoparlör Yerleşimi aracıyla aynı model: kulak 1,2 m, tavan hoparlörleri L/R hizasında).</p>
+    <div class="note info" id="devNote"></div>
+  </div>
+</section>
+
+<!-- ============ HESAPLA ============ -->
+<section id="t-calc">
+  <div class="card">
+    <h2>Objective Audio hesaplama araçları</h2>
+    <p class="muted" style="margin-top:0">objectiveaudio.com.tr'deki 16 aracın tamamı. 14 hesaplayıcı uygulamanın içinde çalışır; REW Ölçüm Analizi ve Objective Tune hesap gerektiren hizmetler olduğu için sitenizde açılır.</p>
+    <div id="toolList"></div>
+  </div>
+</section>
+<div id="toolView" style="display:none;position:fixed;inset:0;z-index:50;background:#0a1020;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;border-bottom:1px solid var(--line)">
+    <button class="btn sm" id="toolBack">← Araçlar</button><b id="toolTitle" style="font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></b>
+  </div>
+  <iframe id="toolFrame" style="flex:1;border:0;width:100%;background:#0a1020" allow="microphone; fullscreen"></iframe>
+</div>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-t="t-ch" class="on"><span class="i">◎</span>Kanallar</button>
+  <button data-t="t-lfe"><span class="i">〰</span>LFE</button>
+  <button data-t="t-sig"><span class="i">∿</span>Sinyal</button>
+  <button data-t="t-meas"><span class="i" style="font-size:14px;font-weight:800">dB</span>Ölçüm</button>
+  <button data-t="t-place"><span class="i">⌖</span>Yerleşim</button>
+  <button data-t="t-calc"><span class="i">∑</span>Hesapla</button>
+</nav>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const D2R=Math.PI/180, C_SOUND=343;
+const store={get(k,d){try{const v=localStorage.getItem('oal_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('oal_'+k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------------- tabs ---------------- */
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='t-place')arResize();if(b.dataset.t==='t-meas')rtaResize();});
+function segBind(id,attr,cb){$$('#'+id+' button').forEach(b=>b.onclick=()=>{$$('#'+id+' button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset[attr],b)});}
+
+/* ---------------- speaker model ---------------- */
+/* Açı aralıkları: objectiveaudio.com.tr Ev Sineması Hoparlör Yerleşimi aracıyla birebir (Dolby önerileri).
+   Yatay: azMin–azMax (dinleme noktasından, 0° = ekran). Tavan: tek süpürme açısı (0° = tam ön, 90° = tepe, 180° = tam arka). */
+const SPK={
+ L:{n:'Sol Ön',e:'Front Left',side:-1,azMin:22,azMax:30,g:'front'},R:{n:'Sağ Ön',e:'Front Right',side:1,azMin:22,azMax:30,g:'front'},
+ C:{n:'Merkez',e:'Center',side:0,azMin:0,azMax:0,g:'front'},
+ Lw:{n:'Sol Geniş',e:'Front Wide Left',side:-1,azMin:50,azMax:70,g:'wide'},Rw:{n:'Sağ Geniş',e:'Front Wide Right',side:1,azMin:50,azMax:70,g:'wide'},
+ SL:{n:'Sol Yan Surround',e:'Side Left',side:-1,azMin:90,azMax:110,g:'surr'},SR:{n:'Sağ Yan Surround',e:'Side Right',side:1,azMin:90,azMax:110,g:'surr'},
+ LRW:{n:'Sol Arka Geniş',e:'Rear Wide Left',side:-1,azMin:115,azMax:130,g:'wide'},RRW:{n:'Sağ Arka Geniş',e:'Rear Wide Right',side:1,azMin:115,azMax:130,g:'wide'},
+ RL:{n:'Sol Arka Surround',e:'Rear Left',side:-1,azMin:135,azMax:150,g:'rear'},RR:{n:'Sağ Arka Surround',e:'Rear Right',side:1,azMin:135,azMax:150,g:'rear'},
+ FHL:{n:'Sol Ön Yükseklik',e:'Front Height Left',side:-1,elMin:20,elMax:30,g:'height'},FHR:{n:'Sağ Ön Yükseklik',e:'Front Height Right',side:1,elMin:20,elMax:30,g:'height'},
+ TFL:{n:'Sol Ön Tavan',e:'Top Front Left',side:-1,elMin:30,elMax:55,g:'height'},TFR:{n:'Sağ Ön Tavan',e:'Top Front Right',side:1,elMin:30,elMax:55,g:'height'},
+ TML:{n:'Sol Orta Tavan',e:'Top Middle Left',side:-1,elMin:85,elMax:95,g:'height'},TMR:{n:'Sağ Orta Tavan',e:'Top Middle Right',side:1,elMin:85,elMax:95,g:'height'},
+ TRL:{n:'Sol Arka Tavan',e:'Top Rear Left',side:-1,elMin:125,elMax:150,g:'height'},TRR:{n:'Sağ Arka Tavan',e:'Top Rear Right',side:1,elMin:125,elMax:150,g:'height'},
+ RHL:{n:'Sol Arka Yükseklik',e:'Rear Height Left',side:-1,elMin:150,elMax:160,g:'height'},RHR:{n:'Sağ Arka Yükseklik',e:'Rear Height Right',side:1,elMin:150,elMax:160,g:'height'}
+};
+const BEDS={2:['L','R'],3:['L','R','C'],4:['L','R','SL','SR'],5:['L','R','C','SL','SR'],7:['L','R','C','SL','SR','RL','RR'],9:['L','R','C','Lw','Rw','SL','SR','RL','RR'],11:['L','R','C','Lw','Rw','SL','SR','LRW','RRW','RL','RR']};
+const HEIGHTS={0:[],2:['TML','TMR'],4:['TFL','TFR','TRL','TRR'],6:['TFL','TFR','TML','TMR','TRL','TRR'],8:['FHL','FHR','TFL','TFR','TRL','TRR','RHL','RHR']};
+const H8={TFL:[45,55],TFR:[45,55],TRL:[125,135],TRR:[125,135]}; // 8 tavanda daraltılmış aralıklar (sitedeki 11.1.8)
+const PRESETS=['2.0','2.1','3.1','4.0','4.1','5.1','5.2','5.1.2','5.1.4','5.2.4','7.1','7.2','7.1.2','7.2.2','7.1.4','7.2.4','7.4.4','7.1.6','7.2.6','9.1.4','9.2.4','9.1.6','9.2.6','9.4.6','11.1.6','11.1.8','11.2.8','11.4.8'];
+/* oda geometrisi (sitedeki modelle aynı): kulak 1,2 m, yarıçap = koltuk–ön duvar − 0,4 m, tavan hoparlörleri L/R hizasında */
+let room=store.get('room',{H:2.7,seat:3.5});
+function geo(){const radius=Math.max(1,room.seat-.4),rise=Math.max(.3,room.H-1.2);return{radius,rise,lat:radius*Math.sin(30*D2R)}}
+function sweepToAzEl(side,sw){const g=geo();const fwd=g.rise/Math.tan(sw*D2R);const x=side*g.lat;const az=Math.atan2(x,fwd)/D2R;const el=Math.atan2(g.rise,Math.hypot(x,fwd))/D2R;return{az,el,lam:Math.asin(x/Math.hypot(x,fwd,g.rise))/D2R}}
+function rangeText(s){if(s.g==='sub')return '';if(s.elMin!=null)return `tavan ${s.elMin}–${s.elMax}° (0°=ön, 90°=tepe)`;return s.azMin===s.azMax?`${s.azMin}°`:`${s.azMin}–${s.azMax}°`}
+const GCOL={front:'#22c55e',wide:'#14b8a6',surr:'#a855f7',rear:'#3b82f6',height:'#f59e0b',sub:'#ef4444'};
+// sub wall points in svg coords
+const SP={F25:[130,22],F75:[310,22],FM:[220,22],BM:[220,418],LM:[22,220],RM:[418,220],BL:[28,412],BR:[412,412],FLc:[28,28],FRc:[412,28]};
+const SUBPOS={1:['F25'],2:['F25','F75'],3:['F25','F75','BM'],4:['FM','BM','LM','RM'],5:['FM','BM','LM','RM','FLc'],6:['FLc','FRc','BL','BR','FM','BM'],7:['FLc','FRc','BL','BR','FM','BM','LM'],8:['FLc','FRc','BL','BR','FM','BM','LM','RM']};
+const SUBTXT={1:'Ön duvar, köşeye ~1/4 mesafe (ya da subwoofer crawl ile bulunan nokta)',2:'Ön duvarda 1/4 ve 3/4 noktaları (veya ön+arka duvar ortası)',3:'Ön 1/4 + 3/4, arka duvar ortası',4:'Dört duvarın ortası (Welti/Harman çalışması — koltuklar arası en düzgün bas)'};
+let lay={bed:7,sub:1,h:4};
+function buildLayout(L){
+  const out=BEDS[L.bed].map(id=>{const s=Object.assign({id},SPK[id]);
+    let def=(s.azMin+s.azMax)/2; if(s.g==='front'&&s.azMin!==s.azMax)def=s.azMax; // sitedeki varsayılan
+    s.az=s.side*def;s.el=0;s.r=rangeText(s);return s});
+  HEIGHTS[L.h].forEach(id=>{const s=Object.assign({id},SPK[id]);if(L.h===8&&H8[id]){s.elMin=H8[id][0];s.elMax=H8[id][1]}
+    const p=sweepToAzEl(s.side,(s.elMin+s.elMax)/2);s.az=p.az;s.el=p.el;s.lam=p.lam;s.r=rangeText(s);out.push(s)});
+  for(let i=0;i<L.sub;i++){out.push({id:L.sub===1?'LFE':'SW'+(i+1),n:L.sub===1?'Subwoofer (LFE)':'Subwoofer '+(i+1),e:'Low Frequency Effects',az:0,el:0,g:'sub',pt:SP[SUBPOS[L.sub][i]],r:''})}
+  return out;
+}
+function layoutName(L){return L.bed+'.'+L.sub+(L.h?'.'+L.h:'')}
+let speakers=buildLayout(lay);
+
+/* ---------------- audio engine ---------------- */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ctx=null,master,comp,outBus,merger=null,mcGain=null,mode='hp',mcN=2,bufs={};
+let volDb=store.get('vol',-14);
+const dbg=d=>Math.pow(10,d/20);
+function ensureCtx(){
+  if(!ctx){ctx=new AC({latencyHint:'interactive'});try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+    master=ctx.createGain();master.gain.value=dbg(volDb);
+    comp=ctx.createDynamicsCompressor();comp.threshold.value=-2;comp.knee.value=0;comp.ratio.value=20;comp.attack.value=0.002;comp.release.value=0.15;
+    outBus=ctx.createGain();master.connect(comp);comp.connect(outBus);outBus.connect(ctx.destination);
+    makeBuffers();configureOut();}
+  if(ctx.state!=='running')ctx.resume();
+  return ctx;
+}
+function configureOut(){
+  if(!ctx){updateModeMsg();return}
+  const max=ctx.destination.maxChannelCount||2;
+  mcN=(mode==='mc'&&max>=6)?(max>=8?8:6):2;
+  try{ctx.destination.channelCount=mcN;ctx.destination.channelInterpretation=mcN>2?'discrete':'speakers'}catch(e){}
+  outBus.channelCount=mcN;outBus.channelCountMode='explicit';outBus.channelInterpretation=mcN>2?'discrete':'speakers';
+  if(merger){try{merger.disconnect();mcGain.disconnect()}catch(e){}merger=null;mcGain=null}
+  if(mcN>2){merger=new ChannelMergerNode(ctx,{numberOfInputs:mcN});mcGain=ctx.createGain();mcGain.channelCount=mcN;mcGain.channelCountMode='explicit';mcGain.channelInterpretation='discrete';mcGain.gain.value=dbg(volDb);merger.connect(mcGain);mcGain.connect(outBus)}
+  updateModeMsg();renderDiagram();
+}
+function updateModeMsg(){
+  const max=ctx?ctx.destination.maxChannelCount:null;let t='';
+  if(mode==='hp')t='Kulaklık takın. Hoparlörler HRTF ile sanal olarak 3D konumlanır.';
+  else if(mode==='st')t='Telefonu amfiye bağlayın (kablo/Bluetooth/AirPlay). Sol taraftakiler sol, sağ taraftakiler sağ kanala gider.';
+  else t=ctx?(mcN>2?`✓ Bu cihaz ${max} kanal çıkış sunuyor. ${mcN} kanal kullanılıyor (L R C LFE + ${mcN===8?'RL RR SL SR':'SL SR'}). Kesik çizgili hoparlörler bu çıkışta yok.`:`✗ Bu çıkış yalnızca ${max} kanal sunuyor. Çok kanal için bilgisayar + HDMI/USB çok kanallı ses kartı gerekir. Şimdilik stereo yönlendiriliyor.`):'Bir sesi çalınca çıkış kanal sayısı algılanır.';
+  $('#modeMsg').textContent=t;
+}
+function makeBuffers(){
+  const sr=ctx.sampleRate,n=sr*8;
+  const mk=(fn)=>{const b=ctx.createBuffer(1,n,sr),d=b.getChannelData(0);fn(d);let s=0;for(let i=0;i<n;i++)s+=d[i]*d[i];const k=0.1/Math.sqrt(s/n);for(let i=0;i<n;i++)d[i]*=k;
+    const f=Math.floor(sr*0.01);for(let i=0;i<f;i++){const w=i/f;d[i]*=w;d[n-1-i]*=w}return b};
+  const pink=d=>{let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=b0+b1+b2+b3+b4+b5+b6+w*.5362;b6=w*.115926}};
+  bufs.pink=mk(pink);bufs.pink2=mk(pink);bufs.white=mk(d=>{for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1});
+  bufs.brown=mk(d=>{let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l}});
+}
+const chIdx8={L:0,R:1,C:2,LFE:3,RL:4,RR:5,SL:6,SR:7},chIdx6={L:0,R:1,C:2,LFE:3,SL:4,SR:5};
+function chIndex(id){if(/^SW|LFE/.test(id))return 3;return (mcN===8?chIdx8:chIdx6)[id]}
+function available(s){if(mode!=='mc'||mcN<=2)return true;return chIndex(s.id)!=null}
+class Voice{constructor(){this.env=ctx.createGain();this.env.gain.value=0;this.srcs=[];this.nodes=[];this.timers=[]}
+  start(t=.04){const n=ctx.currentTime,g=this.env.gain;g.setValueAtTime(0,n);g.linearRampToValueAtTime(1,n+t)}
+  stop(t=.08){const n=ctx.currentTime,g=this.env.gain;g.cancelScheduledValues(n);g.setValueAtTime(g.value,n);g.linearRampToValueAtTime(0,n+t);this.timers.forEach(clearTimeout);this.timers.forEach(clearInterval);
+    setTimeout(()=>{this.srcs.forEach(s=>{try{s.stop()}catch(e){}});[...this.srcs,this.env,...this.nodes].forEach(x=>{try{x.disconnect()}catch(e){}})},(t+.08)*1000)}}
+function hpPos(s){const a=s.az*D2R,e=s.el*D2R;return{positionX:Math.sin(a)*Math.cos(e),positionY:Math.sin(e),positionZ:-Math.cos(a)*Math.cos(e)}}
+function routeMono(node,s,v){
+  if(s.g==='sub'){if(mcN>2)node.connect(merger,0,3);else node.connect(master);return true}
+  if(mode==='hp'){const p=new PannerNode(ctx,Object.assign({panningModel:'HRTF',distanceModel:'inverse',refDistance:1,rolloffFactor:0},hpPos(s)));node.connect(p);p.connect(master);v&&v.nodes.push(p);return true}
+  if(mcN>2){const i=chIndex(s.id);if(i==null)return false;node.connect(merger,0,i);return true}
+  const pan=Math.max(-1,Math.min(1,Math.sin(s.az*D2R)/Math.sin(30*D2R)));const p=new StereoPannerNode(ctx,{pan});node.connect(p);p.connect(master);v&&v.nodes.push(p);return true;
+}
+function noiseSrc(buf,v){const s=new AudioBufferSourceNode(ctx,{buffer:buf,loop:true});s.start(ctx.currentTime,Math.random()*6);v.srcs.push(s);return s}
+function filt(n,v,type,f,Q=.707){const b=new BiquadFilterNode(ctx,{type,frequency:f,Q});n.connect(b);v.nodes.push(b);return b}
+function gainN(n,v,g){const x=ctx.createGain();x.gain.value=g;n.connect(x);v.nodes.push(x);return x}
+
+/* ---------------- diagram ---------------- */
+const CX=220,CY=220,RB=160;
+let active=null,cur=null,seqOn=false,seqT=null;
+function spkXY(s){if(s.g==='sub')return s.pt;const r=RB*Math.cos(s.el*D2R);return[CX+r*Math.sin(s.az*D2R),CY-r*Math.cos(s.az*D2R)]}
+function renderDiagram(){
+  const svg=$('#diag');let h='';
+  h+=`<rect x="6" y="6" width="428" height="428" rx="14" fill="none" stroke="rgba(148,163,184,.14)"/>`;
+  h+=`<text x="220" y="438" fill="#475569" font-size="9" text-anchor="middle">ARKA DUVAR</text><text x="220" y="16" fill="#475569" font-size="9" text-anchor="middle" dy="-2">EKRAN</text>`;
+  h+=`<circle cx="${CX}" cy="${CY}" r="${RB}" fill="none" stroke="rgba(203,213,225,.55)" stroke-width="1.3"/>`;
+  h+=`<circle cx="${CX}" cy="${CY}" r="${RB*Math.cos(45*D2R)}" fill="none" stroke="rgba(203,213,225,.45)" stroke-dasharray="6 6"/>`;
+  h+=`<circle cx="${CX}" cy="${CY}" r="${RB*Math.cos(65*D2R)}" fill="none" stroke="rgba(203,213,225,.35)"/>`;
+  h+=`<line x1="${CX}" y1="${CY-RB}" x2="${CX}" y2="${CY+RB}" stroke="rgba(203,213,225,.18)"/><line x1="${CX-RB}" y1="${CY}" x2="${CX+RB}" y2="${CY}" stroke="rgba(203,213,225,.18)"/>`;
+  [45,135].forEach(a=>{const dx=RB*Math.sin(a*D2R),dy=RB*Math.cos(a*D2R);h+=`<line x1="${CX-dx}" y1="${CY-dy}" x2="${CX+dx}" y2="${CY+dy}" stroke="rgba(203,213,225,.12)"/><line x1="${CX+dx}" y1="${CY-dy}" x2="${CX-dx}" y2="${CY+dy}" stroke="rgba(203,213,225,.12)"/>`});
+  h+=`<g id="cone"></g>`;
+  h+=`<circle cx="${CX}" cy="${CY-6}" r="15" fill="none" stroke="#e2e8f0" stroke-width="2"/><path d="M${CX-24} ${CY+24} Q${CX} ${CY-2} ${CX+24} ${CY+24}" fill="none" stroke="#e2e8f0" stroke-width="2"/>`;
+  h+=`<circle id="objDot" r="9" fill="#38bdf8" opacity="0" style="filter:drop-shadow(0 0 8px #38bdf8)"/>`;
+  speakers.forEach((s,i)=>{const[x,y]=spkXY(s);const w=s.g==='sub'?40:40,hh=s.g==='sub'?24:26;const lab=s.id;
+    h+=`<g class="spk ${available(s)?'':'dis'}" data-i="${i}" transform="translate(${x},${y})"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="6" ${s.g==='height'?'stroke-dasharray="0"':''}/><text font-size="${lab.length>3?10:12}">${lab}</text></g>`});
+  svg.innerHTML=h;
+  $$('#diag .spk').forEach(g=>g.onclick=()=>{const s=speakers[+g.dataset.i];stopSeq();if(active===s&&cur){stopAll();return}playSpk(s)});
+  renderChips();if(active){const k=speakers.find(s=>s.id===active.id);if(k)highlight(k);}
+}
+function renderChips(){
+  const order=['L','R','C','LFE','SL','SR','RL','RR','Lw','Rw','LRW','RRW'];
+  const beds=speakers.filter(s=>s.g!=='sub'&&s.g!=='height').sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+  const subs=speakers.filter(s=>s.g==='sub'),hs=speakers.filter(s=>s.g==='height');let n=0;
+  const chip=s=>`<button class="chip ${available(s)?'':'dis'}" data-id="${s.id}"><i>${++n}</i>${s.id}</button>`;
+  let h=`<div class="chiprow"><b>${lay.bed}</b>${beds.map(chip).join('')}</div>`;
+  if(subs.length)h+=`<div class="chiprow"><b>${lay.sub}</b>${subs.map(chip).join('')}</div>`;
+  if(hs.length)h+=`<div class="chiprow"><b>${lay.h}</b>${hs.map(chip).join('')}</div>`;
+  $('#chips').innerHTML=h;
+  $$('#chips .chip').forEach(c=>c.onclick=()=>{const s=speakers.find(x=>x.id===c.dataset.id);stopSeq();if(active===s&&cur){stopAll();return}playSpk(s)});
+}
+function highlight(s){
+  $$('#diag .spk').forEach(g=>{const on=speakers[+g.dataset.i]===s;g.classList.toggle('act',on);g.querySelector('rect').style.fill=on?GCOL[s.g]:''});
+  $$('#chips .chip').forEach(c=>{const on=s&&c.dataset.id===s.id;c.classList.toggle('act',on);c.style.background=on?GCOL[s.g]:'';});
+  const cone=$('#cone');if(!cone)return;if(!s){cone.innerHTML='';$('#nowName').textContent='Bir hoparlöre dokun';$('#nowSub').textContent='';return}
+  const[x,y]=spkXY(s),col=GCOL[s.g];const dx=x-CX,dy=y-CY,L=Math.hypot(dx,dy)||1,px=-dy/L*20,py=dx/L*20;
+  cone.innerHTML=`<circle cx="${x}" cy="${y}" r="36" fill="${col}" opacity=".32"><animate attributeName="r" values="30;40;30" dur="1.2s" repeatCount="indefinite"/></circle><polygon points="${CX},${CY} ${x+px},${y+py} ${x-px},${y-py}" fill="${col}" opacity=".45"/>`;
+  $('#nowName').textContent=s.n.toLocaleUpperCase('tr');$('#nowName').style.color=col;
+  $('#nowSub').textContent=s.e+(s.r?' · '+s.r:'');
+  if(s.g!=='sub'){ // açı aralığı yayı
+    let arc='';const R2=RB+26;const a2xy=a=>[CX+R2*Math.sin(a*D2R),CY-R2*Math.cos(a*D2R)];
+    if(s.elMin==null&&s.azMin!==s.azMax){const a0=s.side*s.azMin,a1=s.side*s.azMax;const[p0x,p0y]=a2xy(a0),[p1x,p1y]=a2xy(a1);arc=`<path d="M${p0x} ${p0y} A${R2} ${R2} 0 0 ${a1>a0?1:0} ${p1x} ${p1y}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9"/>`}
+    else if(s.elMin!=null){const pts=[];for(let k=0;k<=12;k++){const p=sweepToAzEl(s.side,s.elMin+(s.elMax-s.elMin)*k/12);const r=RB*Math.cos(p.el*D2R);pts.push([CX+r*Math.sin(p.az*D2R),CY-r*Math.cos(p.az*D2R)])}
+      arc=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" stroke="${col}" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9"/>`}
+    cone.innerHTML+=arc;
+  }
+}
+function stopAll(){if(cur){cur.stop();cur=null}active=null;highlight(null)}
+function playSpk(s){
+  ensureCtx();if(cur){cur.stop()}
+  if(!available(s)){$('#nowName').textContent='BU ÇIKIŞTA KANAL YOK';$('#nowSub').textContent=s.id+' — tavan/geniş kanallar Dolby kodlaması veya 9+ kanal arayüz ister';return}
+  const v=new Voice(),kind=$('#sig').value;let n;
+  if(s.g==='sub'){n=noiseSrc(bufs.pink,v);n=filt(n,v,'highpass',22);n=filt(n,v,'lowpass',80);n=filt(n,v,'lowpass',80);n=gainN(n,v,2.2)}
+  else if(kind==='tone'){const o=new OscillatorNode(ctx,{frequency:1000});o.start();v.srcs.push(o);n=gainN(o,v,.1)}
+  else{n=noiseSrc(bufs.pink,v);if(kind==='band'){n=filt(n,v,'highpass',500);n=filt(n,v,'highpass',500);n=filt(n,v,'lowpass',2000);n=filt(n,v,'lowpass',2000);n=gainN(n,v,2)}}
+  n.connect(v.env);routeMono(v.env,s,v);v.start();cur=v;active=s;highlight(s);
+}
+function stopSeq(){seqOn=false;clearTimeout(seqT);$('#seqBtn').textContent='▶ Sırayla çal'}
+$('#seqBtn').onclick=()=>{if(seqOn){stopSeq();stopAll();return}seqOn=true;$('#seqBtn').textContent='❚❚ Duraklat';
+  const list=speakers.filter(available);let i=0;const step=()=>{if(!seqOn)return;playSpk(list[i%list.length]);i++;seqT=setTimeout(()=>{if(cur){cur.stop();cur=null}seqT=setTimeout(step,350)},2200)};step()};
+$('#stopBtn').onclick=()=>{stopSeq();stopAll()};
+$('#sig').onchange=()=>{if(active&&cur)playSpk(active)};
+
+/* layout controls */
+function fillSel(){
+  $('#preset').innerHTML=PRESETS.map(p=>`<option>${p}</option>`).join('')+'<option value="custom">Özel</option>';
+  $('#cBed').innerHTML=[2,3,4,5,7,9,11].map(v=>`<option>${v}</option>`).join('');
+  $('#cSub').innerHTML=[0,1,2,3,4,5,6,7,8].map(v=>`<option>${v}</option>`).join('');
+  $('#cH').innerHTML=[0,2,4,6,8].map(v=>`<option>${v}</option>`).join('');
+}
+function setLayout(L,fromPreset){lay=L;speakers=buildLayout(lay);$('#cBed').value=L.bed;$('#cSub').value=L.sub;$('#cH').value=L.h;
+  const nm=layoutName(L);$('#preset').value=PRESETS.includes(nm)||PRESETS.includes(L.bed+'.'+L.sub)?(L.h?nm:L.bed+'.'+L.sub):'custom';
+  stopSeq();stopAll();renderDiagram();arChips();store.set('lay',L);if(objOn)rebuildObj();}
+$('#preset').onchange=e=>{if(e.target.value==='custom')return;const p=e.target.value.split('.').map(Number);setLayout({bed:p[0],sub:p[1],h:p[2]||0})};
+['#cBed','#cSub','#cH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#cBed').value,sub:+$('#cSub').value,h:+$('#cH').value}));
+segBind('modeSeg','m',m=>{mode=m;stopSeq();stopAll();stopObj();if(ctx)configureOut();else{updateModeMsg();renderDiagram()}});
+$('#vol').value=volDb;$('#volv').textContent=volDb+' dB';
+$('#vol').oninput=e=>{volDb=+e.target.value;$('#volv').textContent=volDb+' dB';store.set('vol',volDb);if(ctx){master.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03);if(mcGain)mcGain.gain.setTargetAtTime(dbg(volDb),ctx.currentTime,.03)}};
+
+/* ---------------- spatial object demo ---------------- */
+let objOn=false,objBus=null,objGains=[],objRaf=0,objT0=0,objPath='orbit',cmp2=false,melT=null,objVoice=null;
+segBind('pathSeg','p',p=>{objPath=p});
+function renderSet(){return cmp2?buildLayout({bed:2,sub:0,h:0}):speakers.filter(s=>s.g!=='sub'&&available(s))}
+function rebuildObj(){if(!objVoice)return;objGains.forEach(o=>{try{o.g.disconnect()}catch(e){}});objGains=[];
+  renderSet().forEach(s=>{const g=ctx.createGain();g.gain.value=0;objBus.connect(g);routeMono(g,s,objVoice);objGains.push({g,s})});
+  $('#objInfo').style.display='block';$('#objInfo').innerHTML=`Render: <b>${cmp2?'2.0 (yalnız L/R)':layoutName(lay)+' — '+objGains.length+' hoparlör'}</b>. ${mode==='hp'?'Kulaklıkla dinleyin.':''}`}
+function objDir(t){const p=objPath;if(p==='orbit')return{az:(t*60)%360-180,el:0};if(p==='fly'){const ph=(t%6)/6;return{az:ph<.5?0:180,el:ph<.5?-10+ph*2*190:180-((ph-.5)*2*190)-10}}
+  return{az:(t*80)%360-180,el:35+35*Math.sin(t*.7)}}
+function vec(az,el){const a=az*D2R,e=el*D2R;return[Math.sin(a)*Math.cos(e),Math.cos(a)*Math.cos(e),Math.sin(e)]}
+function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;objVoice.start(.2);objOn=true;objT0=ctx.currentTime;rebuildObj();
+  // melody scheduler
+  const notes=[57,60,64,69,67,64,60,62,65,69,72,69,65,62,64,67],step=.24;let nt=ctx.currentTime+.1,k=0;
+  const sched=()=>{while(nt<ctx.currentTime+.15){const f=440*Math.pow(2,(notes[k%notes.length]-69)/12);
+      [[ 'triangle',1,.22],['sine',2,.08],['sine',.5,.12]].forEach(([ty,m,a])=>{const o=new OscillatorNode(ctx,{type:ty,frequency:f*m});const g=ctx.createGain();g.gain.setValueAtTime(0,nt);g.gain.linearRampToValueAtTime(a,nt+.006);g.gain.exponentialRampToValueAtTime(.0005,nt+.5);o.connect(g);g.connect(objBus);o.start(nt);o.stop(nt+.55)});
+      nt+=step;k++}};
+  melT=setInterval(sched,25);sched();
+  const dot=()=>$('#objDot');
+  const tick=()=>{if(!objOn)return;const t=ctx.currentTime-objT0,d=objDir(t);let el=d.el,az=d.az;if(el>90){el=180-el;az=az+180}
+    const v=vec(az,el);let w=objGains.map(o=>{const s=vec(o.s.az,o.s.el);const c=Math.max(0,v[0]*s[0]+v[1]*s[1]+v[2]*s[2]);return Math.pow(c,5)+1e-4});
+    const sum=Math.sqrt(w.reduce((a,b)=>a+b*b,0));objGains.forEach((o,i)=>o.g.gain.setTargetAtTime(w[i]/sum,ctx.currentTime,.03));
+    const r=RB*Math.cos(el*D2R),x=CX+r*Math.sin(az*D2R),y=CY-r*Math.cos(az*D2R);const el_=dot();if(el_){el_.setAttribute('cx',x);el_.setAttribute('cy',y);el_.setAttribute('opacity',1)}
+    objRaf=requestAnimationFrame(tick)};tick();
+  $('#objBtn').textContent='■ Melodiyi durdur';
+}
+function stopObj(){if(!objOn)return;objOn=false;clearInterval(melT);cancelAnimationFrame(objRaf);objVoice&&objVoice.stop(.2);objVoice=null;objGains=[];const d=$('#objDot');if(d)d.setAttribute('opacity',0);$('#objBtn').textContent='▶ Melodiyi başlat';$('#objInfo').style.display='none'}
+$('#objBtn').onclick=()=>{stopSeq();stopAll();objOn?stopObj():startObj()};
+$('#cmpBtn').onclick=()=>{cmp2=!cmp2;$('#cmpBtn').classList.toggle('on',cmp2);$('#cmpBtn').textContent=cmp2?'Tam düzene dön':'2.0 ile karşılaştır';if(objOn)rebuildObj()};
+
+/* ---------------- LFE lab ---------------- */
+const LFEF=[10,12,15,18,20,25,30,35,40,45,50,55,60,70,80,90,100,120,150,200];
+let lfeF=40,lfeV=null,lfeRaf=0;const LFE={id:'LFE',g:'sub',az:0,el:0};
+$('#freqs').innerHTML=LFEF.map(f=>`<button data-f="${f}" class="${f===40?'on':''}">${f}</button>`).join('');
+const sl2f=v=>10*Math.pow(20,v/1000), f2sl=f=>Math.log(f/10)/Math.log(20)*1000;
+function setLfeF(f,fromSl){lfeF=Math.round(f*10)/10;$('#fVal').textContent=(lfeF<100?lfeF.toFixed(lfeF%1?1:0):Math.round(lfeF))+' Hz';if(!fromSl)$('#fSlider').value=f2sl(f);$$('#freqs button').forEach(b=>b.classList.toggle('on',+b.dataset.f===lfeF))}
+$$('#freqs button').forEach(b=>b.onclick=()=>{setLfeF(+b.dataset.f);if(lastFx)playFx(lastFx)});
+$('#fSlider').oninput=e=>setLfeF(sl2f(+e.target.value),true);
+const FX=[['impact','💥','Çarpışma','Metal/araç darbesi'],['explosion','🔥','Patlama','Uzun kuyruklu gövde'],['kick','🥁','Davul (kick)','Kısa, sert vuruş'],['heart','❤️','Kalp atışı','Çift darbe ritim'],
+ ['rumble','🌋','Deprem','Sürekli gürleme'],['thunder','⛈️','Gök gürültüsü','Dağınık patlamalar'],['burst','〰️','Ton patlaması','5 periyot, hız testi'],['sine','∿','Sinüs (4 sn)','Saf ton']];
+$('#fx').innerHTML=FX.map(([k,e,t,d])=>`<button data-k="${k}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
+let lastFx=null;
+$$('#fx button').forEach(b=>b.onclick=()=>{lastFx=b.dataset.k;playFx(lastFx)});
+function lfeStop(){if(lfeV){lfeV.stop(.1);lfeV=null}cancelAnimationFrame(lfeRaf);$$('#fx button').forEach(b=>b.classList.remove('on'));extOn=false}
+function env(g,t,a,tau,peak=1){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,tau)}
+function osc(v,f,type='sine'){const o=new OscillatorNode(ctx,{type,frequency:f});v.srcs.push(o);return o}
+function playFx(k){
+  ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const f=lfeF,t=ctx.currentTime+.03,out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
+  $$('#fx button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));let dur=3;
+  const thump=(t0,f0,f1,glide,tau,peak)=>{const o=osc(v,f0);o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(f1,t0+glide);const g=ctx.createGain();env(g,t0,.003,tau,peak);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t0);o.stop(t0+tau*7+.1)};
+  const nburst=(t0,buf,lp,tau,peak,hp)=>{const s=new AudioBufferSourceNode(ctx,{buffer:buf});v.srcs.push(s);let n=s;if(hp)n=filt(n,v,'highpass',hp);n=filt(n,v,'lowpass',lp,.9);n=filt(n,v,'lowpass',lp,.9);const g=ctx.createGain();env(g,t0,.008,tau,peak);n.connect(g);g.connect(out);v.nodes.push(g);s.start(t0,Math.random()*4);s.stop(t0+tau*7+.2)};
+  if(k==='sine'){const o=osc(v,f);const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.15);g.gain.setValueAtTime(.7,t+3.8);g.gain.linearRampToValueAtTime(0,t+4);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+4.05);dur=4}
+  else if(k==='impact'){const tau=Math.max(.35,5/f);thump(t,f*2.5,f,.12,tau,1);nburst(t,bufs.white,Math.min(f*6,500),.04,1.4);dur=tau*6}
+  else if(k==='explosion'){nburst(t,bufs.white,f*1.6,.9,6,f*.5);thump(t,f*1.8,f*.8,.4,1.1,.8);nburst(t,bufs.white,900,.08,.5);dur=5}
+  else if(k==='kick'){const tau=Math.max(.12,2/f);thump(t,f*4,f,.06,tau,1);nburst(t,bufs.white,2500,.012,.25,800);dur=1.5}
+  else if(k==='heart'){for(let i=0;i<4;i++){const t0=t+i*.95,tau=Math.max(.12,2.2/f);thump(t0,f*2.2,f,.05,tau,1);thump(t0+.24,f*2,f,.05,tau,.65)}dur=4}
+  else if(k==='rumble'){const s=noiseSrc(bufs.brown,v);let n=filt(s,v,'highpass',f*.55);n=filt(n,v,'lowpass',f*1.5,1.2);n=filt(n,v,'lowpass',f*1.5);const g=ctx.createGain();g.gain.value=0;
+     const lfo=osc(v,.6);const lg=ctx.createGain();lg.gain.value=1.4;lfo.connect(lg);lg.connect(g.gain);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(2.6,t+1.5);g.gain.setValueAtTime(2.6,t+5);g.gain.linearRampToValueAtTime(0,t+6.5);
+     n.connect(g);g.connect(out);v.nodes.push(g,lg);lfo.start(t);lfo.stop(t+6.6);s.stop(t+6.6);dur=6.6}
+  else if(k==='thunder'){for(let i=0;i<5;i++){const t0=t+i*.55+Math.random()*.4;nburst(t0,bufs.brown,f*2,.5+Math.random()*.8,4+Math.random()*3,f*.4)}thump(t,f*1.5,f,.3,1.2,.6);dur=6}
+  else if(k==='burst'){const sr=ctx.sampleRate,n=Math.round(sr*5/f),b=ctx.createBuffer(1,n,sr),d=b.getChannelData(0);for(let i=0;i<n;i++){d[i]=Math.sin(2*Math.PI*f*i/sr)*(.5-.5*Math.cos(2*Math.PI*i/n))}
+     for(let r=0;r<3;r++){const s=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(s);s.connect(out);s.start(t+r*Math.max(.8,n/sr+.5))}dur=3*Math.max(.8,n/sr+.5)}
+  routeMono(v.env,LFE,v);v.env.gain.value=1;
+  $('#lfeInfo').innerHTML=`<b>${FX.find(x=>x[0]===k)[2]}</b> @ <b>${f} Hz</b> — dalga boyu ${(C_SOUND/f).toFixed(1)} m. ${f<20?'İnfrases bölgesi: duyulmaz, ancak gövdede/odada titreşim olarak hissedilir.':f<=120?'LFE kanalının normal aralığında (≤120 Hz).':'LFE kanalının üstü. AVR bu kanalı genelde 120 Hz\'de keser.'}`;
+  v.timers.push(setTimeout(()=>{if(lfeV===v){lfeStop()}},dur*1000+300));
+}
+$('#lfeStop').onclick=lfeStop;
+$('#sweepBtn').onclick=()=>{ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const t=ctx.currentTime+.05,T=20;const o=osc(v,200);o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(10,t+T);
+  const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.2);g.gain.setValueAtTime(.7,t+T-.2);g.gain.linearRampToValueAtTime(0,t+T);o.connect(g);g.connect(v.env);v.nodes.push(g);o.start(t);o.stop(t+T+.05);routeMono(v.env,LFE,v);v.env.gain.value=1;
+  const tick=()=>{if(lfeV!==v)return;const e=ctx.currentTime-t;if(e>T){lfeStop();return}const fr=200*Math.pow(10/200,Math.max(0,e)/T);$('#lfeInfo').innerHTML=`Tarama: <b style="font-size:22px">${fr.toFixed(1)} Hz</b><br>Oda modları bazı frekanslarda sesi şişirir, bazılarında yok eder. Şişen ve kaybolan noktaları not edin.`;lfeRaf=requestAnimationFrame(tick)};tick()};
+let extOn=false;
+$('#extBtn').onclick=()=>{ensureCtx();lfeStop();stopAll();const seq=[80,63,50,40,35,31.5,28,25,22,20,18,16,14,12.5,11,10];let i=0;extOn=true;
+  const v=new Voice();lfeV=v;const o=osc(v,seq[0]);const g=ctx.createGain();g.gain.value=0;o.connect(g);g.connect(v.env);v.nodes.push(g);o.start();routeMono(v.env,LFE,v);v.env.gain.value=1;
+  const step=()=>{if(!extOn||lfeV!==v)return;if(i>=seq.length){$('#lfeInfo').innerHTML='Sistem 10 Hz\'e kadar çıktı. 🎉';lfeStop();return}const f=seq[i],t=ctx.currentTime;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.15);g.gain.setValueAtTime(.7,t+1.9);g.gain.linearRampToValueAtTime(0,t+2.05);
+    $('#lfeInfo').innerHTML=`Şu an <b style="font-size:22px">${f} Hz</b><br><button class="btn stop" id="extHit" style="margin-top:8px">Artık duymuyorum / hissetmiyorum</button>`;
+    $('#extHit').onclick=()=>{const last=seq[Math.max(0,i-2)];lfeStop();$('#lfeInfo').innerHTML=`Sisteminizin bu odadaki kullanılabilir alt sınırı ≈ <b>${last} Hz</b>.<br><span class="muted">Ticari sürümde mikrofonla otomatik ölçülür (-3/-6/-10 dB noktaları).</span>`};
+    i++;v.timers.push(setTimeout(step,2300))};step()};
+
+/* ---------------- signal generator ---------------- */
+let gen='pink',route='LR',genV=null,abT=null,genLvl=-20;
+const sineQ=[20,40,63,100,250,500,1000,4000,10000,15000];let sineHz=1000;
+$('#sineQuick').innerHTML=sineQ.map(f=>`<button data-f="${f}">${f>=1000?f/1000+'k':f}</button>`).join('');
+const s2hz=v=>20*Math.pow(1000,v/1000);
+$('#sineF').value=Math.log(1000/20)/Math.log(1000)*1000;
+$('#sineF').oninput=e=>{sineHz=Math.round(s2hz(+e.target.value));$('#sineV').textContent=sineHz+' Hz';if(genV&&gen==='sine')genV.o.frequency.setTargetAtTime(sineHz,ctx.currentTime,.02)};
+$$('#sineQuick button').forEach(b=>b.onclick=()=>{sineHz=+b.dataset.f;$('#sineF').value=Math.log(sineHz/20)/Math.log(1000)*1000;$('#sineV').textContent=sineHz+' Hz';if(genV&&gen==='sine')genV.o.frequency.setTargetAtTime(sineHz,ctx.currentTime,.02)});
+segBind('genSeg','g',g=>{gen=g;$('#sineCtl').style.display=g==='sine'?'block':'none';if(genV)genPlay()});
+segBind('routeSeg','r',r=>{route=r;if(genV)genPlay()});
+$('#genLvl').oninput=e=>{genLvl=+e.target.value;$('#genLv').textContent=genLvl+' dBFS';if(genV)genV.lv.gain.setTargetAtTime(dbg(genLvl+20),ctx.currentTime,.03)};
+function genStop(){clearInterval(abT);abT=null;$('#phaseAB').classList.remove('on');if(genV){genV.stop();genV=null}}
+function genPlay(forceRoute){
+  ensureCtx();if(genV){genV.stop();genV=null}const v=new Voice();genV=v;const r=forceRoute||route;
+  const mk=()=>{let n;if(gen==='sine'){const o=osc(v,sineHz);o.start();v.o=o;n=gainN(o,v,.1414)}
+    else if(gen==='sweep'){const o=osc(v,20);const t=ctx.currentTime;const loop=()=>{const t0=ctx.currentTime;o.frequency.setValueAtTime(20,t0);o.frequency.exponentialRampToValueAtTime(20000,t0+10)};loop();v.timers.push(setInterval(loop,10500));o.start();n=gainN(o,v,.1414)}
+    else if(gen==='pulse'){const sr=ctx.sampleRate,b=ctx.createBuffer(1,sr/2,sr),d=b.getChannelData(0);for(let i=0;i<sr*.004;i++)d[i]=Math.exp(-i/(sr*.0008))*.8;const s=new AudioBufferSourceNode(ctx,{buffer:b,loop:true});s.start();v.srcs.push(s);n=s}
+    else{n=noiseSrc(bufs[gen],v)}return n};
+  const lv=ctx.createGain();lv.gain.value=dbg(genLvl+20);v.lv=lv;v.nodes.push(lv);
+  const m=new ChannelMergerNode(ctx,{numberOfInputs:2});v.nodes.push(m);
+  const a=mk();a.connect(lv);
+  if(r==='dec'&&!['sine','sweep','pulse'].includes(gen)){const b=noiseSrc(gen==='pink'?bufs.pink2:bufs[gen],v);const lv2=ctx.createGain();lv2.gain.value=1;v.nodes.push(lv2);lv.connect(m,0,0);b.connect(lv2);lv2.connect(m,0,1);v.lv2=lv2}
+  else{if(r!=='R')lv.connect(m,0,0);if(r==='R'||r==='LR'||r==='dec')lv.connect(m,0,1);if(r==='inv'){const iv=ctx.createGain();iv.gain.value=-1;v.nodes.push(iv);lv.connect(iv);iv.connect(m,0,1)}}
+  m.connect(v.env);v.env.connect(master);v.start();
+}
+$('#genPlay').onclick=()=>{clearInterval(abT);abT=null;$('#phaseAB').classList.remove('on');genPlay()};
+$('#genStop').onclick=genStop;
+$('#phaseAB').onclick=()=>{if(abT){genStop();return}let inv=false;$('#phaseAB').classList.add('on');if(gen==='sine'||gen==='sweep'){gen='pink';$$('#genSeg button').forEach(b=>b.classList.toggle('on',b.dataset.g==='pink'));$('#sineCtl').style.display='none'}
+  const go=()=>{genPlay(inv?'inv':'LR');$('#genInfo').innerHTML=`Şu an: <b style="font-size:18px">${inv?'TERS FAZ':'AYNI FAZ'}</b><br>Aynı fazda ses ortada odaklı ve basları dolgun olmalı. Ters fazda ses dağınık ve “kafanın içinde/dışında” gelir, bas zayıflar.`;inv=!inv};go();abT=setInterval(go,4000)};
+
+/* ---------------- measurement ---------------- */
+let mic=null,an=null,micSrc=null,mRaf=0,wSel='C',tSel='F',calOff=store.get('cal',104),lvlP=0,maxDb=-1e9,leqSum=0,leqN=0,hold=true,peaks=[];
+$('#calOff').value=calOff;$('#calV').textContent=calOff;
+segBind('wSeg','w',w=>{wSel=w;resetSpl()});segBind('tSeg','t',t=>{tSel=t});
+$('#calOff').oninput=e=>{calOff=+e.target.value;$('#calV').textContent=calOff;store.set('cal',calOff)};
+function resetSpl(){maxDb=-1e9;leqSum=0;leqN=0}
+$('#splReset').onclick=resetSpl;
+function wA(f){const f2=f*f,r=(12194**2*f2*f2)/((f2+20.6**2)*Math.sqrt((f2+107.7**2)*(f2+737.9**2))*(f2+12194**2));return 20*Math.log10(r)+2}
+function wC(f){const f2=f*f,r=(12194**2*f2)/((f2+20.6**2)*(f2+12194**2));return 20*Math.log10(r)+.06}
+const BANDS=[];for(let i=-17;i<=13;i++)BANDS.push(1000*Math.pow(2,i/3));
+function micErr(e){const m=String(e&&e.name||e);$('#micMsg').innerHTML=`<div class="note err">Mikrofon açılamadı (${m}). Bu önizleme penceresi mikrofon iznini engeller. Önizleme bağlantısını telefonda açın ve izin isteğine “İzin ver” deyin.</div>`}
+async function startMic(){
+  ensureCtx();if(mic)return true;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){micErr('desteklenmiyor');return false}
+  try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}})}catch(e){micErr(e);return false}
+  micSrc=ctx.createMediaStreamSource(mic);an=ctx.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=0;micSrc.connect(an);
+  $('#micMsg').innerHTML='';$('#micBtn').textContent='■ Mikrofonu durdur';$('#micBtn').classList.add('stop');resetSpl();measLoop();return true;
+}
+function stopMic(){if(!mic)return;mic.getTracks().forEach(t=>t.stop());mic=null;try{micSrc.disconnect()}catch(e){}cancelAnimationFrame(mRaf);$('#micBtn').textContent='🎙 Mikrofonu başlat';$('#micBtn').classList.remove('stop')}
+$('#micBtn').onclick=()=>mic?stopMic():startMic();
+$('#calBtn').onclick=()=>{const r=parseFloat($('#refDb').value);if(!isFinite(r)||!mic)return;calOff=Math.round((calOff+(r-lastDb))*2)/2;$('#calOff').value=calOff;$('#calV').textContent=calOff;store.set('cal',calOff)};
+let lastDb=0,lastT=0,freqData,timeData,xoMaxV=-1e9;
+function measLoop(){
+  const N=an.frequencyBinCount,sr=ctx.sampleRate;if(!freqData){freqData=new Float32Array(N);timeData=new Float32Array(an.fftSize)}
+  const loop=(ts)=>{if(!mic)return;an.getFloatFrequencyData(freqData);an.getFloatTimeDomainData(timeData);
+    let ms=0;for(let i=0;i<timeData.length;i++)ms+=timeData[i]*timeData[i];ms/=timeData.length;
+    let pz=0,pw=0,pk=-1e9,pkf=0;const bp=new Float64Array(BANDS.length);
+    for(let i=1;i<N;i++){const f=i*sr/an.fftSize,p=Math.pow(10,freqData[i]/10);pz+=p;const w=wSel==='A'?wA(f):wSel==='C'?wC(f):0;pw+=p*Math.pow(10,w/10);
+      if(f>15&&freqData[i]>pk){pk=freqData[i];pkf=f}
+      const bi=Math.round(Math.log2(f/1000)*3)+17;if(bi>=0&&bi<BANDS.length)bp[bi]+=p}
+    const k=pz>0?ms/pz:0,inst=k*pw;const dt=lastT?(ts-lastT)/1000:.016;lastT=ts;const tau=tSel==='F'?.125:1;lvlP+= (inst-lvlP)*(1-Math.exp(-dt/tau));
+    const db=10*Math.log10(lvlP+1e-20)+calOff;lastDb=db;if(db>maxDb)maxDb=db;leqSum+=inst;leqN++;const leq=10*Math.log10(leqSum/leqN+1e-20)+calOff;
+    $('#splBig').innerHTML=`${db.toFixed(1)}<small>dB${wSel}</small>`;$('#splMax').textContent=maxDb.toFixed(1);$('#splLeq').textContent=leq.toFixed(1);$('#domF').textContent=pkf<1000?Math.round(pkf)+' Hz':(pkf/1000).toFixed(2)+' kHz';
+    drawRta(bp.map(p=>10*Math.log10(k*p+1e-20)+calOff));
+    // crossover narrowband
+    const xf=+$('#xoF').value,xi=Math.round(xf*an.fftSize/sr);let xp=0;for(let j=xi-2;j<=xi+2;j++)xp+=Math.pow(10,freqData[j]/10);const xdb=10*Math.log10(k*xp+1e-20)+calOff;
+    if(xoOn){if(xdb>xoMaxV)xoMaxV=xdb;$('#xoNow').textContent=xdb.toFixed(1);$('#xoMax').textContent=xoMaxV.toFixed(1);$('#xoDiff').textContent=(xdb-xoMaxV).toFixed(1)}
+    mRaf=requestAnimationFrame(loop)};mRaf=requestAnimationFrame(loop);
+}
+const rta=$('#rta');let rctx=rta.getContext('2d');
+function rtaResize(){const r=rta.getBoundingClientRect(),d=devicePixelRatio||1;rta.width=Math.max(300,r.width)*d;rta.height=190*d;drawRta(null)}
+$('#rtaHold').onclick=()=>{hold=!hold;$('#rtaHold').textContent='Tepe tutma: '+(hold?'açık':'kapalı');if(!hold)peaks=[]};$('#rtaClr').onclick=()=>peaks=[];
+function drawRta(vals){const W=rta.width,H=rta.height,d=devicePixelRatio||1;rctx.clearRect(0,0,W,H);const top=110,bot=30,pad=26*d,bw=(W-pad)/BANDS.length;
+  rctx.fillStyle='#64748b';rctx.font=`${9*d}px Inter`;for(let db=bot;db<=top;db+=20){const y=H-14*d-(db-bot)/(top-bot)*(H-22*d);rctx.fillText(db,2,y+3*d);rctx.fillStyle='rgba(148,163,184,.12)';rctx.fillRect(pad,y,W-pad,1);rctx.fillStyle='#64748b'}
+  [[31.5,'31'],[63,'63'],[125,'125'],[250,'250'],[500,'500'],[1000,'1k'],[2000,'2k'],[4000,'4k'],[8000,'8k'],[16000,'16k']].forEach(([f,l])=>{const i=Math.round(Math.log2(f/1000)*3)+17;rctx.fillText(l,pad+i*bw,H-2*d)});
+  if(!vals)return;vals.forEach((v,i)=>{const h=Math.max(0,(v-bot)/(top-bot))*(H-22*d),x=pad+i*bw+1,y=H-14*d-h;const f=BANDS[i];rctx.fillStyle=f<120?'#ef4444':f<2000?'#22c55e':'#38bdf8';rctx.fillRect(x,y,bw-2,h);
+    if(hold){if(!(peaks[i]>v))peaks[i]=v;const py=H-14*d-Math.max(0,(peaks[i]-bot)/(top-bot))*(H-22*d);rctx.fillStyle='#fff';rctx.fillRect(x,py,bw-2,2*d)}})}
+/* crossover tone */
+let xoOn=false,xoV=null;
+$('#xoPlay').onclick=async()=>{if(xoOn){xoOn=false;xoV&&xoV.stop();xoV=null;$('#xoPlay').textContent='▶ Ton çal';return}ensureCtx();await startMic();xoOn=true;xoMaxV=-1e9;
+  const v=new Voice();xoV=v;const o=osc(v,+$('#xoF').value);o.start();const g=gainN(o,v,.25);g.connect(v.env);v.env.connect(master);v.start();$('#xoPlay').textContent='■ Tonu durdur'};
+$('#xoRst').onclick=()=>xoMaxV=-1e9;
+/* L/R analysis */
+function fft(re,im){const n=re.length;for(let i=1,j=0;i<n;i++){let b=n>>1;for(;j&b;b>>=1)j^=b;j^=b;if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}}
+  for(let len=2;len<=n;len<<=1){const a=-2*Math.PI/len,wr=Math.cos(a),wi=Math.sin(a);for(let i=0;i<n;i+=len){let cr=1,ci=0;for(let j=0;j<len/2;j++){const ur=re[i+j],ui=im[i+j],k=i+j+len/2,vr=re[k]*cr-im[k]*ci,vi=re[k]*ci+im[k]*cr;re[i+j]=ur+vr;im[i+j]=ui+vi;re[k]=ur-vr;im[k]=ui-vi;const t=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=t}}}}
+function makeChirp(sr){const n=2048,c=new Float32Array(n),f1=60,f2=14000,T=n/sr,K=Math.log(f2/f1);for(let i=0;i<n;i++){const t=i/sr;c[i]=Math.sin(2*Math.PI*f1*T/K*(Math.exp(t/T*K)-1));const w=i<n*.05?i/(n*.05):i>n*.95?(n-i)/(n*.05):1;c[i]*=w}return c}
+function xcorrPeak(x,c,a,b){let best=0,bi=a,bv=0;for(let i=a;i<b;i++){let s=0;for(let j=0;j<c.length;j+=1)s+=x[i+j]*c[j];const m=Math.abs(s);if(m>best){best=m;bi=i;bv=s}}
+  // parabolic
+  const val=i=>{let s=0;for(let j=0;j<c.length;j++)s+=x[i+j]*c[j];return Math.abs(s)};const y0=val(bi-1),y1=best,y2=val(bi+1),den=y0-2*y1+y2;const off=den?.5*(y0-y2)/den:0;let xn=0,cn=0;for(let j=0;j<c.length;j++){xn+=x[bi+j]*x[bi+j];cn+=c[j]*c[j]}return{i:bi+off,ii:bi,v:bv,m:best,q:best/Math.sqrt(xn*cn+1e-20)}}
+function bandResp(x,i0,chirp){const N=4096,re=new Float64Array(N),im=new Float64Array(N),cr=new Float64Array(N),ci=new Float64Array(N);for(let i=0;i<N&&i0+i<x.length;i++)re[i]=x[i0+i]*(i<N*.9?1:(N-i)/(N*.1));for(let i=0;i<chirp.length;i++)cr[i]=chirp[i];fft(re,im);fft(cr,ci);
+  const sr=ctx.sampleRate,oct=[125,250,500,1000,2000,4000,8000];return oct.map(fc=>{let a=0,b=0;for(let k=1;k<N/2;k++){const f=k*sr/N;if(f>=fc/1.414&&f<fc*1.414){a+=re[k]*re[k]+im[k]*im[k];b+=cr[k]*cr[k]+ci[k]*ci[k]}}return 10*Math.log10(a/b+1e-20)})}
+async function lrOnce(chirp){const sr=ctx.sampleRate,recLen=Math.round(sr*1.8),rec=new Float32Array(recLen);let w=0;
+  const sp=ctx.createScriptProcessor(4096,1,1);const z=ctx.createGain();z.gain.value=0;micSrc.connect(sp);sp.connect(z);z.connect(ctx.destination);
+  const done=new Promise(res=>{sp.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);for(let i=0;i<d.length&&w<recLen;i++)rec[w++]=d[i];if(w>=recLen)res()}});
+  const b=ctx.createBuffer(1,chirp.length,sr);b.copyToChannel(chirp,0);const t0=ctx.currentTime+.05;
+  [[-1,.25],[1,.85]].forEach(([pan,dt])=>{const s=new AudioBufferSourceNode(ctx,{buffer:b});const p=new StereoPannerNode(ctx,{pan});const g=ctx.createGain();g.gain.value=.7;s.connect(g);g.connect(p);p.connect(master);s.start(t0+dt)});
+  await done;sp.disconnect();z.disconnect();sp.onaudioprocess=null;
+  const L=xcorrPeak(rec,chirp,Math.round(sr*.12),Math.round(sr*.8)),R=xcorrPeak(rec,chirp,Math.round(sr*.72),Math.min(recLen-chirp.length-4097,Math.round(sr*1.45)));
+  return{q:Math.min(L.q,R.q),dt:((R.i-L.i)/sr-.6)*1000,dl:20*Math.log10(L.m/R.m),pol:Math.sign(L.v)===Math.sign(R.v),bL:bandResp(rec,L.ii,chirp),bR:bandResp(rec,R.ii,chirp),snr:L.m}}
+$('#lrBtn').onclick=async()=>{const box=$('#lrRes');box.style.display='block';if(!(await startMic())){box.innerHTML='Mikrofon gerekli.';return}
+  if(mode==='mc'){box.innerHTML='Bu test stereo çıkış kullanır. Üstten <b>Stereo amfi</b> moduna geçin.';}
+  const chirp=makeChirp(ctx.sampleRate),rs=[];$('#lrBtn').disabled=true;
+  for(let k=0;k<3;k++){box.innerHTML=`Ölçülüyor… ${k+1}/3 — sessiz olun`;rs.push(await lrOnce(chirp));await new Promise(r=>setTimeout(r,250))}
+  $('#lrBtn').disabled=false;if(rs.filter(r=>r.q>.35).length<2){box.innerHTML='<div class="note err">Test sinyali mikrofonda net algılanamadı. Ses seviyesini artırın, ortamı sessizleştirin ve <b>Stereo amfi</b> modunda tekrar deneyin. (Bluetooth gecikmesi 500 ms üstündeyse kablo/AirPlay kullanın.)</div>';return}const med=a=>a.slice().sort((x,y)=>x-y)[1];const dt=med(rs.map(r=>r.dt)),dl=med(rs.map(r=>r.dl)),pol=rs.filter(r=>r.pol).length>=2;
+  const spread=Math.max(...rs.map(r=>r.dt))-Math.min(...rs.map(r=>r.dt));const cm=dt/1000*C_SOUND*100;
+  const oct=['125','250','500','1k','2k','4k','8k'];const bd=oct.map((o,i)=>{const a=rs.map(r=>r.bL[i]-r.bR[i]).sort((x,y)=>x-y)[1];return[o,a]});
+  box.innerHTML=`<div class="kv"><span>Varış farkı</span><b>${Math.abs(dt).toFixed(2)} ms → ${dt>0?'SAĞ':'SOL'} ${Math.abs(cm).toFixed(1)} cm daha uzak</b></div>
+  <div class="kv"><span>Seviye farkı</span><b>${dl>0?'SOL':'SAĞ'} ${Math.abs(dl).toFixed(1)} dB daha yüksek</b></div>
+  <div class="kv"><span>Göreli polarite</span><b style="color:${pol?'var(--ok)':'var(--bad)'}">${pol?'Aynı ✓':'TERS ✗ — bir hoparlörde +/− kabloyu kontrol edin'}</b></div>
+  <div class="kv"><span>Tekrarlanabilirlik</span><b>±${(spread/2).toFixed(2)} ms ${spread>.3?'(gürültülü ortam)':''}</b></div>
+  <table style="margin-top:8px"><tr><th>Oktav</th>${oct.map(o=>`<th>${o}</th>`).join('')}</tr><tr><td>Sol−Sağ dB</td>${bd.map(([o,a])=>`<td style="color:${Math.abs(a)>3?'var(--warn)':'inherit'}">${a>0?'+':''}${a.toFixed(1)}</td>`).join('')}</tr></table>
+  <p class="muted">Öneri: ${Math.abs(cm)>2?`${dt>0?'Sağ':'Sol'} hoparlörü ${Math.abs(cm).toFixed(0)} cm öne alın veya AVR/DSP'de diğerine ${Math.abs(dt).toFixed(2)} ms gecikme ekleyin. `:'Mesafeler eşit. '}${Math.abs(dl)>1?`Seviyeyi ${Math.abs(dl).toFixed(1)} dB eşitleyin. `:''}${bd.some(x=>Math.abs(x[1])>3)?'±3 dB üstü bantlarda farklı yansıma yüzeyleri var (perde, cam, köşe); simetriyi kontrol edin.':''}</p>`};
+
+/* ---------------- placement AR ---------------- */
+let arOn=false,arSim=false,az=0,el=0,az0=null,arRaf=0,tgt=null,lastIn=false,gotOri=false;
+const arCv=$('#arCv'),actx=arCv.getContext('2d');
+function arResize(){const r=$('#arWrap').getBoundingClientRect(),d=devicePixelRatio||1;arCv.width=r.width*d;arCv.height=r.height*d}
+function wrap(a){return((a+540)%360)-180}
+function onOri(e){if(e.alpha==null)return;gotOri=true;const a=e.alpha*D2R,b=e.beta*D2R,g=e.gamma*D2R;const cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
+  const vx=-(cG*sA*sB+cA*sG),vy=-(sA*sG-cA*cG*sB),vz=-(cB*cG);const naz=Math.atan2(vx,vy)/D2R,nel=Math.asin(Math.max(-1,Math.min(1,vz)))/D2R;
+  az=az+wrap(naz-az)*.35;el=el+(nel-el)*.35}
+$('#arStart').onclick=async()=>{arResize();$('#arMsg').innerHTML='';let msgs=[];
+  try{if(typeof DeviceOrientationEvent!=='undefined'&&DeviceOrientationEvent.requestPermission){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')msgs.push('Hareket sensörü izni verilmedi.')}}catch(e){msgs.push('Hareket sensörü bu pencerede engelli.')}
+  window.addEventListener('deviceorientation',onOri);
+  try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('#arVid').srcObject=st;await $('#arVid').play()}catch(e){msgs.push('Kamera açılamadı ('+(e.name||e)+').')}
+  setTimeout(()=>{if(!gotOri)msgs.push('Sensör verisi gelmiyor.');if(msgs.length){$('#arMsg').innerHTML=`<div class="note err">${msgs.join(' ')} Tarayıcı izin vermedi ya da bu cihazda sensör yok. Arayüzü denemek için <b>Simülasyon</b>'a basıp ekranı parmakla sürükleyin.</div>`}},1200);
+  arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()};
+$('#arSim').onclick=()=>{arSim=!arSim;$('#arSim').classList.toggle('on',arSim);arResize();arOn=true;if(az0==null)az0=0;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()};
+$('#arZero').onclick=()=>{az0=az};
+let drag=null;$('#arWrap').addEventListener('pointerdown',e=>{if(!arSim)return;drag=[e.clientX,e.clientY,az,el]});
+window.addEventListener('pointermove',e=>{if(!drag)return;az=drag[2]-(e.clientX-drag[0])*.25;el=Math.max(-60,Math.min(85,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
+$('#fov').oninput=e=>$('#fovV').textContent=e.target.value+'°';
+function arChips(){$('#arChips').innerHTML=speakers.filter(s=>s.g!=='sub').map(s=>`<button class="chip" data-id="${s.id}" style="${tgt&&tgt.id===s.id?'background:'+GCOL[s.g]+';color:#04111f':''}">${s.id}</button>`).join('');
+  $$('#arChips .chip').forEach(c=>c.onclick=()=>{tgt=speakers.find(s=>s.id===c.dataset.id);arChips()});if(tgt&&!speakers.includes(tgt))tgt=speakers.find(s=>s.id===tgt.id)||null}
+function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d=devicePixelRatio||1;
+  const fr=()=>{if(!arOn)return;actx.clearRect(0,0,W,H);if(!$('#arVid').srcObject){actx.fillStyle='#070d1a';actx.fillRect(0,0,W,H);for(let i=-180;i<=180;i+=15){}}
+    const raz=wrap(az-(az0||0)),hf=+$('#fov').value*D2R/2,vf=Math.atan(Math.tan(hf)*H/W);
+    const proj=(a,e)=>{const da=wrap(a-raz)*D2R,de=(e-el)*D2R;if(Math.abs(da)>1.3||Math.abs(de)>1.3)return null;return[W/2+Math.tan(da)/Math.tan(hf)*W/2,H/2-Math.tan(de)/Math.tan(vf)*H/2]};
+    // horizon + grid
+    actx.strokeStyle='rgba(56,189,248,.35)';actx.lineWidth=1*d;for(let a=-180;a<180;a+=15){const p=proj(a,0);if(p){actx.beginPath();actx.moveTo(p[0],p[1]-8*d);actx.lineTo(p[0],p[1]+8*d);actx.stroke();actx.fillStyle='rgba(148,197,255,.7)';actx.font=`${10*d}px Inter`;actx.textAlign='center';actx.fillText(a+'°',p[0],p[1]+20*d)}}
+    const h0=proj(raz-60,0),h1=proj(raz+60,0);if(h0&&h1){actx.beginPath();actx.moveTo(0,h0[1]);actx.lineTo(W,h1[1]);actx.stroke()}
+    speakers.filter(s=>s.g!=='sub').forEach(s=>{const p=proj(s.az,s.el);if(!p)return;const on=tgt&&s.id===tgt.id;actx.fillStyle=GCOL[s.g]+(on?'':'99');actx.beginPath();actx.arc(p[0],p[1],(on?22:14)*d,0,7);actx.fill();actx.fillStyle='#04111f';actx.font=`bold ${(on?12:10)*d}px Inter`;actx.textAlign='center';actx.textBaseline='middle';actx.fillText(s.id,p[0],p[1]);actx.textBaseline='alphabetic'});
+    // hedef açı ARALIĞI (bölge) — sitedeki Dolby aralıkları
+    let inside=false,arrowTxt='',nowTxt='';
+    const cx_=Math.sin(raz*D2R)*Math.cos(el*D2R),cf_=Math.cos(raz*D2R)*Math.cos(el*D2R),cz_=Math.sin(el*D2R);
+    const curSweep=Math.atan2(cz_,cf_)/D2R,curLam=Math.asin(Math.max(-1,Math.min(1,cx_)))/D2R;
+    if(tgt){const col=GCOL[tgt.g];let poly=[];
+      if(tgt.elMin==null){
+        let lo,hi;if(tgt.side===0){lo=-3;hi=3}else{lo=Math.min(tgt.side*tgt.azMin,tgt.side*tgt.azMax);hi=Math.max(tgt.side*tgt.azMin,tgt.side*tgt.azMax);if(lo===hi){lo-=3;hi+=3}}
+        const E0=-10,E1=12,mid=(lo+hi)/2,half=(hi-lo)/2,dA=wrap(raz-mid);
+        for(let k=0;k<=10;k++)poly.push([lo+(hi-lo)*k/10,E1]);for(let k=10;k>=0;k--)poly.push([lo+(hi-lo)*k/10,E0]);
+        const okA=Math.abs(dA)<=half,okE=el>=E0&&el<=E1;inside=okA&&okE;
+        if(!okA){const need=Math.abs(dA)-half;arrowTxt+=(dA<0?'→ ':'← ')+need.toFixed(0)+'° '}
+        if(!okE)arrowTxt+=el<E0?'↑ kulak hizası':'↓ kulak hizası';
+        nowTxt=`Şu an ${Math.abs(raz).toFixed(0)}° ${raz<-0.5?'sol':raz>0.5?'sağ':''} · hedef aralık ${rangeText(tgt)}`;
+      }else{
+        const L0=tgt.lam-12,L1=tgt.lam+12;const toAE=(sw,lm)=>{const x=Math.sin(lm*D2R),r=Math.cos(lm*D2R),f=r*Math.cos(sw*D2R),z=r*Math.sin(sw*D2R);return[Math.atan2(x,f)/D2R,Math.asin(z)/D2R]};
+        for(let k=0;k<=12;k++)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L1));for(let k=12;k>=0;k--)poly.push(toAE(tgt.elMin+(tgt.elMax-tgt.elMin)*k/12,L0));
+        const okS=curSweep>=tgt.elMin&&curSweep<=tgt.elMax,okL=curLam>=L0&&curLam<=L1;inside=okS&&okL;
+        const back=cf_<0; // arkaya bakarken yön okları ters döner
+        if(!okS){const inc=curSweep<tgt.elMin,amt=inc?tgt.elMin-curSweep:curSweep-tgt.elMax;arrowTxt+=((inc!==back)?'↑ ':'↓ ')+amt.toFixed(0)+'° '}
+        if(!okL){const inc=curLam<L0,amt=inc?L0-curLam:curLam-L1;arrowTxt+=((inc!==back)?'→ ':'← ')+amt.toFixed(0)+'°'}
+        nowTxt=`Şu an tavan açısı ${curSweep.toFixed(0)}° · hedef ${tgt.elMin}–${tgt.elMax}°`;
+      }
+      const pp=poly.map(([a,e])=>proj(a,e));
+      if(pp.filter(Boolean).length>3){actx.beginPath();let st=false;pp.forEach(p=>{if(!p)return;if(!st){actx.moveTo(p[0],p[1]);st=true}else actx.lineTo(p[0],p[1])});actx.closePath();
+        actx.fillStyle=(inside?'#22c55e':col)+'33';actx.fill();actx.strokeStyle=inside?'#22c55e':col;actx.lineWidth=2*d;actx.setLineDash([6*d,4*d]);actx.stroke();actx.setLineDash([])}
+    }
+    // crosshair
+    actx.strokeStyle=inside?'#22c55e':'#fff';actx.lineWidth=2*d;actx.beginPath();actx.arc(W/2,H/2,26*d,0,7);actx.moveTo(W/2-40*d,H/2);actx.lineTo(W/2-12*d,H/2);actx.moveTo(W/2+12*d,H/2);actx.lineTo(W/2+40*d,H/2);actx.moveTo(W/2,H/2-40*d);actx.lineTo(W/2,H/2-12*d);actx.moveTo(W/2,H/2+12*d);actx.lineTo(W/2,H/2+40*d);actx.stroke();
+    actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,8*d,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,24*d);actx.fillText(`Eğim: ${el.toFixed(1)}°`,16*d,40*d);
+    if(tgt&&tgt.elMin!=null){actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,50*d,150*d,22*d);actx.fillStyle='#fde68a';actx.fillText(`Tavan açısı: ${curSweep.toFixed(0)}°`,16*d,66*d)}
+    if(tgt){$('#gTarget').textContent=`Hedef: ${tgt.id} — ${tgt.n}`;$('#gRange').textContent=nowTxt;
+      $('#gArrow').innerHTML=inside?'<span style="color:var(--ok)">✓ aralıkta</span>':arrowTxt;$('#gArrow').style.fontSize=inside?'22px':'16px';
+      if(inside&&!lastIn){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}lastIn=inside}
+    arRaf=requestAnimationFrame(fr)};fr()}
+
+/* ---------------- Objective Audio araçları ---------------- */
+const TOOLS={
+ "order": [
+  "ev-sinemasi-hoparlor-yerlesimi",
+  "aci-hesaplama",
+  "altin-oran-hoparlor-yerlesimi",
+  "sahne-derinligi-phantom-kanal",
+  "oda-modu-room-modes-hesaplayici",
+  "rt60-akustik-panel-hesaplayici",
+  "ilk-yansima-noktalari",
+  "sbir-simulatoru",
+  "ideal-subwoofer-yerlesimi",
+  "subwoofer-yeri-bulma-araci",
+  "gerekli-guc-hesaplayici",
+  "hoparlor-kablosu-kesit-hesaplayici",
+  "dalga-boyu-hesaplayici",
+  "ses-yayilma-suresi-hesaplayici",
+  "rew-olcum-analizi",
+  "objective-tune"
+ ],
+ "meta": {
+  "ev-sinemasi-hoparlor-yerlesimi": {
+   "t": "Ev Sineması Hoparlör Yerleşimi Hesaplayıcı",
+   "d": "5.1’den 9.1.6’ya kadar Dolby Atmos konfigürasyonları için hoparlör açılarını ve konumlarını odanıza göre hesaplar."
+  },
+  "aci-hesaplama": {
+   "t": "Hoparlör Açı Hesaplama Aracı",
+   "d": "Dinleme noktasına göre hoparlör açılarını ölçümlerinizden hesaplar; ITU-R BS.775 önerileriyle karşılaştırır."
+  },
+  "altin-oran-hoparlor-yerlesimi": {
+   "t": "Altın Oran Hoparlör Yerleşimi",
+   "d": "Cardas altın oran yöntemine göre stereo hoparlörlerin ve dinleme noktasının ideal koordinatlarını verir."
+  },
+  "sahne-derinligi-phantom-kanal": {
+   "t": "Sahne Derinliği ve Phantom Kanal Hesaplayıcı",
+   "d": "Stereo sahne genişliğini, phantom merkez kanalın kararlılığını ve dinleme üçgenini değerlendirir."
+  },
+  "oda-modu-room-modes-hesaplayici": {
+   "t": "Oda Modu (Room Modes) Hesaplayıcı",
+   "d": "Oda ölçülerinize göre eksenel, teğetsel ve eğik oda modlarını (rezonans frekanslarını) hesaplar ve 3 boyutlu gösterir."
+  },
+  "rt60-akustik-panel-hesaplayici": {
+   "t": "RT60 ve Akustik Panel İhtiyacı Hesaplayıcı",
+   "d": "Odanızın yankılanma süresini (RT60) Sabine formülüyle hesaplar ve hedefe ulaşmak için kaç m² akustik panel gerektiğini gösterir."
+  },
+  "ilk-yansima-noktalari": {
+   "t": "İlk Yansıma Noktaları Hesaplayıcı",
+   "d": "Yan duvar, tavan ve zemindeki ilk yansıma noktalarını hesaplar; akustik panellerin tam yerini gösterir."
+  },
+  "sbir-simulatoru": {
+   "t": "SBIR Simülatörü (Hoparlör-Duvar Etkileşimi)",
+   "d": "Hoparlörün arka ve yan duvara mesafesinden doğan iptal (null) ve güçlenme frekanslarını hesaplar, 3 boyutlu gösterir."
+  },
+  "ideal-subwoofer-yerlesimi": {
+   "t": "İdeal Subwoofer Yerleşimi",
+   "d": "Bir, iki veya dört subwoofer için oda modlarını en çok dengeleyen yerleşimi hesaplar; subwooferları sürükleyerek deneyin."
+  },
+  "subwoofer-yeri-bulma-araci": {
+   "t": "Subwoofer Yeri Bulma Aracı (Subwoofer Crawl)",
+   "d": "Ölçüm cihazınız yoksa “subwoofer crawl” yöntemiyle subwoofer için en iyi yeri adım adım bulun."
+  },
+  "gerekli-guc-hesaplayici": {
+   "t": "Gerekli Güç (Watt) Hesaplayıcı",
+   "d": "Hoparlör hassasiyeti, dinleme mesafesi ve hedef ses şiddetine göre clipping olmadan ihtiyaç duyacağınız amplifikatör gücünü hesaplar."
+  },
+  "hoparlor-kablosu-kesit-hesaplayici": {
+   "t": "Hoparlör Kablosu Kesit Hesaplayıcı",
+   "d": "Kablo uzunluğu ve hoparlör empedansına (isterseniz bilinen en düşük empedansa) göre gereken en ince kablo kesitini mm² ve AWG olarak hesaplar; kayıp ve direnç tablosu verir."
+  },
+  "dalga-boyu-hesaplayici": {
+   "t": "Ses Dalga Boyu Hesaplayıcı",
+   "d": "Frekanstan dalga boyunu (ve tersini) hesaplar; çeyrek dalga boyu ve SBIR mesafeleri için kullanılır."
+  },
+  "ses-yayilma-suresi-hesaplayici": {
+   "t": "Ses Yayılma Süresi (Gecikme) Hesaplayıcı",
+   "d": "Mesafeye göre sesin ulaşma süresini milisaniye olarak hesaplar; hoparlör ve subwoofer gecikme ayarı için."
+  },
+  "rew-olcum-analizi": {
+   "t": "REW Ölçüm Analizi",
+   "d": "REW ile aldığınız ölçüm dosyasını (.mdat) yükleyin; kanal seviyeleri, varış zamanları, oda modları ve bas çukurları, arka duvar etkisi (SBIR), erken yansımalar, yankı süresi (RT60), şelale grafiği, subwoofer seçenekleri ve distorsiyon tek raporda, ne yapmanız gerektiğiyle birlikte gelsin. İlk analiz ücretsiz.",
+   "ext": "https://objectiveaudio.com.tr/hesaplama-araclari/rew-olcum-analizi/"
+  },
+  "objective-tune": {
+   "t": "Objective Tune — Audyssey kalibrasyon aracı",
+   "d": "Denon/Marantz amfinizin Audyssey MultEQ Editor uygulamasında kaydettiğiniz kalibrasyon dosyasını (.ady) yükleyin. Ölçümlerinizden her hoparlöre uygun crossover’ı seçer, ölçüm verisini ana koltuğun düzeltilecek haliyle yeniden yazar (tepeler tamamen kesilir, oda modu çukurları zorlanmaz) ve amfinize geri yükleyebileceğiniz 4 düzeltilmiş dosya (Normal, Hpy ve ikisinin Bass+ sürümü) ile bir rapor hazırlarız; düzeltme ana dinleme koltuğunuza göre yapılır, subwoofer ile hoparlörlerin zaman hizalaması da yapılır. İlk kalibrasyon ücretsiz.",
+   "ext": "https://objectiveaudio.com.tr/hesaplama-araclari/objective-tune/"
+  }
+ }
+};
+const TGROUPS=[['Hoparlör yerleşimi',['ev-sinemasi-hoparlor-yerlesimi','aci-hesaplama','altin-oran-hoparlor-yerlesimi','sahne-derinligi-phantom-kanal']],
+ ['Oda akustiği',['oda-modu-room-modes-hesaplayici','rt60-akustik-panel-hesaplayici','ilk-yansima-noktalari','sbir-simulatoru']],
+ ['Subwoofer',['ideal-subwoofer-yerlesimi','subwoofer-yeri-bulma-araci']],
+ ['Güç ve ses',['gerekli-guc-hesaplayici','hoparlor-kablosu-kesit-hesaplayici','dalga-boyu-hesaplayici','ses-yayilma-suresi-hesaplayici']],
+ ['Ölçüm ve kalibrasyon hizmetleri',['rew-olcum-analizi','objective-tune']]];
+$('#toolList').innerHTML=TGROUPS.map(([g,ks])=>`<h3>${g}</h3>`+ks.map(k=>{const m=TOOLS.meta[k];return m.ext?
+  `<a class="tl" href="${m.ext}" target="_blank" rel="noopener"><b>${m.t} ↗</b><span>${m.d}</span></a>`:
+  `<button class="tl" data-k="${k}"><b>${m.t}</b><span>${m.d}</span></button>`}).join('')).join('');
+function openTool(k){const m=TOOLS.meta[k];if(!m||m.ext)return;$('#toolTitle').textContent=m.t;$('#toolFrame').src='tools/'+k+'.html';$('#toolView').style.display='flex';document.body.style.overflow='hidden';try{history.replaceState(null,'','#arac-'+k)}catch(e){}}
+window.oaCloseTool=function(){$('#toolView').style.display='none';$('#toolFrame').src='about:blank';document.body.style.overflow='';try{history.replaceState(null,'','#')}catch(e){}};
+$$('#toolList button.tl').forEach(b=>b.onclick=()=>openTool(b.dataset.k));$('#toolBack').onclick=oaCloseTool;
+// iframe içindeki araçtan araca geçişte başlığı güncelle
+$('#toolFrame').addEventListener('load',()=>{try{const u=$('#toolFrame').contentWindow.location.pathname.split('/').pop().replace('.html','');if(TOOLS.meta[u])$('#toolTitle').textContent=TOOLS.meta[u].t}catch(e){}});
+if(location.hash.startsWith('#arac-')){const k=location.hash.slice(6);setTimeout(()=>{$$('#tabs button').find(b=>b.dataset.t==='t-calc').click();openTool(k)},50)}
+
+/* oda ölçüleri (yerleşim) */
+$('#rmH').value=room.H;$('#rmS').value=room.seat;
+['#rmH','#rmS'].forEach(id=>$(id).onchange=()=>{const H=parseFloat($('#rmH').value),S=parseFloat($('#rmS').value);if(H>1.8&&H<8&&S>1&&S<20){room={H,seat:S};store.set('room',room);speakers=buildLayout(lay);renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips()}});
+/* cihaz yeteneği notu */
+(function(){const ua=navigator.userAgent;let t='';
+ if(/iPhone|iPad/.test(ua))t='iPhone/iPad algılandı. Web sürümü jiroskopla açı ölçer. Uygulama sürümünde LiDAR\'lı modellerde (iPhone 12 Pro → 17 Pro / Pro Max, iPad Pro 2020+) ARKit + RoomPlan ile oda taranır; duvarlar ve mesafeler otomatik çıkar.';
+ else if(/Android/.test(ua))t='Android algılandı. Web sürümü jiroskopla açı ölçer. Uygulama sürümünde ARCore Depth API ile (aktif Android cihazların büyük çoğunluğu) kameradan derinlik ölçülür; ToF sensörlü modellerde (Galaxy S10 5G, S20+, S20 Ultra, Note10+, A80, LG V60 vb.) daha hassastır.';
+ else t='Bilgisayar algılandı. Yerleşim rehberi telefonda kullanılmak içindir; burada Simülasyon ile deneyebilirsiniz.';
+ $('#devNote').textContent=t})();
+/* ---------------- init ---------------- */
+fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));setLfeF(40);updateModeMsg();rtaResize();
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSeq();stopAll();stopObj();lfeStop();genStop()}});
+</script>
+</body>
+</html>
