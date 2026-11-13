@@ -98,6 +98,18 @@ th{color:var(--mut);font-weight:600;font-size:11.5px}
 .arpos{font-size:12.5px;color:#cfe9f7;margin:6px 2px;line-height:1.4}
 .arch{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.arch .chip{flex:none}
 #cone,#objDot{pointer-events:none}
+#arCal{position:absolute;inset:0;z-index:3;display:none;align-items:flex-end;justify-content:center;padding:0 10px calc(14px + env(safe-area-inset-bottom));pointer-events:none}
+#arCal.on{display:flex}#arCal .calbox{pointer-events:auto;width:100%;max-width:460px;background:rgba(10,16,32,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:14px}
+.xrc{position:fixed;left:50%;top:45%;width:44px;height:44px;margin:-22px 0 0 -22px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.xrc:after{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;background:#22c55e;border-radius:50%}
+.xrbar{position:fixed;left:10px;right:10px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(10,16,32,.9);border-radius:14px;padding:12px;text-align:center;color:#fff;font-size:15px;font-weight:600}
+.calstep{font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.lvl{display:flex;align-items:center;gap:10px}.lvlbar{flex:1;height:10px;border-radius:6px;background:#1e293b;position:relative;overflow:hidden}
+.lvlbar:before{content:'';position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(34,197,94,.35)}
+.lvlbar i{position:absolute;top:0;bottom:0;width:10px;margin-left:-5px;border-radius:5px;background:#f59e0b;left:50%}
+#lvlTxt{font-size:12px;color:var(--mut);min-width:96px;text-align:right}
+#arToast{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:4;background:rgba(34,197,94,.95);color:#04111f;font-weight:700;padding:12px 16px;border-radius:14px;display:none;text-align:center;max-width:86%}
+#arWrap.cal .arBot{display:none}
 .pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.pgrid button{border:1px solid var(--line);background:#0d1628;border-radius:10px;padding:8px 4px;font-size:12px;font-weight:600}.pgrid button.on{background:#0e3a52;border-color:var(--acc)}
 #sp3d{height:320px;border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0f1d38,#050912);position:relative;touch-action:none;margin-top:10px}
 #sp3d .hint{position:absolute;left:8px;bottom:6px;font-size:11px;color:var(--mut);pointer-events:none}
@@ -109,7 +121,8 @@ th{color:var(--mut);font-weight:600;font-size:11.5px}
 details summary{cursor:pointer;font-weight:700;padding:4px 0}
 .calc{margin-bottom:10px}
 .tl{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:11px 12px;margin-bottom:8px;color:var(--tx);text-decoration:none}
-.tl b{display:block;font-size:14px}.tl span{display:block;color:var(--mut);font-size:12px;margin-top:3px;line-height:1.4}
+.tl b{display:block;font-size:14px}
+.mrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.mrow i{width:14px;height:14px;border-radius:4px;flex:none}.mrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mrow .nm small{color:var(--mut);margin-left:6px}.mrow button{border:1px solid var(--line);background:#0d1628;border-radius:8px;padding:4px 7px;font-size:12px}.tl span{display:block;color:var(--mut);font-size:12px;margin-top:3px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -157,11 +170,12 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
   <div>
     <div class="card">
       <h2>Uzamsal demo <span class="badge pro">PRO</span></h2>
-      <p class="muted" style="margin-top:0">Aynı melodi, seçili hoparlör düzeni üzerinden odada dolaşır; 3D görüntüdeki top sesin olduğu yerdedir ve o an çalan hoparlörler yanar. Kulaklıkta her sanal hoparlör ayrı HRTF ile çalınır. “2.0 ile karşılaştır” ile farkı duyun.</p>
-      <div class="pgrid" id="pathSeg"></div>
+      <p class="muted" style="margin-top:0">Seçtiğiniz ses, seçili hoparlör düzeni üzerinden odada dolaşır; 3D görüntüdeki top sesin olduğu yerdedir ve o an çalan hoparlörler yanar. Kulaklıkta her sanal hoparlör ayrı HRTF ile çalınır. “2.0 ile karşılaştır” ile farkı duyun.</p>
+      <label class="f" style="margin-top:2px">Ses</label><div class="pgrid" id="sndSeg" style="grid-template-columns:repeat(3,1fr);margin-bottom:8px"></div>
+      <label class="f">Hareket</label><div class="pgrid" id="pathSeg"></div>
       <div id="sp3d"><div class="hint">Sürükleyerek döndürün · iki parmakla yakınlaştırın</div></div>
       <div class="row" style="margin-top:10px">
-        <button class="btn pri" id="objBtn">▶ Melodiyi başlat</button>
+        <button class="btn pri" id="objBtn">▶ Başlat</button>
         <button class="btn" id="cmpBtn">2.0 ile karşılaştır</button>
       </div>
       <div class="res" id="objInfo" style="display:none"></div>
@@ -183,15 +197,17 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="note">Düşük seviyede başlayın. 10–25 Hz sesleri çoğu kulaklık ve küçük hoparlör üretemez, bu frekanslar duyulmaktan çok <b>hissedilir</b>. Yüksek seviyede uzun süre çalmak sürücülere zarar verebilir.</div>
     <h3>Temel frekans</h3>
     <div class="freqs" id="freqs"></div>
-    <div class="row" style="margin-top:8px"><span class="muted">İnce ayar</span><input type="range" id="fSlider" min="0" max="1000" value="500" style="flex:1"><b id="fVal" style="width:64px;text-align:right">40 Hz</b></div>
+    <div class="row" style="margin-top:8px"><span class="muted">İnce ayar</span><input type="range" id="fSlider" min="0" max="1000" value="500" style="flex:1"><b id="fVal" style="width:70px;text-align:right">Orijinal</b></div>
     <h3>Gerçek film efektleri</h3>
-    <p class="muted" style="margin:0 0 8px">Hollywood stüdyolarının kullandığı gerçek kayıtlar (USC "Red Library", Internet Archive, CC0 – ticari kullanım serbest). Seçtiğiniz frekansta, kaydın kendi zarfını izleyen bir <b>sub katmanı</b> eklenir; sinema LFE miksajı da böyle yapılır.</p>
+    <p class="muted" style="margin:0 0 8px">Hollywood stüdyolarının kullandığı gerçek kayıtlar (USC "Red Library", Internet Archive, CC0). İlk dokunuşta kaydın <b>orijinal hali</b> çalar. Yukarıdan bir frekans seçerseniz kayıt o frekansa kaydırılır. Aynı tuşa tekrar basınca baştan başlar. “Uzun kuyruklu patlama” tam uzunluktadır, diğerleri 3 saniyede kesilir.</p>
     <div class="fx" id="fxReal"></div>
     <div class="row" style="margin-top:8px">
-      <label class="row muted"><input type="checkbox" id="subLayer" checked> Sub katmanı (seçili frekans)</label>
-      <label class="row muted"><input type="checkbox" id="heavy"> Ağırlaştır (yarım hız, bir oktav aşağı)</label>
+      <label class="row muted"><input type="checkbox" id="subLayer"> Sub katmanı ekle</label>
       <label class="btn sm" style="cursor:pointer">📂 Kendi kaydınız<input type="file" id="ownFx" accept="audio/*" hidden></label>
     </div>
+    <h3>Ringing (çınlama) testi</h3>
+    <div class="row"><button class="btn pri" id="cutBtn">⏹ Kesik darbe</button><button class="btn" id="cutRep">↻ Sürekli tekrarla</button></div>
+    <p class="muted" style="margin:6px 0 0">Seçili frekansta kısa bir ton çalar ve aniden keser. Kesildikten sonra uğultu devam ediyorsa o frekansta çınlama var.</p>
     <h3>Ölçüm sinyalleri</h3>
     <div class="fx" id="fx"></div>
     <h3>Testler</h3>
@@ -272,6 +288,26 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px"><button class="btn sm" id="pfCopy">Profil kodunu kopyala</button><input type="text" id="pfPaste" placeholder="Profil kodunu yapıştırın" style="flex:1;min-width:140px"><button class="btn sm" id="pfImport">İçe al</button></div>
     <p class="muted">Aynı model telefonu olan biri bu kodu içe alınca, kendisi eşleştirme yapmadan sizin ölçtüğünüz düzeltmeyi kullanır. Uygulama sürümünde bu profiller sunucuda modele göre otomatik dağıtılır.</p>
   </div>
+  <div class="card" id="mCard">
+    <h2>Akustik ölçüm — REW tarzı <span class="badge pro">PRO</span></h2>
+    <p class="muted" style="margin-top:0">Seçili hoparlörden log sinüs taraması çalınır, mikrofonla kaydedilir ve darbe tepkisi çıkarılır. En doğru sonuç için UMIK + kalibrasyon dosyası kullanın (yukarıdaki “Mikrofon ve eşleştirme”). Mod: <b>Stereo amfi</b> veya <b>Çok kanal</b>.</p>
+    <div class="grid g3">
+      <div><label class="f">Hoparlör</label><select id="msCh"></select></div>
+      <div><label class="f">Tarama seviyesi</label><select id="msLvl"><option value="-24">-24 dBFS</option><option value="-18">-18 dBFS</option><option value="-12" selected>-12 dBFS</option><option value="-6">-6 dBFS</option></select></div>
+      <div><label class="f">Ölçüm adı</label><input type="text" id="msName" placeholder="örn. Sub önce"></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn pri" id="msGo">▶ Ölç</button><span id="msStat" class="muted"></span></div>
+    <div class="seg" id="msView" style="margin-top:12px"><button data-v="fr" class="on">Frekans tepkisi</button><button data-v="diff">Fark</button><button data-v="ir">Darbe</button><button data-v="etc">ETC</button><button data-v="wf">Waterfall</button></div>
+    <div class="row" style="margin-top:8px">
+      <select id="msSm" style="width:auto"><option value="0">Yumuşatma yok</option><option value="48">1/48 oct</option><option value="24">1/24 oct</option><option value="12" selected>1/12 oct</option><option value="6">1/6 oct</option><option value="3">1/3 oct</option></select>
+      <select id="msRange" style="width:auto"><option value="full">20 Hz – 20 kHz</option><option value="low">15 – 300 Hz</option></select>
+      <span id="msDiffSel" style="display:none" class="row"><select id="msA" style="width:auto"></select><span class="muted">−</span><select id="msB" style="width:auto"></select></span>
+    </div>
+    <canvas id="msCv" height="300" style="margin-top:8px;border-radius:10px;background:#070d1a;touch-action:none"></canvas>
+    <div id="msList" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📂 Ölçüm dosyası yükle (.oal.json / REW .txt)<input type="file" id="msFile" accept=".json,.txt,.frd,text/plain,application/json" multiple hidden></label></div>
+    <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
+  </div>
   <div class="card">
     <h2>RTA — 1/3 oktav</h2>
     <canvas id="rta" height="190"></canvas>
@@ -317,13 +353,39 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="note info" id="devNote"></div>
   </div>
   <div class="card">
+    <h2>Koltuk – merkez hoparlör mesafesi</h2>
+    <p class="muted" style="margin-top:0">Her oturma noktasından merkez hoparlöre olan mesafe, AVR'deki mesafe/gecikme ayarı ve koltuklar arası fark için kullanılır.</p>
+    <div class="grid g2"><div><label class="f">Koltuk adı</label><input type="text" id="seatName" placeholder="örn. Ana koltuk"></div><div><label class="f">Hedef hoparlör</label><select id="seatSpk"></select></div></div>
+    <div id="xrBox" style="display:none;margin-top:10px"><button class="btn pri" id="xrGo">📏 Kamerayla ölç (AR derinlik)</button><p class="muted" style="margin:4px 0 0">Bu telefon ARCore derinlik ölçümünü destekliyor. Kamerayı hoparlörün ön yüzüne tutun, artı işareti hoparlörün üzerindeyken “Ölç”e basın.</p></div>
+    <h3>Sesle ölçüm (tüm telefonlar)</h3>
+    <ol class="muted" style="margin:0 0 8px;padding-left:18px;line-height:1.5"><li>Telefonu hedef hoparlörün ızgarasına dayayın ve <b>1</b>'e basın (gecikme referansı).</li><li>Koltuğa oturun, telefonu kulak hizasında tutun ve <b>2</b>'ye basın. Diğer koltuklar için 2'yi tekrarlayın.</li></ol>
+    <div class="row"><button class="btn" id="acRef">1 · Referans</button><button class="btn pri" id="acSeat">2 · Bu koltuğu ölç</button></div>
+    <div class="row" style="margin-top:8px"><input type="number" id="seatManual" step="0.01" placeholder="veya elle girin (m)" style="flex:1"><button class="btn sm" id="seatAdd">Ekle</button></div>
+    <div class="res" id="seatRes">Kablolu bağlantı ya da HDMI kullanın; Bluetooth gecikmesi değişken olduğundan sesle ölçümü bozar.</div>
+    <div id="seatList" style="margin-top:8px"></div>
+    <p class="muted" id="seatNote"></p>
+  </div>
+  <div id="xrOv" style="display:none"><div class="xrc"></div><div class="xrbar"><div id="xrTxt">Hoparlörü arayın…</div><div class="row" style="justify-content:center;margin-top:8px"><button class="btn pri" id="xrTake">Ölç</button><button class="btn" id="xrEnd">Bitti</button></div></div></div>
+  <div class="card">
     <h2>Konum aralıkları</h2>
     <p class="muted" style="margin-top:0">Ölçüler: duvar boyunca, belirtilen köşeden. Aralığın ortası genelde en iyi tercihtir; mobilya/pencere varsa aralık içinde kaydırın.</p>
     <div id="posTable" style="overflow-x:auto"></div>
   </div>
 </section>
 <div id="arWrap"><video id="arVid" playsinline muted></video><canvas id="arCv"></canvas>
-  <div class="arTop"><button class="btn sm" id="arClose">✕ Kapat</button><button class="btn sm" id="arZero">⌖ Ekranı 0° yap</button></div>
+  <div class="arTop"><button class="btn sm" id="arClose">✕ Kapat</button><button class="btn sm" id="arZero">↺ Yeniden başlat</button></div>
+  <div id="arCal"><div class="calbox">
+    <div class="calstep">1/2 · Referans</div>
+    <h3 style="margin:4px 0 6px;color:#fff;font-size:17px;text-transform:none;letter-spacing:0">Merkez hoparlörünüzü referans seçin</h3>
+    <ol class="muted" style="margin:0 0 10px;padding-left:18px;line-height:1.5">
+      <li>Dinleme koltuğuna oturun, telefonu kulak hizasında <b>dik</b> tutun.</li>
+      <li>Ortadaki artıyı <b>merkez hoparlörün</b> (yoksa ekranın) tam ortasına getirin.</li>
+      <li>Telefonu öne/arkaya yatırmayın; aşağıdaki çubuk yeşil olunca butona basın.</li>
+    </ol>
+    <div class="lvl"><div class="lvlbar"><i id="lvlDot"></i></div><span id="lvlTxt">Eğim —</span></div>
+    <button class="btn pri" id="arRef" style="width:100%;margin-top:10px">⌖ Merkez hoparlörü referans al</button>
+  </div></div>
+  <div id="arToast"></div>
   <div class="arBot">
     <div class="guide"><div style="min-width:0"><div class="gt" id="gTarget">Hedef: —</div><div class="muted" id="gRange"></div></div><div class="arrow" id="gArrow">·</div></div>
     <div id="arPos" class="arpos"></div>
@@ -364,7 +426,7 @@ const D2R=Math.PI/180, C_SOUND=343;
 const store={get(k,d){try{const v=localStorage.getItem('oal_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('oal_'+k,JSON.stringify(v))}catch(e){}}};
 
 /* ---------------- tabs ---------------- */
-$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='t-place')arResize();if(b.dataset.t==='t-meas')rtaResize();});
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='t-place')arResize();if(b.dataset.t==='t-meas'){rtaResize();drawMs()}});
 function segBind(id,attr,cb){$$('#'+id+' button').forEach(b=>b.onclick=()=>{$$('#'+id+' button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset[attr],b)});}
 
 /* ---------------- speaker model ---------------- */
@@ -542,7 +604,7 @@ function fillSel(){
 }
 function setLayout(L,fromPreset){lay=L;speakers=buildLayout(lay);$('#cBed').value=$('#pBed').value=L.bed;$('#cSub').value=$('#pSub').value=L.sub;$('#cH').value=$('#pH').value=L.h;
   const nm=layoutName(L);$('#preset').value=$('#pPreset').value=PRESETS.includes(nm)||PRESETS.includes(L.bed+'.'+L.sub)?(L.h?nm:L.bed+'.'+L.sub):'custom';
-  stopSeq();stopAll();renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips();posTable();store.set('lay',L);if(objOn)rebuildObj();else if(T3){build3DSpeakers();draw3D()}}
+  stopSeq();stopAll();renderDiagram();if(tgt)tgt=speakers.find(x=>x.id===tgt.id)||null;arChips();posTable();if(window.fillMsCh&&$('#msCh')){fillMsCh();fillSeatSpk()}store.set('lay',L);if(objOn)rebuildObj();else if(T3){build3DSpeakers();draw3D()}}
 ['#preset','#pPreset'].forEach(id=>$(id).onchange=e=>{if(e.target.value==='custom')return;const p=e.target.value.split('.').map(Number);setLayout({bed:p[0],sub:p[1],h:p[2]||0})});
 ['#cBed','#cSub','#cH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#cBed').value,sub:+$('#cSub').value,h:+$('#cH').value}));
 ['#pBed','#pSub','#pH'].forEach(id=>$(id).onchange=()=>setLayout({bed:+$('#pBed').value,sub:+$('#pSub').value,h:+$('#pH').value}));
@@ -564,6 +626,41 @@ const PATHS={
  flyby:['Önden geçiş',t=>{const x=((t*1.6)%9)-4.5;return[x,1.6,.4]}],
  lateral:['Yandan dikey daire',t=>{const th=t*1.1;return[2*Math.cos(th),.3,2*Math.sin(th)]}],
  heli:['Helikopter',t=>{const a=t*.6,r=1.6+.8*Math.sin(t*.25);return[r*Math.sin(a),r*Math.cos(a),1.3+.3*Math.sin(t*.4)]}]};
+/* uzamsal demo ses kaynakları */
+let objSnd='melody',sndNodes=[];
+const SNDS={melody:'🎵 Melodi',heli:'🚁 Helikopter',bee:'🐝 Arı',bird:'🐦 Kuş',perc:'🥁 Perküsyon',voice:'🗣️ Ses (konuşma)'};
+$('#sndSeg').innerHTML=Object.entries(SNDS).map(([k,n])=>`<button data-s="${k}" class="${k===objSnd?'on':''}">${n}</button>`).join('');
+segBind('sndSeg','s',k=>{objSnd=k;if(objOn){stopSound();startSound();rebuildObj()}});
+function stopSound(){clearInterval(melT);melT=null;sndNodes.forEach(n=>{try{n.stop()}catch(e){}try{n.disconnect()}catch(e){}});sndNodes=[]}
+function startSound(){const t0=ctx.currentTime+.05,K=objSnd,keep=n=>(sndNodes.push(n),n);
+  if(K==='melody'){const notes=[57,60,64,69,67,64,60,62,65,69,72,69,65,62,64,67],step=.24;let nt=t0,k=0;
+    const sched=()=>{while(nt<ctx.currentTime+.15){const f=440*Math.pow(2,(notes[k%notes.length]-69)/12);
+      [['triangle',1,.22],['sine',2,.08],['sine',.5,.12]].forEach(([ty,m,a])=>{const o=new OscillatorNode(ctx,{type:ty,frequency:f*m});const g=ctx.createGain();g.gain.setValueAtTime(0,nt);g.gain.linearRampToValueAtTime(a,nt+.006);g.gain.exponentialRampToValueAtTime(.0005,nt+.5);o.connect(g);g.connect(objBus);o.start(nt);o.stop(nt+.55)});nt+=step;k++}};
+    melT=setInterval(sched,25);sched();return}
+  if(K==='heli'){// rotor: kahverengi gürültü + 11 Hz kanat vuruşu + türbin
+    const n=keep(new AudioBufferSourceNode(ctx,{buffer:bufs.brown,loop:true}));const lp=keep(new BiquadFilterNode(ctx,{type:'lowpass',frequency:700}));const am=keep(ctx.createGain());am.gain.value=0;
+    const lfo=keep(new OscillatorNode(ctx,{type:'sawtooth',frequency:11}));const lg=keep(ctx.createGain());lg.gain.value=1.1;const sh=keep(new WaveShaperNode(ctx,{curve:Float32Array.from({length:256},(_,i)=>{const x=i/127.5-1;return Math.max(0,-x)**3})}));
+    lfo.connect(sh);sh.connect(lg);lg.connect(am.gain);n.connect(lp);lp.connect(am);const out=keep(ctx.createGain());out.gain.value=2.2;am.connect(out);out.connect(objBus);
+    const tb=keep(new OscillatorNode(ctx,{type:'sawtooth',frequency:1850}));const tf=keep(new BiquadFilterNode(ctx,{type:'bandpass',frequency:1850,Q:8}));const tg=keep(ctx.createGain());tg.gain.value=.025;tb.connect(tf);tf.connect(tg);tg.connect(objBus);
+    [n,lfo,tb].forEach(x=>x.start(t0));return}
+  if(K==='bee'){const o=keep(new OscillatorNode(ctx,{type:'sawtooth',frequency:225}));const v=keep(new OscillatorNode(ctx,{frequency:7}));const vg=keep(ctx.createGain());vg.gain.value=9;v.connect(vg);vg.connect(o.frequency);
+    const w=keep(new OscillatorNode(ctx,{frequency:.37}));const wg=keep(ctx.createGain());wg.gain.value=25;w.connect(wg);wg.connect(o.frequency);
+    const bp=keep(new BiquadFilterNode(ctx,{type:'bandpass',frequency:900,Q:1.2}));const g=keep(ctx.createGain());g.gain.value=.22;o.connect(bp);bp.connect(g);g.connect(objBus);[o,v,w].forEach(x=>x.start(t0));return}
+  if(K==='bird'){let nt=t0;const sched=()=>{while(nt<ctx.currentTime+.3){const n=2+Math.floor(Math.random()*4),base=2600+Math.random()*1400;
+      for(let i=0;i<n;i++){const tt=nt+i*.11,o=new OscillatorNode(ctx,{frequency:base});o.frequency.setValueAtTime(base*1.25,tt);o.frequency.exponentialRampToValueAtTime(base*.8,tt+.07);
+        const g=ctx.createGain();g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(.18,tt+.01);g.gain.exponentialRampToValueAtTime(.001,tt+.09);o.connect(g);g.connect(objBus);o.start(tt);o.stop(tt+.1)}
+      nt+=n*.11+.35+Math.random()*.6}};melT=setInterval(sched,40);sched();return}
+  if(K==='perc'){const step=.18;let nt=t0,k=0;const pat='x.xxx.x.x.xx.x.x';
+    const sched=()=>{while(nt<ctx.currentTime+.15){const acc=k%4===0;if(pat[k%pat.length]==='x'){const s2=new AudioBufferSourceNode(ctx,{buffer:bufs.white});const hp=new BiquadFilterNode(ctx,{type:'highpass',frequency:acc?2500:5000});const g=ctx.createGain();
+        g.gain.setValueAtTime(acc?.5:.3,nt);g.gain.exponentialRampToValueAtTime(.001,nt+(acc?.12:.05));s2.connect(hp);hp.connect(g);g.connect(objBus);s2.start(nt,Math.random()*3);s2.stop(nt+.15)}
+      if(k%8===0){const o=new OscillatorNode(ctx,{frequency:180});o.frequency.exponentialRampToValueAtTime(60,nt+.08);const g=ctx.createGain();g.gain.setValueAtTime(.5,nt);g.gain.exponentialRampToValueAtTime(.001,nt+.2);o.connect(g);g.connect(objBus);o.start(nt);o.stop(nt+.22)}
+      nt+=step;k++}};melT=setInterval(sched,25);sched();return}
+  if(K==='voice'){// biçimlendirilmiş (formant) sentetik konuşma benzeri hece akışı
+    const vow=[[730,1090,2440],[270,2290,3010],[300,870,2240],[530,1840,2480],[570,840,2410]];let nt=t0;
+    const sched=()=>{while(nt<ctx.currentTime+.3){const syl=2+Math.floor(Math.random()*5);for(let i=0;i<syl;i++){const tt=nt+i*.17,v=vow[Math.floor(Math.random()*vow.length)],f0=110+Math.random()*40;
+        const src=new OscillatorNode(ctx,{type:'sawtooth',frequency:f0});src.frequency.setValueAtTime(f0*1.08,tt);src.frequency.linearRampToValueAtTime(f0*.92,tt+.16);const g=ctx.createGain();g.gain.setValueAtTime(0,tt);g.gain.linearRampToValueAtTime(.35,tt+.03);g.gain.linearRampToValueAtTime(0,tt+.16);
+        v.forEach((F,j)=>{const bp=new BiquadFilterNode(ctx,{type:'bandpass',frequency:F,Q:F/90});const fg=ctx.createGain();fg.gain.value=[1,.6,.3][j];src.connect(bp);bp.connect(fg);fg.connect(g)});g.connect(objBus);src.start(tt);src.stop(tt+.17)}
+      nt+=syl*.17+.25+Math.random()*.4}};melT=setInterval(sched,40);sched();return}}
 $('#pathSeg').innerHTML=Object.entries(PATHS).map(([k,[n]])=>`<button data-p="${k}" class="${k===objPath?'on':''}">${n}</button>`).join('');
 segBind('pathSeg','p',p=>{objPath=p;if(T3)T3.trailPts.length=0});
 function renderSet(){return cmp2?buildLayout({bed:2,sub:0,h:0}):speakers.filter(s=>s.g!=='sub'&&available(s))}
@@ -613,12 +710,9 @@ function draw3D(p,w){if(!T3)return;const c=T3.camera;c.position.set(T3.dist*Math
     T3.rays.geometry.setDrawRange(0,n*2);T3.rays.geometry.attributes.position.needsUpdate=true}
   else{T3.obj.visible=false;T3.trailPts.length=0;T3.trail.geometry.setDrawRange(0,0);T3.rays.geometry.setDrawRange(0,0);T3.spk.forEach(m=>{m.mesh.material.emissiveIntensity=.15;m.mesh.scale.setScalar(1)})}
   T3.renderer.render(T3.scene,c)}
-async function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;objVoice.start(.2);objOn=true;objT0=ctx.currentTime;rebuildObj();$('#objBtn').textContent='■ Melodiyi durdur';
-  const notes=[57,60,64,69,67,64,60,62,65,69,72,69,65,62,64,67],step=.24;let nt=ctx.currentTime+.1,k=0;
-  const sched=()=>{while(nt<ctx.currentTime+.15){const f=440*Math.pow(2,(notes[k%notes.length]-69)/12);
-      [[ 'triangle',1,.22],['sine',2,.08],['sine',.5,.12]].forEach(([ty,m,a])=>{const o=new OscillatorNode(ctx,{type:ty,frequency:f*m});const g=ctx.createGain();g.gain.setValueAtTime(0,nt);g.gain.linearRampToValueAtTime(a,nt+.006);g.gain.exponentialRampToValueAtTime(.0005,nt+.5);o.connect(g);g.connect(objBus);o.start(nt);o.stop(nt+.55)});
-      nt+=step;k++}};
-  melT=setInterval(sched,25);sched();
+async function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;objVoice.start(.2);objOn=true;objT0=ctx.currentTime;rebuildObj();$('#objBtn').textContent='■ Durdur';
+  startSound();
+
   init3D().then(()=>build3DSpeakers());
   const tick=()=>{if(!objOn)return;const t=ctx.currentTime-objT0;const p=PATHS[objPath][1](t);const r=Math.hypot(...p)||1;const v=[p[0]/r,p[1]/r,p[2]/r];
     const dist=1.8/Math.max(1.8,r);// uzaklaştıkça kısılır
@@ -627,88 +721,103 @@ async function startObj(){ensureCtx();objVoice=new Voice();objBus=objVoice.env;o
     const az=Math.atan2(v[0],v[1])/D2R,el=Math.asin(v[2])/D2R,rr=RB*Math.cos(el*D2R)*Math.min(1,r/2),x=CX+rr*Math.sin(az*D2R),y=CY-rr*Math.cos(az*D2R);const d_=$('#objDot');if(d_){d_.setAttribute('cx',x);d_.setAttribute('cy',y);d_.setAttribute('opacity',1)}
     draw3D(p,w);objRaf=requestAnimationFrame(tick)};tick();
 }
-function stopObj(){if(!objOn)return;objOn=false;clearInterval(melT);cancelAnimationFrame(objRaf);objVoice&&objVoice.stop(.2);objVoice=null;objGains=[];const d=$('#objDot');if(d)d.setAttribute('opacity',0);$('#objBtn').textContent='▶ Melodiyi başlat';$('#objInfo').style.display='none';build3DSpeakers();draw3D()}
+function stopObj(){if(!objOn)return;objOn=false;stopSound();cancelAnimationFrame(objRaf);objVoice&&objVoice.stop(.2);objVoice=null;objGains=[];const d=$('#objDot');if(d)d.setAttribute('opacity',0);$('#objBtn').textContent='▶ Başlat';$('#objInfo').style.display='none';build3DSpeakers();draw3D()}
 $('#objBtn').onclick=()=>{stopSeq();stopAll();objOn?stopObj():startObj()};
 $('#cmpBtn').onclick=()=>{cmp2=!cmp2;$('#cmpBtn').classList.toggle('on',cmp2);$('#cmpBtn').textContent=cmp2?'Tam düzene dön':'2.0 ile karşılaştır';if(objOn)rebuildObj();else{build3DSpeakers();draw3D()}};
 
 /* ---------------- LFE lab ---------------- */
 const LFEF=[10,12,15,18,20,25,30,35,40,45,50,55,60,70,80,90,100,120,150,200];
-let lfeF=40,lfeV=null,lfeRaf=0;const LFE={id:'LFE',g:'sub',az:0,el:0};
-$('#freqs').innerHTML=LFEF.map(f=>`<button data-f="${f}" class="${f===40?'on':''}">${f}</button>`).join('');
+let lfeF=null,lfeV=null,lfeRaf=0,lfeTok=0;const LFE={id:'LFE',g:'sub',az:0,el:0};const lfeAll=new Set();
+$('#freqs').innerHTML='<button data-f="0" class="on" style="min-width:76px">Orijinal</button>'+LFEF.map(f=>`<button data-f="${f}">${f}</button>`).join('');
 const sl2f=v=>10*Math.pow(20,v/1000), f2sl=f=>Math.log(f/10)/Math.log(20)*1000;
-function setLfeF(f,fromSl){lfeF=Math.round(f*10)/10;$('#fVal').textContent=(lfeF<100?lfeF.toFixed(lfeF%1?1:0):Math.round(lfeF))+' Hz';if(!fromSl)$('#fSlider').value=f2sl(f);$$('#freqs button').forEach(b=>b.classList.toggle('on',+b.dataset.f===lfeF))}
-$$('#freqs button').forEach(b=>b.onclick=()=>{setLfeF(+b.dataset.f);if(!lastFx||lastFx==='own')return;if(lastFx[0]==='r')playReal(+lastFx.slice(1));else playFx(lastFx)});
-$('#fSlider').oninput=e=>setLfeF(sl2f(+e.target.value),true);
-const FX=[['impact','💥','Çarpışma','Metal/araç darbesi'],['explosion','🔥','Patlama','Uzun kuyruklu gövde'],['kick','🥁','Davul (kick)','Kısa, sert vuruş'],['heart','❤️','Kalp atışı','Çift darbe ritim'],
- ['rumble','🌋','Deprem','Sürekli gürleme'],['thunder','⛈️','Gök gürültüsü','Dağınık patlamalar'],['burst','〰️','Ton patlaması','5 periyot, hız testi'],['sine','∿','Sinüs (4 sn)','Saf ton']];
-const FXSHOW=['heart','kick','burst','sine'];
-$('#fx').innerHTML=FX.filter(x=>FXSHOW.includes(x[0])).map(([k,e,t,d])=>`<button data-k="${k}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
-/* gerçek kayıtlar: USC Red Library (Internet Archive, CC0) */
-const IA='https://archive.org/download/Red_Library_Explosions/';
-const REAL=[['R09-53-Huge Explosion','💥','Büyük patlama','Tek, dolgun patlama','explosion'],
- ['R09-52-Huge Explosion with Long Decay','🌋','Uzun kuyruklu patlama','Yavaş sönen gövde','explosion'],
- ['R29-33-Large Explosion with Metal and Glass Debris','🧨','Metal ve cam saçılan','Patlama + enkaz','explosion'],
- ['R30-12-Large Gun Shells Fly By and Explode','🚀','Top mermisi','Geçiş ve isabet','impact'],
- ['R29-59-Three Large Explosions or Shells','💣','Üç büyük patlama','Art arda darbeler','explosion'],
- ['R11-54-Thunderous Blasts','⛈️','Gök gürültüsü gibi','Dağınık patlamalar','thunder'],
- ['R29-03-Long Rumble for Earthquake or Explosion','🏚️','Deprem gürlemesi','Uzun alçak gürleme','rumble'],
- ['R20-34-Steam Engine Explodes','🚂','Buhar kazanı','Mekanik patlama','explosion'],
- ['R09-51-Long Whistle and Hit','🎯','Islık ve isabet','Düşen bomba','impact']];
+function setLfeF(f,fromSl){lfeF=f?Math.round(f*10)/10:null;$('#fVal').textContent=lfeF?(lfeF<100?lfeF.toFixed(lfeF%1?1:0):Math.round(lfeF))+' Hz':'Orijinal';if(!fromSl&&lfeF)$('#fSlider').value=f2sl(lfeF);$$('#freqs button').forEach(b=>b.classList.toggle('on',(+b.dataset.f||null)===lfeF))}
+function replayLast(){if(!lastFx||lastFx==='own'&&!ownBuf)return;if(lastFx==='own')playBuffer(ownBuf,ownName,'Kendi dosyanız',false);else if(lastFx[0]==='r')playReal(+lastFx.slice(1));else playFx(lastFx)}
+$$('#freqs button').forEach(b=>b.onclick=()=>{setLfeF(+b.dataset.f);replayLast()});
+$('#fSlider').oninput=e=>setLfeF(sl2f(+e.target.value),true);$('#fSlider').onchange=replayLast;
+const FX=[['heart','❤️','Kalp atışı','Çift darbe',45],['kick','🥁','Davul (kick)','Kısa, sert vuruş',50],['burst','〰️','Ton patlaması','5 periyot',40],['sine','∿','Sinüs','2,5 sn saf ton',40]];
+$('#fx').innerHTML=FX.map(([k,e,t,d])=>`<button data-k="${k}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
+/* gerçek kayıtlar: USC Red Library (Internet Archive, CC0). Yalnızca 1 tanesi tam uzunlukta, diğerleri kısa kesilir. */
+const IA='https://archive.org/download/Red_Library_Explosions/',CUT=3;
+const REAL=[['R09-53-Huge Explosion','💥','Büyük patlama','Tek, dolgun patlama',0],
+ ['R09-52-Huge Explosion with Long Decay','🌋','Uzun kuyruklu patlama','Tam uzunluk',1],
+ ['R29-33-Large Explosion with Metal and Glass Debris','🧨','Metal ve cam saçılan','Patlama + enkaz',0],
+ ['R30-12-Large Gun Shells Fly By and Explode','🚀','Top mermisi','Geçiş ve isabet',0],
+ ['R29-59-Three Large Explosions or Shells','💣','Üç büyük patlama','Art arda darbeler',0],
+ ['R11-54-Thunderous Blasts','⛈️','Gök gürültüsü gibi','Dağınık patlamalar',0],
+ ['R29-03-Long Rumble for Earthquake or Explosion','🏚️','Deprem gürlemesi','Alçak gürleme',0],
+ ['R20-34-Steam Engine Explodes','🚂','Buhar kazanı','Mekanik patlama',0],
+ ['R09-51-Long Whistle and Hit','🎯','Islık ve isabet','Düşen bomba',0]];
 $('#fxReal').innerHTML=REAL.map(([f,e,t,d],i)=>`<button data-r="${i}"><div class="e">${e}</div><div class="t">${t}</div><div class="d">${d}</div></button>`).join('');
-let lastFx=null;const bufCache={};
+let lastFx=null,ownBuf=null,ownName='';const bufCache={},f0Cache=new WeakMap();
 $$('#fx button').forEach(b=>b.onclick=()=>{lastFx=b.dataset.k;playFx(lastFx)});
 $$('#fxReal button').forEach(b=>b.onclick=()=>{lastFx='r'+b.dataset.r;playReal(+b.dataset.r)});
-function lfeStop(){if(lfeV){lfeV.stop(.1);lfeV=null}cancelAnimationFrame(lfeRaf);$$('#fx button,#fxReal button').forEach(b=>b.classList.remove('on'));extOn=false}
+function newLfeVoice(){lfeStop(true);stopAll();const v=new Voice();lfeV=v;lfeAll.add(v);return v}
+function lfeStop(keepUi){lfeTok++;lfeAll.forEach(v=>{try{const n=ctx.currentTime;v.env.gain.cancelScheduledValues(n);v.env.gain.setValueAtTime(v.env.gain.value,n);v.env.gain.linearRampToValueAtTime(0,n+.04);v.srcs.forEach(s=>{try{s.stop(n+.05)}catch(e){}})}catch(e){}v.stop(.04)});lfeAll.clear();lfeV=null;
+  cancelAnimationFrame(lfeRaf);extOn=false;clearTimeout(cutT);if(!keepUi){$$('#fx button,#fxReal button,#cutBtn').forEach(b=>b.classList.remove('on'))}}
 async function getBuf(url){if(bufCache[url])return bufCache[url];const r=await fetch(url,{mode:'cors'});if(!r.ok)throw new Error('HTTP '+r.status);const ab=await r.arrayBuffer();const b=await ctx.decodeAudioData(ab);bufCache[url]=b;return b}
-function envelopeOf(buf,rate){const sr=buf.sampleRate,win=Math.round(sr*.01),n=Math.floor(buf.length/win),ch=[...Array(buf.numberOfChannels)].map((_,i)=>buf.getChannelData(i));const e=new Float32Array(n);let mx=1e-9;
+/* kaydın baskın bas frekansı (18–150 Hz) */
+function lowPeak(buf){if(f0Cache.has(buf))return f0Cache.get(buf);const sr=buf.sampleRate,D=Math.max(1,Math.round(sr/1000)),fs=sr/D,ch=[...Array(buf.numberOfChannels)].map((_,i)=>buf.getChannelData(i));
+  const N=16384,re=new Float64Array(N),im=new Float64Array(N);let y1=0,y2=0;const a=Math.exp(-2*Math.PI*250/sr);let k=0,acc=0,c=0;
+  for(let i=0;i<buf.length&&k<N;i++){let x=0;for(const cc of ch)x+=cc[i];y1=a*y1+(1-a)*x;y2=a*y2+(1-a)*y1;acc+=y2;c++;if(c===D){re[k++]=acc/D;acc=0;c=0}}
+  for(let i=0;i<k;i++)re[i]*=.5-.5*Math.cos(2*Math.PI*i/k);fft(re,im);let best=0,bf=40;
+  for(let i=1;i<N/2;i++){const f=i*fs/N;if(f<18||f>150)continue;const m=(re[i-1]**2+im[i-1]**2)+(re[i]**2+im[i]**2)+(re[i+1]**2+im[i+1]**2);if(m>best){best=m;bf=f}}
+  const r=Math.round(bf);f0Cache.set(buf,r);return r}
+function envelopeOf(buf){const sr=buf.sampleRate,win=Math.round(sr*.01),n=Math.floor(buf.length/win),ch=[...Array(buf.numberOfChannels)].map((_,i)=>buf.getChannelData(i));const e=new Float32Array(n);let mx=1e-9;
   for(let k=0;k<n;k++){let s=0;for(const c of ch)for(let j=k*win;j<(k+1)*win;j++)s+=c[j]*c[j];e[k]=Math.sqrt(s/(win*ch.length));if(e[k]>mx)mx=e[k]}
-  // tepeyi yakala, yavaş bırak (sub için yumuşak zarf)
   let y=0;for(let k=0;k<n;k++){const x=e[k]/mx;y=x>y?x:y*.93+x*.07;e[k]=y}return e}
-async function playBuffer(buf,label,src){ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const f=lfeF,heavy=$('#heavy').checked,rate=heavy?.5:1,t=ctx.currentTime+.05;
+async function playBuffer(buf,label,src,full){ensureCtx();const v=newLfeVoice();const f0=lowPeak(buf),rate=lfeF?Math.max(.25,Math.min(4,lfeF/f0)):1,t=ctx.currentTime+.03;
   const out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
   const s=new AudioBufferSourceNode(ctx,{buffer:buf,playbackRate:rate});v.srcs.push(s);let n=s;
   if(mcN>2){n=filt(n,v,'lowpass',120);n=filt(n,v,'lowpass',120)}
-  const gF=gainN(n,v,1.6);gF.connect(out);s.start(t);
-  const dur=buf.duration/rate;
-  if($('#subLayer').checked){const e=envelopeOf(buf);const o=osc(v,f);o.frequency.setValueAtTime(f*1.25,t);o.frequency.exponentialRampToValueAtTime(f,t+.25);
-    const g=ctx.createGain();g.gain.value=0;g.gain.setValueCurveAtTime(e.map(x=>x*.9),t,dur);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+dur+.05)}
+  const gF=ctx.createGain();gF.gain.value=1.6;n.connect(gF);gF.connect(out);v.nodes.push(gF);
+  const natural=buf.duration/rate,dur=full?natural:Math.min(natural,CUT);
+  s.start(t);
+  if(dur<natural){gF.gain.setValueAtTime(1.6,t+dur-.3);gF.gain.linearRampToValueAtTime(0,t+dur);s.stop(t+dur+.02)}
+  const sub=$('#subLayer').checked;
+  if(sub){const fs=lfeF||f0,e=envelopeOf(buf).slice(0,Math.ceil(dur*rate*100));const o=osc(v,fs);o.frequency.setValueAtTime(fs*1.25,t);o.frequency.exponentialRampToValueAtTime(fs,t+.25);
+    const g=ctx.createGain();g.gain.value=0;g.gain.setValueCurveAtTime(e.map(x=>x*.9),t,Math.max(.1,dur-.02));o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+dur)}
   routeMono(v.env,LFE,v);v.env.gain.value=1;
-  $('#lfeInfo').innerHTML=`<b>${label}</b>${$('#subLayer').checked?` + sub katmanı @ <b>${f} Hz</b>`:''}${heavy?' · yarım hız':''} · ${dur.toFixed(1)} sn<br><span class="muted">${src}</span>`;
-  v.timers.push(setTimeout(()=>{if(lfeV===v)lfeStop()},dur*1000+400))}
-async function playReal(i){const [file,,label,,fb]=REAL[i];ensureCtx();$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i));
-  $('#lfeInfo').innerHTML=`<b>${label}</b> yükleniyor…`;
-  try{const fn=encodeURIComponent(file)+'.mp3';let buf;try{buf=await getBuf('https://archive.org/cors/Red_Library_Explosions/'+fn)}catch(e1){buf=await getBuf(IA+fn)}if(lastFx!=='r'+i)return;await playBuffer(buf,label,`Kaynak: USC Red Library "${file}" — Internet Archive, CC0`);$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i))}
-  catch(e){playFx(fb);$('#lfeInfo').innerHTML+=`<br><span style="color:var(--warn)">Gerçek kayıt yüklenemedi (${e.message||e}); yerine sentez çalındı. İnternet bağlantınızı kontrol edin.</span>`}}
-$('#ownFx').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;ensureCtx();try{const b=await ctx.decodeAudioData(await fl.arrayBuffer());lastFx='own';await playBuffer(b,fl.name,'Kendi dosyanız')}catch(er){$('#lfeInfo').textContent='Dosya çözülemedi: '+er.message}};
+  $('#lfeInfo').innerHTML=`<b>${label}</b> · ${lfeF?`<b>${lfeF} Hz</b>'e kaydırıldı (orijinali ≈ ${f0} Hz, hız ×${rate.toFixed(2)})`:`orijinal hali · baskın bas ≈ <b>${f0} Hz</b>`}${sub?` + sub katmanı`:''} · ${dur.toFixed(1)} sn${dur<natural?' (kısaltıldı)':''}<br><span class="muted">${src}</span>`;
+  v.timers.push(setTimeout(()=>{if(lfeV===v)lfeStop()},dur*1000+300))}
+async function playReal(i){const [file,,label,,full]=REAL[i];ensureCtx();lfeStop(true);const tok=lfeTok;$$('#fx button,#cutBtn').forEach(b=>b.classList.remove('on'));$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i));
+  const fn=encodeURIComponent(file)+'.mp3';const cached=bufCache['https://archive.org/cors/Red_Library_Explosions/'+fn]||bufCache[IA+fn];if(!cached)$('#lfeInfo').innerHTML=`<b>${label}</b> yükleniyor…`;
+  try{let buf=cached;if(!buf){try{buf=await getBuf('https://archive.org/cors/Red_Library_Explosions/'+fn)}catch(e1){buf=await getBuf(IA+fn)}}
+    if(tok!==lfeTok)return;await playBuffer(buf,label,`Kaynak: USC Red Library "${file}" — Internet Archive, CC0`,!!full);$$('#fxReal button').forEach(b=>b.classList.toggle('on',+b.dataset.r===i))}
+  catch(e){if(tok!==lfeTok)return;$('#lfeInfo').innerHTML=`<span style="color:var(--warn)">Kayıt yüklenemedi (${e.message||e}). İnternet bağlantınızı kontrol edin.</span>`;$$('#fxReal button').forEach(b=>b.classList.remove('on'))}}
+$('#ownFx').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;ensureCtx();try{ownBuf=await ctx.decodeAudioData(await fl.arrayBuffer());ownName=fl.name;lastFx='own';await playBuffer(ownBuf,fl.name,'Kendi dosyanız',false)}catch(er){$('#lfeInfo').textContent='Dosya çözülemedi: '+er.message}};
 function env(g,t,a,tau,peak=1){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.setTargetAtTime(0,t+a,tau)}
 function osc(v,f,type='sine'){const o=new OscillatorNode(ctx,{type,frequency:f});v.srcs.push(o);return o}
 function playFx(k){
-  ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const f=lfeF,t=ctx.currentTime+.03,out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
-  $$('#fx button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));let dur=3;
+  ensureCtx();const v=newLfeVoice();const def=FX.find(x=>x[0]===k),f=lfeF||def[4],t=ctx.currentTime+.03,out=ctx.createGain();out.connect(v.env);v.nodes.push(out);
+  $$('#fxReal button,#cutBtn').forEach(b=>b.classList.remove('on'));$$('#fx button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));let dur=2;
   const thump=(t0,f0,f1,glide,tau,peak)=>{const o=osc(v,f0);o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(f1,t0+glide);const g=ctx.createGain();env(g,t0,.003,tau,peak);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t0);o.stop(t0+tau*7+.1)};
   const nburst=(t0,buf,lp,tau,peak,hp)=>{const s=new AudioBufferSourceNode(ctx,{buffer:buf});v.srcs.push(s);let n=s;if(hp)n=filt(n,v,'highpass',hp);n=filt(n,v,'lowpass',lp,.9);n=filt(n,v,'lowpass',lp,.9);const g=ctx.createGain();env(g,t0,.008,tau,peak);n.connect(g);g.connect(out);v.nodes.push(g);s.start(t0,Math.random()*4);s.stop(t0+tau*7+.2)};
-  if(k==='sine'){const o=osc(v,f);const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.15);g.gain.setValueAtTime(.7,t+3.8);g.gain.linearRampToValueAtTime(0,t+4);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+4.05);dur=4}
-  else if(k==='impact'){const tau=Math.max(.35,5/f);thump(t,f*2.5,f,.12,tau,1);nburst(t,bufs.white,Math.min(f*6,500),.04,1.4);dur=tau*6}
-  else if(k==='explosion'){nburst(t,bufs.white,f*1.6,.9,6,f*.5);thump(t,f*1.8,f*.8,.4,1.1,.8);nburst(t,bufs.white,900,.08,.5);dur=5}
-  else if(k==='kick'){const tau=Math.max(.12,2/f);thump(t,f*4,f,.06,tau,1);nburst(t,bufs.white,2500,.012,.25,800);dur=1.5}
-  else if(k==='heart'){for(let i=0;i<4;i++){const t0=t+i*.95,tau=Math.max(.12,2.2/f);thump(t0,f*2.2,f,.05,tau,1);thump(t0+.24,f*2,f,.05,tau,.65)}dur=4}
-  else if(k==='rumble'){const s=noiseSrc(bufs.brown,v);let n=filt(s,v,'highpass',f*.55);n=filt(n,v,'lowpass',f*1.5,1.2);n=filt(n,v,'lowpass',f*1.5);const g=ctx.createGain();g.gain.value=0;
-     const lfo=osc(v,.6);const lg=ctx.createGain();lg.gain.value=1.4;lfo.connect(lg);lg.connect(g.gain);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(2.6,t+1.5);g.gain.setValueAtTime(2.6,t+5);g.gain.linearRampToValueAtTime(0,t+6.5);
-     n.connect(g);g.connect(out);v.nodes.push(g,lg);lfo.start(t);lfo.stop(t+6.6);s.stop(t+6.6);dur=6.6}
-  else if(k==='thunder'){for(let i=0;i<5;i++){const t0=t+i*.55+Math.random()*.4;nburst(t0,bufs.brown,f*2,.5+Math.random()*.8,4+Math.random()*3,f*.4)}thump(t,f*1.5,f,.3,1.2,.6);dur=6}
+  if(k==='sine'){const o=osc(v,f);const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.12);g.gain.setValueAtTime(.7,t+2.35);g.gain.linearRampToValueAtTime(0,t+2.5);o.connect(g);g.connect(out);v.nodes.push(g);o.start(t);o.stop(t+2.55);dur=2.5}
+  else if(k==='kick'){const tau=Math.max(.12,2/f);thump(t,f*4,f,.06,tau,1);nburst(t,bufs.white,2500,.012,.25,800);dur=Math.min(1.5,tau*6)}
+  else if(k==='heart'){for(let i=0;i<2;i++){const t0=t+i*.95,tau=Math.max(.12,2.2/f);thump(t0,f*2.2,f,.05,tau,1);thump(t0+.24,f*2,f,.05,tau,.65)}dur=2}
   else if(k==='burst'){const sr=ctx.sampleRate,n=Math.round(sr*5/f),b=ctx.createBuffer(1,n,sr),d=b.getChannelData(0);for(let i=0;i<n;i++){d[i]=Math.sin(2*Math.PI*f*i/sr)*(.5-.5*Math.cos(2*Math.PI*i/n))}
-     for(let r=0;r<3;r++){const s=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(s);s.connect(out);s.start(t+r*Math.max(.8,n/sr+.5))}dur=3*Math.max(.8,n/sr+.5)}
+     const gap=Math.max(.7,n/sr+.4);for(let r=0;r<3;r++){const s=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(s);s.connect(out);s.start(t+r*gap)}dur=3*gap}
   routeMono(v.env,LFE,v);v.env.gain.value=1;
-  $('#lfeInfo').innerHTML=`<b>${FX.find(x=>x[0]===k)[2]}</b> @ <b>${f} Hz</b> — dalga boyu ${(C_SOUND/f).toFixed(1)} m. ${f<20?'İnfrases bölgesi: duyulmaz, ancak gövdede/odada titreşim olarak hissedilir.':f<=120?'LFE kanalının normal aralığında (≤120 Hz).':'LFE kanalının üstü. AVR bu kanalı genelde 120 Hz\'de keser.'}`;
+  $('#lfeInfo').innerHTML=`<b>${def[2]}</b> @ <b>${f} Hz</b>${lfeF?'':' (varsayılan)'} — dalga boyu ${(C_SOUND/f).toFixed(1)} m. ${f<20?'İnfrases bölgesi: duyulmaz, ancak gövdede/odada titreşim olarak hissedilir.':f<=120?'LFE kanalının normal aralığında (≤120 Hz).':'LFE kanalının üstü. AVR bu kanalı genelde 120 Hz\'de keser.'}`;
   v.timers.push(setTimeout(()=>{if(lfeV===v){lfeStop()}},dur*1000+300));
 }
-$('#lfeStop').onclick=lfeStop;
-$('#sweepBtn').onclick=()=>{ensureCtx();lfeStop();stopAll();const v=new Voice();lfeV=v;const t=ctx.currentTime+.05,T=20;const o=osc(v,200);o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(10,t+T);
+/* kesik darbe: sıfır geçişte başlayıp sıfır geçişte aniden biten sinüs → sub'ın "çınlaması" (ringing) duyulur */
+let cutT=null,cutRep=false;
+function playCut(){ensureCtx();const v=newLfeVoice();const f=lfeF||40,sr=ctx.sampleRate,cyc=Math.max(4,Math.round(.25*f)),n=Math.round(cyc*sr/f),b=ctx.createBuffer(1,n,sr),d=b.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=.8*Math.sin(2*Math.PI*f*i/sr);
+  const s=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(s);s.connect(v.env);routeMono(v.env,LFE,v);v.env.gain.value=1;s.start(ctx.currentTime+.02);
+  $$('#fx button,#fxReal button').forEach(b=>b.classList.remove('on'));$('#cutBtn').classList.add('on');
+  $('#lfeInfo').innerHTML=`<b>Kesik darbe</b> @ <b>${f} Hz</b> · ${cyc} periyot (${(n/sr*1000).toFixed(0)} ms), sonra <b>aniden</b> kesilir.<br>Ses kesildiği anda bitmeli. Kesildikten sonra “vınlama/uğultu” devam ediyorsa o frekansta oda modu ya da sub/port <b>çınlaması (ringing)</b> var. Frekansları tek tek deneyin; çınlayan frekansı Ölçüm sekmesindeki <b>waterfall</b> grafiğinde de görebilirsiniz.`;
+  if(cutRep)cutT=setTimeout(()=>{if(cutRep)playCut()},1300);else v.timers.push(setTimeout(()=>{if(lfeV===v)lfeStop()},n/sr*1000+600))}
+$('#cutBtn').onclick=()=>{lastFx=null;cutRep=false;$('#cutRep').classList.remove('on');playCut()};
+$('#cutRep').onclick=()=>{if(cutRep){cutRep=false;lfeStop();$('#cutRep').classList.remove('on');return}cutRep=true;$('#cutRep').classList.add('on');playCut()};
+$('#lfeStop').onclick=()=>{cutRep=false;$('#cutRep').classList.remove('on');lfeStop()};
+$('#sweepBtn').onclick=()=>{ensureCtx();const v=newLfeVoice();const t=ctx.currentTime+.05,T=20;const o=osc(v,200);o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(10,t+T);
   const g=ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.2);g.gain.setValueAtTime(.7,t+T-.2);g.gain.linearRampToValueAtTime(0,t+T);o.connect(g);g.connect(v.env);v.nodes.push(g);o.start(t);o.stop(t+T+.05);routeMono(v.env,LFE,v);v.env.gain.value=1;
   const tick=()=>{if(lfeV!==v)return;const e=ctx.currentTime-t;if(e>T){lfeStop();return}const fr=200*Math.pow(10/200,Math.max(0,e)/T);$('#lfeInfo').innerHTML=`Tarama: <b style="font-size:22px">${fr.toFixed(1)} Hz</b><br>Oda modları bazı frekanslarda sesi şişirir, bazılarında yok eder. Şişen ve kaybolan noktaları not edin.`;lfeRaf=requestAnimationFrame(tick)};tick()};
 let extOn=false;
-$('#extBtn').onclick=()=>{ensureCtx();lfeStop();stopAll();const seq=[80,63,50,40,35,31.5,28,25,22,20,18,16,14,12.5,11,10];let i=0;extOn=true;
-  const v=new Voice();lfeV=v;const o=osc(v,seq[0]);const g=ctx.createGain();g.gain.value=0;o.connect(g);g.connect(v.env);v.nodes.push(g);o.start();routeMono(v.env,LFE,v);v.env.gain.value=1;
+$('#extBtn').onclick=()=>{ensureCtx();const v=newLfeVoice();const seq=[80,63,50,40,35,31.5,28,25,22,20,18,16,14,12.5,11,10];let i=0;extOn=true;
+  const o=osc(v,seq[0]);const g=ctx.createGain();g.gain.value=0;o.connect(g);g.connect(v.env);v.nodes.push(g);o.start();routeMono(v.env,LFE,v);v.env.gain.value=1;
   const step=()=>{if(!extOn||lfeV!==v)return;if(i>=seq.length){$('#lfeInfo').innerHTML='Sistem 10 Hz\'e kadar çıktı. 🎉';lfeStop();return}const f=seq[i],t=ctx.currentTime;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.7,t+.15);g.gain.setValueAtTime(.7,t+1.9);g.gain.linearRampToValueAtTime(0,t+2.05);
     $('#lfeInfo').innerHTML=`Şu an <b style="font-size:22px">${f} Hz</b><br><button class="btn stop" id="extHit" style="margin-top:8px">Artık duymuyorum / hissetmiyorum</button>`;
     $('#extHit').onclick=()=>{const last=seq[Math.max(0,i-2)];lfeStop();$('#lfeInfo').innerHTML=`Sisteminizin bu odadaki kullanılabilir alt sınırı ≈ <b>${last} Hz</b>.<br><span class="muted">Ticari sürümde mikrofonla otomatik ölçülür (-3/-6/-10 dB noktaları).</span>`};
@@ -862,15 +971,119 @@ $('#lrBtn').onclick=async()=>{const box=$('#lrRes');box.style.display='block';if
   <table style="margin-top:8px"><tr><th>Oktav</th>${oct.map(o=>`<th>${o}</th>`).join('')}</tr><tr><td>Sol−Sağ dB</td>${bd.map(([o,a])=>`<td style="color:${Math.abs(a)>3?'var(--warn)':'inherit'}">${a>0?'+':''}${a.toFixed(1)}</td>`).join('')}</tr></table>
   <p class="muted">Öneri: ${Math.abs(cm)>2?`${dt>0?'Sağ':'Sol'} hoparlörü ${Math.abs(cm).toFixed(0)} cm öne alın veya AVR/DSP'de diğerine ${Math.abs(dt).toFixed(2)} ms gecikme ekleyin. `:'Mesafeler eşit. '}${Math.abs(dl)>1?`Seviyeyi ${Math.abs(dl).toFixed(1)} dB eşitleyin. `:''}${bd.some(x=>Math.abs(x[1])>3)?'±3 dB üstü bantlarda farklı yansıma yüzeyleri var (perde, cam, köşe); simetriyi kontrol edin.':''}</p>`};
 
+/* ---------------- REW tarzı akustik ölçüm ---------------- */
+const MCOL=['#38bdf8','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#eab308','#f472b6'];
+const LOGF=(()=>{const a=[];for(let f=10;f<=24000;f*=Math.pow(2,1/96))a.push(f);return Float32Array.from(a)})();
+let meas=[],msView='fr';
+function b64f(a){const u=new Uint8Array(a.buffer);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)}
+function f64b(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Float32Array(u.buffer)}
+function msSave(){const pack=m=>({id:m.id,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,on:m.on,col:m.col,db:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk});
+  try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(pack)))}catch(e){try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(m=>Object.assign(pack(m),{ir:null}))))}catch(e2){}}}
+function msLoad(){try{const a=JSON.parse(localStorage.getItem('oal_meas')||'[]');meas=a.map(m=>Object.assign(m,{db:Float32Array.from(m.db),ir:m.ir?f64b(m.ir):null}))}catch(e){meas=[]}}
+function fillMsCh(){const cur=$('#msCh').value;$('#msCh').innerHTML=speakers.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');if(cur&&speakers.find(s=>s.id===cur))$('#msCh').value=cur}
+function makeSweep(sr,L,f1,f2){const x=new Float32Array(L),T=L/sr,K=Math.log(f2/f1);for(let i=0;i<L;i++){const t=i/sr;x[i]=Math.sin(2*Math.PI*f1*T/K*(Math.exp(t/T*K)-1))}
+  const fi=Math.round(sr*.1),fo=Math.round(sr*.01);for(let i=0;i<fi;i++)x[i]*=.5-.5*Math.cos(Math.PI*i/fi);for(let i=0;i<fo;i++)x[L-1-i]*=.5-.5*Math.cos(Math.PI*i/fo);return x}
+async function recordFor(sec,onStart){const sr=ctx.sampleRate,len=Math.round(sr*sec),rec=new Float32Array(len);let w=0;
+  const sp=ctx.createScriptProcessor(4096,1,1);const z=ctx.createGain();z.gain.value=0;micSrc.connect(sp);sp.connect(z);z.connect(ctx.destination);let started=false;
+  await new Promise(res=>{sp.onaudioprocess=e=>{if(!started){started=true;onStart&&onStart()}const d=e.inputBuffer.getChannelData(0);for(let i=0;i<d.length&&w<len;i++)rec[w++]=d[i];if(w>=len)res()}});
+  sp.onaudioprocess=null;sp.disconnect();z.disconnect();return rec}
+function nextPow2(n){let p=1;while(p<n)p<<=1;return p}
+function deconv(rec,sweep,sr,f1,f2){const L=sweep.length,N=nextPow2(rec.length+L),Rr=new Float64Array(N),Ri=new Float64Array(N),Sr=new Float64Array(N),Si=new Float64Array(N);Rr.set(rec);Sr.set(sweep);fft(Rr,Ri);fft(Sr,Si);
+  let mx=0;for(let k=0;k<N;k++){const m=Sr[k]*Sr[k]+Si[k]*Si[k];if(m>mx)mx=m}const eps=mx*1e-4,df=sr/N;
+  for(let k=0;k<N;k++){const kk=k<=N/2?k:N-k,f=kk*df,m=Sr[k]*Sr[k]+Si[k]*Si[k];let hr=(Rr[k]*Sr[k]+Ri[k]*Si[k])/(m+eps),hi=(Ri[k]*Sr[k]-Rr[k]*Si[k])/(m+eps);if(f<f1/1.3||f>f2){hr=0;hi=0}Rr[k]=hr;Ri[k]=-hi}
+  fft(Rr,Ri);for(let k=0;k<N;k++)Rr[k]/=N;let pk=0,pi=0;const lim=Math.min(N,Math.round(sr*1.6));for(let k=0;k<lim;k++){const a=Math.abs(Rr[k]);if(a>pk){pk=a;pi=k}}return{h:Rr,pk,pi}}
+function frFromIR(ir,ipk,sr){// REW benzeri pencere: tepeden 10 ms önce, 500 ms sonra
+  const L0=Math.round(sr*.01),R=Math.round(sr*.5),N=nextPow2(L0+R),re=new Float64Array(N),im=new Float64Array(N);
+  for(let i=0;i<L0+R;i++){const j=ipk-L0+i;if(j<0||j>=ir.length)continue;let w=1;if(i<L0)w=.5-.5*Math.cos(Math.PI*i/L0);const tf=Math.round(R*.2);if(i>L0+R-tf)w=.5+.5*Math.cos(Math.PI*(i-(L0+R-tf))/tf);re[i]=ir[j]*w}
+  fft(re,im);const P=new Float64Array(N/2);for(let k=0;k<N/2;k++)P[k]=re[k]*re[k]+im[k]*im[k];
+  const df=sr/N,out=new Float32Array(LOGF.length);const cs=new Float64Array(N/2+1);for(let k=0;k<N/2;k++)cs[k+1]=cs[k]+P[k];
+  for(let j=0;j<LOGF.length;j++){const f=LOGF[j],a=Math.max(0,Math.floor(f*Math.pow(2,-1/192)/df)),b=Math.min(N/2-1,Math.max(a,Math.ceil(f*Math.pow(2,1/192)/df)));const pw=(cs[b+1]-cs[a])/(b-a+1);out[j]=10*Math.log10(pw+1e-30)}
+  return out}
+$('#msGo').onclick=async()=>{if(!(await startMic()))return;const st=$('#msStat');if(mode==='hp'){st.innerHTML='<span style="color:var(--warn)">Kulaklık modunda ölçüm yapılmaz; Stereo amfi veya Çok kanal seçin.</span>';return}
+  stopSeq();stopAll();lfeStop();genStop();stopObj();$('#msGo').disabled=true;const sr=ctx.sampleRate,L=1<<18,f1=15,f2=Math.min(22000,sr*.46);const sweep=makeSweep(sr,L,f1,f2);
+  const lvl=+$('#msLvl').value,A=dbg(lvl);const spk=speakers.find(x=>x.id===$('#msCh').value)||speakers[0];
+  const v=new Voice();const b=ctx.createBuffer(1,L,sr);b.copyToChannel(sweep,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);const g=ctx.createGain();g.gain.value=A;src.connect(g);g.connect(v.env);v.env.gain.value=1;
+  if(!routeMono(v.env,spk,v)){st.textContent='Bu kanal seçili çıkışta yok.';$('#msGo').disabled=false;return}
+  st.textContent='Hazırlanıyor… sessiz olun';await new Promise(r=>setTimeout(r,400));
+  const recSec=L/sr+2.2;let t0=0;const p=recordFor(recSec,()=>{t0=ctx.currentTime;src.start(ctx.currentTime+.3)});
+  const tick=setInterval(()=>{if(t0)st.textContent=`Ölçülüyor… ${Math.max(0,Math.ceil(recSec-(ctx.currentTime-t0)))} sn`},250);
+  const rec=await p;clearInterval(tick);v.stop(.05);st.textContent='Hesaplanıyor…';await new Promise(r=>setTimeout(r,30));
+  const D=deconv(rec,sweep,sr,f1,f2),pk=D.pk,pi=D.pi,Rr=D.h,N=D.h.length;
+  if(pk<1e-6){st.innerHTML='<span style="color:var(--warn)">Tarama mikrofonda algılanamadı. Ses seviyesini artırın.</span>';$('#msGo').disabled=false;return}
+  const st0=Math.max(0,pi-Math.round(sr*.05)),irLen=Math.round(sr*.65),ir=new Float32Array(irLen);for(let k=0;k<irLen&&st0+k<N;k++)ir[k]=Rr[st0+k];const ipk=pi-st0;
+  // SPL ölçeği: tarama genliği × ses seviyesi; mikrofon ofseti ve düzeltmeler
+  const Aeff=A*dbg(volDb),fr=frFromIR(ir,ipk,sr);const useU=$('#umikOn').checked&&umikCal,useP=$('#pfApply').checked&&profile&&!$('#micSel').value;
+  for(let j=0;j<LOGF.length;j++){const f=LOGF[j];let d=fr[j]+20*Math.log10(Aeff/Math.SQRT2)+calOff;if(useU)d-=interpLog(umikCal.f,umikCal.g,f);if(useP)d+=interpLog(BANDS,profile.b,Math.max(20,Math.min(20000,f)));fr[j]=d}
+  const m={id:Date.now().toString(36),name:$('#msName').value.trim()||`${spk.id} ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`,date:new Date().toISOString(),ch:spk.id,mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk};
+  meas.push(m);msSave();renderMsList();drawMs();$('#msGo').disabled=false;
+  const snr=20*Math.log10(pk/(ir.slice(Math.round(sr*.45)).reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12)));st.innerHTML=`✓ Tamam · ${spk.id} · gecikme ${(pi/sr*1000).toFixed(1)} ms · darbe/gürültü ${snr.toFixed(0)} dB${snr<30?' <span style="color:var(--warn)">(gürültülü; seviyeyi artırın)</span>':''}`};
+function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div class="mrow"><input type="checkbox" data-i="${i}" ${m.on?'checked':''}><i style="background:${m.col}"></i><span class="nm">${m.name}<small>${m.ch||''} · ${new Date(m.date).toLocaleDateString('tr-TR')}${m.ir?'':' · yalnız FR'}</small></span><button data-dl="${i}" title="İndir">⬇</button><button data-rew="${i}" title="REW için .txt">REW</button><button data-rm="${i}" title="Sil">✕</button></div>`).join(''):'<p class="muted">Henüz ölçüm yok.</p>';
+  $$('#msList input').forEach(c=>c.onchange=()=>{meas[+c.dataset.i].on=c.checked;msSave();drawMs()});
+  $$('#msList [data-rm]').forEach(b=>b.onclick=()=>{meas.splice(+b.dataset.rm,1);msSave();renderMsList();drawMs()});
+  $$('#msList [data-dl]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.dl];const o={format:'objective-audio-labs-measurement',v:1,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,freq:Array.from(LOGF,f=>Math.round(f*100)/100),spl:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk};
+    saveFile(new Blob([JSON.stringify(o)],{type:'application/json'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'.oal.json')});
+  $$('#msList [data-rew]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.rew];let t=`* Objective Audio Labs ölçümü: ${m.name}\n* ${m.date} · ${m.ch} · ${m.mic}\n* Freq(Hz) SPL(dB)\n`;for(let j=0;j<LOGF.length;j++)if(LOGF[j]>=15&&LOGF[j]<=20500)t+=`${LOGF[j].toFixed(3)} ${m.db[j].toFixed(2)}\n`;
+    saveFile(new Blob([t],{type:'text/plain'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'_REW.txt')});
+  const opts=meas.map((m,i)=>`<option value="${i}">${m.name}</option>`).join('');const a=$('#msA').value,b=$('#msB').value;$('#msA').innerHTML=opts;$('#msB').innerHTML=opts;
+  if(meas.length){$('#msA').value=a&&meas[a]?a:meas.length-1;$('#msB').value=b&&meas[b]?b:Math.max(0,meas.length-2)}}
+async function saveFile(blob,name){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+$('#msFile').onchange=async e=>{for(const fl of e.target.files){const t=await fl.text();let m=null;
+  try{const o=JSON.parse(t);if(o.format==='objective-audio-labs-measurement'){const db=Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f));m={name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db,ir:o.ir?f64b(o.ir):null,ipk:o.ipk}}}catch(er){}
+  if(!m){const f=[],g=[];t.split(/\r?\n/).forEach(l=>{if(/^\s*[*#;]/.test(l))return;const n=l.trim().split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0){f.push(n[0]);g.push(n[1])}});
+    if(f.length>10)m={name:fl.name.replace(/\.(txt|frd)$/i,''),date:new Date().toISOString(),ch:'REW',mic:'',db:Float32Array.from(LOGF,x=>interpLog(f,g,x)),ir:null}}
+  if(m){m.id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);m.on=true;m.col=MCOL[meas.length%MCOL.length];meas.push(m)}else $('#msStat').textContent=fl.name+': okunamadı'}
+  e.target.value='';msSave();renderMsList();drawMs()};
+segBind('msView','v',v=>{msView=v;$('#msDiffSel').style.display=v==='diff'?'flex':'none';drawMs()});
+['#msSm','#msRange','#msA','#msB'].forEach(id=>$(id).onchange=drawMs);
+function smooth(db,n){if(!n)return db;const h=Math.round(96/n/2),P=Float64Array.from(db,v=>Math.pow(10,v/10)),cs=new Float64Array(P.length+1);for(let i=0;i<P.length;i++)cs[i+1]=cs[i]+P[i];
+  return Float32Array.from(db,(_,i)=>{const a=Math.max(0,i-h),b=Math.min(P.length-1,i+h);return 10*Math.log10((cs[b+1]-cs[a])/(b-a+1))})}
+function drawMs(){const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=Math.max(300,cv.getBoundingClientRect().width)*d,H=cv.height=300*d,x=cv.getContext('2d');x.clearRect(0,0,W,H);
+  const pl=40*d,pr=10*d,pt=10*d,pb=22*d,PW=W-pl-pr,PH=H-pt-pb;x.font=`${10*d}px Inter`;x.lineWidth=1;
+  const vis=meas.filter(m=>m.on);if(!meas.length){x.fillStyle='#64748b';x.fillText('Ölçüm yapın veya dosya yükleyin',pl+10*d,H/2);return}
+  if(msView==='fr'||msView==='diff'){const low=$('#msRange').value==='low',fA=low?15:20,fB=low?300:20000,lx=f=>pl+Math.log(f/fA)/Math.log(fB/fA)*PW,sm=+$('#msSm').value;
+    let curves=[];if(msView==='fr')curves=vis.map(m=>({c:m.col,db:smooth(m.db,sm),n:m.name}));else{const A=meas[+$('#msA').value],B=meas[+$('#msB').value];if(A&&B){const a=smooth(A.db,sm),b=smooth(B.db,sm);curves=[{c:'#fde68a',db:a.map((v,i)=>v-b[i]),n:`${A.name} − ${B.name}`}]}}
+    let lo=1e9,hi=-1e9;curves.forEach(c=>LOGF.forEach((f,i)=>{if(f>=fA&&f<=fB){lo=Math.min(lo,c.db[i]);hi=Math.max(hi,c.db[i])}}));
+    if(msView==='diff'){const m=Math.max(6,Math.ceil(Math.max(Math.abs(lo),Math.abs(hi))/3)*3);lo=-m;hi=m}else{hi=Math.ceil((hi+3)/5)*5;lo=Math.max(hi-60,Math.floor((lo-3)/5)*5)}if(!(hi>lo)){lo=40;hi=100}
+    const ly=v=>pt+(hi-v)/(hi-lo)*PH;x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
+    [20,30,50,100,200,300,500,1000,2000,5000,10000,20000,15,40,60,80,150,250].forEach(f=>{if(f<fA||f>fB)return;const X=lx(f);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();if((low?[15,20,30,50,80,100,150,200,300]:[20,50,100,200,500,1000,2000,5000,10000,20000]).includes(f))x.fillText(f>=1000?f/1000+'k':f,X-6*d,H-6*d)});
+    const st=(hi-lo)>30?10:(hi-lo)>12?5:2;for(let v=Math.ceil(lo/st)*st;v<=hi;v+=st){const Y=ly(v);x.beginPath();x.moveTo(pl,Y);x.lineTo(pl+PW,Y);x.stroke();x.fillText(v+(msView==='diff'?'':''),4*d,Y+3*d)}
+    x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();curves.forEach(c=>{x.strokeStyle=c.c;x.lineWidth=1.6*d;x.beginPath();let s0=false;LOGF.forEach((f,i)=>{if(f<fA/1.02||f>fB*1.02)return;const X=lx(f),Y=ly(c.db[i]);s0?x.lineTo(X,Y):(x.moveTo(X,Y),s0=true)});x.stroke()});x.restore();
+    x.fillStyle='#8ea0bb';x.fillText(msView==='diff'?'dB fark':'dB SPL',pl+4*d,pt+10*d);return}
+  // zaman alanı
+  const ms=vis.filter(m=>m.ir);if(!ms.length){x.fillStyle='#64748b';x.fillText('Bu görünüm için darbe tepkisi olan bir ölçüm gerekir (REW .txt dosyalarında yok).',pl,H/2);return}
+  if(msView==='ir'||msView==='etc'){const t0=-5,t1=msView==='ir'?100:400,lx=t=>pl+(t-t0)/(t1-t0)*PW;x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
+    for(let t=0;t<=t1;t+=msView==='ir'?10:50){const X=lx(t);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();x.fillText(t+' ms',X-8*d,H-6*d)}
+    x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();
+    ms.forEach(m=>{const sr=m.sr,pk=m.ir.reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12);x.strokeStyle=m.col;x.lineWidth=1.2*d;x.beginPath();let first=true;
+      const i0=Math.max(0,m.ipk+Math.round(t0*sr/1000)),i1=Math.min(m.ir.length-1,m.ipk+Math.round(t1*sr/1000)),stp=Math.max(1,Math.floor((i1-i0)/(PW*1.5)));
+      for(let i=i0;i<=i1;i+=stp){let v=m.ir[i];if(msView==='etc'){let mm=0;for(let k=i;k<i+stp&&k<m.ir.length;k++)mm=Math.max(mm,Math.abs(m.ir[k]));v=mm}
+        const t=(i-m.ipk)/sr*1000,X=lx(t),Y=msView==='ir'?pt+PH/2-v/pk*PH*.48:pt+(-20*Math.log10(v/pk+1e-9))/80*PH;first?(x.moveTo(X,Y),first=false):x.lineTo(X,Y)}x.stroke()});
+    x.restore();if(msView==='etc'){x.fillStyle='#64748b';[0,-20,-40,-60,-80].forEach(v=>x.fillText(v+' dB',4*d,pt+(-v)/80*PH+3*d))}return}
+  // waterfall (CSD) — ilk görünür ölçüm, 15–300 Hz
+  const m=ms[ms.length-1],sr=m.sr,N=32768,fA=15,fB=300,S=16,stepMs=20,winS=Math.round(sr*.3),pts=120,fz=Array.from({length:pts},(_,i)=>fA*Math.pow(fB/fA,i/(pts-1)));
+  const slices=[];let ref=-1e9;for(let k=0;k<S;k++){const re=new Float64Array(N),im=new Float64Array(N),s0=m.ipk-Math.round(sr*.002)+Math.round(k*stepMs*sr/1000);
+    for(let i=0;i<winS;i++){const j=s0+i;if(j<0||j>=m.ir.length)continue;const w=i<winS/2?1:.5+.5*Math.cos(Math.PI*(i-winS/2)/(winS/2));re[i]=m.ir[j]*w}fft(re,im);
+    const row=fz.map(f=>{const b=Math.round(f*N/sr);return 10*Math.log10(re[b]*re[b]+im[b]*im[b]+1e-30)});slices.push(row);if(k===0)ref=Math.max(...row)}
+  const dx=PW*.25/S,dy=PH*.5/S,w0=PW*.75,h0=PH*.55;const lx=i=>pl+i/(pts-1)*w0,ly=v=>Math.max(-45,Math.min(0,v-ref));
+  for(let k=S-1;k>=0;k--){const ox=k*dx,oy=-k*dy,base=pt+PH-0+oy-(PH-h0-S*dy)*0;const yb=pt+PH+oy-PH*.05;x.beginPath();x.moveTo(lx(0)+ox,yb);slices[k].forEach((v,i)=>x.lineTo(lx(i)+ox,yb-(ly(v)+45)/45*h0));x.lineTo(lx(pts-1)+ox,yb);x.closePath();
+    const c=Math.round(255*(1-k/S));x.fillStyle=`rgba(${56+k*8},${120+c/3|0},${248-k*10},.55)`;x.fill();x.strokeStyle='rgba(226,232,240,.6)';x.lineWidth=d;x.stroke()}
+  x.fillStyle='#8ea0bb';[20,30,50,80,100,150,200,300].forEach(f=>{const i=Math.log(f/fA)/Math.log(fB/fA)*(pts-1);x.fillText(f,lx(i)-5*d,H-6*d)});
+  x.fillText(`Waterfall · ${m.name} · ${S} dilim × ${stepMs} ms (arkaya doğru zaman)`,pl,pt+10*d);x.fillText('Uzun süren tepeler = çınlama (ringing)',pl,pt+24*d)}
+msLoad();
 /* ---------------- placement AR ---------------- */
-let arOn=false,arSim=false,az=0,el=0,az0=null,arRaf=0,tgt=null,lastIn=false,gotOri=false;
+let arOn=false,arSim=false,az=0,el=0,az0=null,el0=0,arCalOn=false,arRaf=0,tgt=null,lastIn=false,gotOri=false;
 const arCv=$('#arCv'),actx=arCv.getContext('2d');
 function arResize(){const d=devicePixelRatio||1;arCv.width=innerWidth*d;arCv.height=innerHeight*d}
 function wrap(a){return((a+540)%360)-180}
 function onOri(e){if(e.alpha==null)return;gotOri=true;const a=e.alpha*D2R,b=e.beta*D2R,g=e.gamma*D2R;const cA=Math.cos(a),sA=Math.sin(a),cB=Math.cos(b),sB=Math.sin(b),cG=Math.cos(g),sG=Math.sin(g);
   const vx=-(cG*sA*sB+cA*sG),vy=-(sA*sG-cA*cG*sB),vz=-(cB*cG);const naz=Math.atan2(vx,vy)/D2R,nel=Math.asin(Math.max(-1,Math.min(1,vz)))/D2R;
-  az=az+wrap(naz-az)*.35;el=el+(nel-el)*.35}
-function arOpen(){$('#arWrap').classList.add('on');document.body.style.overflow='hidden';arResize();arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop()}
+  az=az+wrap(naz-az)*.35;el=el+((nel-el0)-el)*.35}
+function arOpen(){$('#arWrap').classList.add('on');document.body.style.overflow='hidden';arResize();arOn=true;if(!tgt)tgt=speakers.find(s=>s.g!=='sub');arChips();arLoop();arCalStart()}
+function arCalStart(){arCalOn=true;el0=0;$('#arCal').classList.add('on');$('#arWrap').classList.add('cal');$('#arToast').style.display='none';const C=speakers.find(s=>s.id==='C');tgt=C||speakers.find(s=>s.g!=='sub');arChips()}
+$('#arRef').onclick=()=>{if($('#arRef').disabled)return;az0=az;if(!arSim)el0+=el;el=0;arCalOn=false;$('#arCal').classList.remove('on');$('#arWrap').classList.remove('cal');
+  const t=$('#arToast');t.innerHTML='✓ Referans alındı<br><span style="font-weight:500;font-size:13px">Şimdi devam edebilirsiniz: alttan bir hoparlör seçip oku takip edin.</span>';t.style.display='block';setTimeout(()=>t.style.display='none',2600);
+  const nx=speakers.find(s=>s.id==='L')||speakers.find(s=>s.g!=='sub');if(nx){tgt=nx;arChips()}};
 function arCloseFn(){arOn=false;cancelAnimationFrame(arRaf);$('#arWrap').classList.remove('on');document.body.style.overflow='';const st=$('#arVid').srcObject;if(st){st.getTracks().forEach(t=>t.stop());$('#arVid').srcObject=null}arSim=false;$('#arSim').classList.remove('on')}
 $('#arClose').onclick=arCloseFn;window.addEventListener('resize',()=>{if(arOn){arResize();arLoop()}});
 $('#arStart').onclick=async()=>{arSim=false;arOpen();$('#arMsg').innerHTML='';let msgs=[];
@@ -879,7 +1092,7 @@ $('#arStart').onclick=async()=>{arSim=false;arOpen();$('#arMsg').innerHTML='';le
   try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});$('#arVid').srcObject=st;await $('#arVid').play()}catch(e){msgs.push('Kamera açılamadı ('+(e.name||e)+').')}
   setTimeout(()=>{if(!gotOri)msgs.push('Sensör verisi gelmiyor.');if(msgs.length){arCloseFn();$('#arMsg').innerHTML=`<div class="note err">${msgs.join(' ')} Tarayıcı izin vermedi ya da bu cihazda sensör yok. Arayüzü denemek için <b>Simülasyon</b>'a basın.</div>`}},1500)};
 $('#arSim').onclick=()=>{arSim=true;if(az0==null)az0=0;arOpen()};
-$('#arZero').onclick=()=>{az0=az};
+$('#arZero').onclick=arCalStart;
 let drag=null;$('#arWrap').addEventListener('pointerdown',e=>{if(!arSim)return;drag=[e.clientX,e.clientY,az,el]});
 window.addEventListener('pointermove',e=>{if(!drag)return;az=drag[2]-(e.clientX-drag[0])*.25;el=Math.max(-60,Math.min(89,drag[3]+(e.clientY-drag[1])*.25))});window.addEventListener('pointerup',()=>drag=null);
 $('#fov').oninput=e=>$('#fovV').textContent=e.target.value+'°';
@@ -920,6 +1133,8 @@ function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d
       if(pp.filter(Boolean).length>3){actx.beginPath();let st=false;pp.forEach(p=>{if(!p)return;if(!st){actx.moveTo(p[0],p[1]);st=true}else actx.lineTo(p[0],p[1])});actx.closePath();
         actx.fillStyle=(inside?'#22c55e':col)+'33';actx.fill();actx.strokeStyle=inside?'#22c55e':col;actx.lineWidth=2*d;actx.setLineDash([6*d,4*d]);actx.stroke();actx.setLineDash([])}
     }
+    if(arCalOn){const ok=arSim||Math.abs(el+el0-0)<6||Math.abs(el)<6;const tilt=arSim?el:el;$('#lvlDot').style.left=(50+Math.max(-45,Math.min(45,tilt*2)))+'%';$('#lvlDot').style.background=ok?'#22c55e':'#f59e0b';
+      $('#lvlTxt').textContent=`Eğim ${tilt>0?'+':''}${tilt.toFixed(0)}°${ok?' ✓':''}`;$('#arRef').disabled=!ok}
     // crosshair
     actx.strokeStyle=inside?'#22c55e':'#fff';actx.lineWidth=2*d;actx.beginPath();actx.arc(W/2,H/2,26*d,0,7);actx.moveTo(W/2-40*d,H/2);actx.lineTo(W/2-12*d,H/2);actx.moveTo(W/2+12*d,H/2);actx.lineTo(W/2+40*d,H/2);actx.moveTo(W/2,H/2-40*d);actx.lineTo(W/2,H/2-12*d);actx.moveTo(W/2,H/2+12*d);actx.lineTo(W/2,H/2+40*d);actx.stroke();
     const oy=60*d;actx.fillStyle='rgba(0,0,0,.55)';actx.fillRect(8*d,oy,150*d,40*d);actx.fillStyle='#fff';actx.font=`${12*d}px Inter`;actx.textAlign='left';actx.fillText(`Yön: ${raz.toFixed(1)}°`,16*d,oy+16*d);actx.fillText(`Eğim: ${el.toFixed(1)}°`,16*d,oy+32*d);
@@ -929,6 +1144,41 @@ function arLoop(){cancelAnimationFrame(arRaf);const W=arCv.width,H=arCv.height,d
       if(inside&&!lastIn){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}lastIn=inside}
     arRaf=requestAnimationFrame(fr)};fr()}
 
+/* ---------------- koltuk–merkez mesafesi ---------------- */
+let seats=store.get('seats',[]),acRefT=null;
+function fillSeatSpk(){const cur=$('#seatSpk').value;const opts=speakers.filter(s=>s.g!=='height');$('#seatSpk').innerHTML=opts.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');$('#seatSpk').value=cur&&opts.find(s=>s.id===cur)?cur:(opts.find(s=>s.id==='C')||opts[0]||{}).id}
+function renderSeats(){if(!seats.length){$('#seatList').innerHTML='';return}const byS={};seats.forEach(x=>(byS[x.spk]=byS[x.spk]||[]).push(x));
+  $('#seatList').innerHTML=Object.entries(byS).map(([sp,arr])=>{const mn=Math.min(...arr.map(a=>a.d));return `<table><tr><th>Koltuk → ${sp}</th><th>Mesafe</th><th>Gecikme</th><th>En yakına fark</th><th></th></tr>`+arr.map(a=>`<tr><td>${a.n}<small class="muted"> · ${a.m}</small></td><td>${a.d.toFixed(2)} m</td><td>${(a.d/C_SOUND*1000).toFixed(2)} ms</td><td>${a.d-mn<.005?'—':'+'+((a.d-mn)*100).toFixed(0)+' cm'}</td><td><button class="btn sm" data-sx="${seats.indexOf(a)}">✕</button></td></tr>`).join('')+'</table>'}).join('');
+  $$('#seatList [data-sx]').forEach(b=>b.onclick=()=>{seats.splice(+b.dataset.sx,1);store.set('seats',seats);renderSeats()})}
+function addSeat(d,method){const n=$('#seatName').value.trim()||`Koltuk ${seats.length+1}`;seats.push({n,spk:$('#seatSpk').value||'C',d,m:method});store.set('seats',seats);renderSeats();$('#seatName').value=''}
+$('#seatAdd').onclick=()=>{const v=parseFloat($('#seatManual').value);if(v>0&&v<40){addSeat(v,'elle');$('#seatManual').value=''}};
+async function acOnce(){const sr=ctx.sampleRate,chirp=makeChirp(sr),spk=speakers.find(x=>x.id===$('#seatSpk').value)||speakers[0];
+  const v=new Voice();const b=ctx.createBuffer(1,chirp.length,sr);b.copyToChannel(chirp,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);src.connect(v.env);v.env.gain.value=.8;routeMono(v.env,spk,v);
+  const rec=await recordFor(1.6,()=>src.start(ctx.currentTime+.3));v.stop(.02);const P=xcorrPeak(rec,chirp,0,rec.length-chirp.length-4097);return{t:P.i/sr,q:P.q}}
+async function acMeasure(n){if(!(await startMic()))return null;if(mode==='hp'){$('#seatRes').innerHTML='Kulaklık modunda olmaz; Stereo amfi veya Çok kanal seçin.';return null}
+  const r=[];for(let k=0;k<n;k++){$('#seatRes').textContent=`Ölçülüyor… ${k+1}/${n}`;const o=await acOnce();if(o.q>.3)r.push(o.t);await new Promise(z=>setTimeout(z,200))}
+  if(r.length<Math.ceil(n/2)){$('#seatRes').innerHTML='<span style="color:var(--warn)">Sinyal net algılanamadı; sesi açın, ortamı sessizleştirin.</span>';return null}
+  r.sort((a,b)=>a-b);const med=r[r.length>>1],spread=(r[r.length-1]-r[0])*C_SOUND;return{t:med,spread}}
+$('#acRef').onclick=async()=>{const o=await acMeasure(5);if(!o)return;acRefT=o.t;$('#seatRes').innerHTML=`✓ Referans alındı (yayılım ±${(o.spread*50).toFixed(0)} cm). Şimdi koltuğa oturup <b>2</b>'ye basın.`};
+$('#acSeat').onclick=async()=>{if(acRefT==null){$('#seatRes').textContent='Önce 1. adımı yapın (telefon hoparlöre dayalı).';return}const o=await acMeasure(5);if(!o)return;
+  const d=Math.max(0,(o.t-acRefT)*C_SOUND+.02);addSeat(d,'ses');$('#seatRes').innerHTML=`✓ ${d.toFixed(2)} m · tekrarlanabilirlik ±${(o.spread*50).toFixed(0)} cm${o.spread>.3?' <span style="color:var(--warn)">(yüksek; kablolu bağlantıyla tekrar deneyin)</span>':''}`};
+/* Android: WebXR AR + derinlik/hit-test */
+let xrS=null,xrDist=null;
+(async()=>{try{if(navigator.xr&&await navigator.xr.isSessionSupported('immersive-ar'))$('#xrBox').style.display='block'}catch(e){}
+  const ua=navigator.userAgent;$('#seatNote').textContent=/iPhone|iPad/.test(ua)?'iPhone: tarayıcılar LiDAR\'a erişemiyor. Uygulama sürümünde LiDAR\'lı modellerde (12 Pro → 17 Pro Max) kamerayla doğrudan ölçülecek. Şimdilik sesle ölçün ya da iPhone\'un “Ölçü” uygulamasıyla ölçüp değeri elle girin.':/Android/.test(ua)?'Android: AR derinlik desteği yoksa sesle ölçün ya da değeri elle girin.':''})();
+$('#xrGo').onclick=async()=>{try{const ov=$('#xrOv');ov.style.display='block';
+  xrS=await navigator.xr.requestSession('immersive-ar',{requiredFeatures:['hit-test','local'],optionalFeatures:['dom-overlay','depth-sensing'],domOverlay:{root:ov},depthSensing:{usagePreference:['cpu-optimized'],dataFormatPreference:['luminance-alpha','float32']}});
+  const cv=document.createElement('canvas'),gl=cv.getContext('webgl',{xrCompatible:true});await gl.makeXRCompatible?.();xrS.updateRenderState({baseLayer:new XRWebGLLayer(xrS,gl)});
+  const local=await xrS.requestReferenceSpace('local'),viewer=await xrS.requestReferenceSpace('viewer'),hts=await xrS.requestHitTestSource({space:viewer});
+  xrS.addEventListener('end',()=>{xrS=null;ov.style.display='none'});
+  const onF=(t,fr)=>{if(!xrS)return;const pose=fr.getViewerPose(local);let d=null;
+    try{if(fr.getDepthInformation&&pose){const di=fr.getDepthInformation(pose.views[0]);if(di)d=di.getDepthInMeters(.5,.5)}}catch(e){}
+    if(d==null&&pose){const h=fr.getHitTestResults(hts);if(h.length){const p=h[0].getPose(local).transform.position,v=pose.transform.position;d=Math.hypot(p.x-v.x,p.y-v.y,p.z-v.z)}}
+    xrDist=d;$('#xrTxt').textContent=d?`${d.toFixed(2)} m`:'Hoparlörü arayın… (telefonu biraz yana oynatın)';
+    gl.bindFramebuffer(gl.FRAMEBUFFER,xrS.renderState.baseLayer.framebuffer);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);xrS.requestAnimationFrame(onF)};
+  xrS.requestAnimationFrame(onF)}catch(e){$('#xrOv').style.display='none';$('#seatRes').innerHTML=`<span style="color:var(--warn)">AR başlatılamadı (${e.message||e}). Sesle ölçün.</span>`}};
+$('#xrTake').onclick=()=>{if(xrDist){addSeat(xrDist,'AR');$('#xrTxt').textContent=`✓ Kaydedildi: ${xrDist.toFixed(2)} m`}};
+$('#xrEnd').onclick=()=>{if(xrS)xrS.end();$('#xrOv').style.display='none'};
 /* ---------------- Objective Audio araçları ---------------- */
 const TOOLS={
  "order": [
@@ -1062,7 +1312,7 @@ function posTable(){if(!$('#posTable'))return;let h='<table><tr><th>Kanal</th><t
  else t='Bilgisayar algılandı. Yerleşim rehberi telefonda kullanılmak içindir; burada Simülasyon ile deneyebilirsiniz.';
  $('#devNote').textContent=t})();
 /* ---------------- init ---------------- */
-fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));posTable();setTimeout(()=>init3D(),400);showUmik();$('#pfApply').checked=!!store.get('pfApply',false);if(profile)setTimeout(showProfile,100);setLfeF(40);updateModeMsg();rtaResize();
+fillSel();setLayout(store.get('lay',{bed:7,sub:1,h:4}));posTable();setTimeout(()=>init3D(),400);fillMsCh();renderMsList();fillSeatSpk();renderSeats();showUmik();$('#pfApply').checked=!!store.get('pfApply',false);if(profile)setTimeout(showProfile,100);setLfeF(0);updateModeMsg();rtaResize();
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSeq();stopAll();stopObj();lfeStop();genStop()}});
 </script>
 </body>
