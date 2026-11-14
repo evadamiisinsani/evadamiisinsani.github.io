@@ -307,7 +307,9 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     </div>
     <canvas id="msCv" height="300" style="margin-top:8px;border-radius:10px;background:#070d1a;touch-action:none"></canvas>
     <div id="msList" style="margin-top:8px"></div>
-    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple hidden></label></div>
+    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
+    <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.14</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -1102,18 +1104,22 @@ function importAdy(o,base){const out=[];(o.detectedChannels||[]).forEach(c=>{con
   /* kanallar arası seviye farkı korunur: tek ortak ofset, ilk ana kanalın 500 Hz–2 kHz ortalaması 75 dB olacak şekilde */
   const ref=out.find(m=>!/^SW/i.test(m.ch))||out[0];if(ref){let s_=0,n=0;LOGF.forEach((f,i)=>{if(f>=500&&f<=2000){s_+=ref.db[i];n++}});const off=75-(n?s_/n:0);out.forEach(m=>{m.db=m.db.map(v=>v+off)})}
   return out}
-$('#msFile').onchange=async e=>{for(const fl of e.target.files){const buf=new Uint8Array(await fl.arrayBuffer()),base=fl.name.replace(/\.[^.]+$/,'');let adds=[];
+function msNote(t,bad){$('#msStat').textContent=t;const n=$('#msFileStat');n.textContent=t;n.style.color=bad?'#ff8080':'';}
+$('#msFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!files.length){msNote('Dosya seçilmedi.',1);return}const notes=[];
+ try{for(const fl of files){msNote(`${fl.name} okunuyor…`);await new Promise(r=>setTimeout(r,30));const buf=new Uint8Array(await fl.arrayBuffer()),base=fl.name.replace(/\.[^.]+$/,'');let adds=[];
   try{if(buf[0]===0xAC&&buf[1]===0xED){adds=importMdat(buf,base)}
     else{const t=new TextDecoder().decode(buf);let o=null;try{o=JSON.parse(t)}catch(er){}
       if(o&&o.detectedChannels)adds=importAdy(o,base);
       else if(o&&o.format==='objective-audio-labs-measurement'){adds=[{name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db:Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f)),ir:o.ir?f64b(o.ir):null,ipk:o.ipk}]}
       else{const f=[],g=[];t.split(/\r?\n/).forEach(l=>{if(/^\s*[*#;]/.test(l))return;const n=l.trim().split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0){f.push(n[0]);g.push(n[1])}});
         if(f.length>10)adds=[{name:base,date:new Date().toISOString(),ch:'REW',mic:'',db:Float32Array.from(LOGF,x=>interpLog(f,g,x)),ir:null}]}}}
-  catch(er){$('#msStat').textContent=`${fl.name}: okunamadı (${er.message})`;continue}
-  if(!adds.length){$('#msStat').textContent=fl.name+': içinde ölçüm bulunamadı';continue}
+  catch(er){notes.push(`✗ ${fl.name}: okunamadı (${er.message})`);continue}
+  if(!adds.length){notes.push(`✗ ${fl.name}: içinde ölçüm bulunamadı`);continue}
   adds.forEach((m,i)=>{m.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);m.on=i<2;m.col=MCOL[meas.length%MCOL.length];meas.push(m)});
-  $('#msStat').textContent=`✓ ${fl.name}: ${adds.length} ölçüm eklendi${adds.length>2?' (ilk 2 tanesi grafikte; diğerlerini listeden açın)':''}`}
-  e.target.value='';msSave();renderMsList();drawMs()};
+  notes.push(`✓ ${fl.name}: ${adds.length} ölçüm eklendi${adds.length>2?' (ilk 2 tanesi grafikte; diğerlerini listeden açın)':''}`)}
+  e.target.value='';try{msSave()}catch(er){}renderMsList();drawMs()}
+ catch(er){notes.push('✗ Hata: '+(er&&er.message||er))}
+ msNote(notes.join('  '),notes.some(t=>t[0]==='✗'));try{$('#mCard').scrollIntoView({behavior:'smooth',block:'start'})}catch(er){}};
 segBind('msView','v',v=>{msView=v;$('#msDiffSel').style.display=v==='diff'?'flex':'none';drawMs()});
 ['#msSm','#msRange','#msA','#msB'].forEach(id=>$(id).onchange=drawMs);
 function smooth(db,n){if(!n)return db;const h=Math.round(96/n/2),P=Float64Array.from(db,v=>Math.pow(10,v/10)),cs=new Float64Array(P.length+1);for(let i=0;i<P.length;i++)cs[i+1]=cs[i]+P[i];
