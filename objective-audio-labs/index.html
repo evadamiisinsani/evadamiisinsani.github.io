@@ -131,7 +131,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 <header>
   <div class="brand">
     <h1>Objective Audio <span>Labs</span></h1>
-    <span class="badge">ÖNİZLEME · v2026.11.14c</span>
+    <span class="badge">ÖNİZLEME · v2026.11.14d</span>
   </div>
   <div class="row" style="margin-top:8px">
     <div class="seg" id="modeSeg" style="flex:1">
@@ -274,8 +274,11 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <label class="f">Mikrofon</label>
     <select id="micSel"><option value="">Varsayılan (telefon mikrofonu)</option></select>
     <p class="muted" style="margin:4px 0 0">UMIK-1/UMIK-2 iPhone 15 ve sonrasına USB-C ile, Android'e OTG ile takılabilir. Listede görünmüyorsa mikrofonu bir kez başlatın.</p>
-    <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">📄 UMIK kalibrasyon dosyası<input type="file" id="umikFile" accept=".txt,.cal,.frd,text/plain" hidden></label><span id="umikInfo" class="muted"></span></div>
-    <label class="row muted" style="margin-top:6px"><input type="checkbox" id="umikOn"> Seçili mikrofon UMIK — kalibrasyon dosyasını uygula</label>
+    <details style="margin-top:8px"><summary style="cursor:pointer">📄 UMIK kalibrasyon dosyası <span class="muted">— yalnızca UMIK kullanıyorsanız</span> <span id="umikInfo" class="muted"></span></summary>
+      <p class="muted" style="margin:6px 0">Her UMIK'in seri numarasına özel bir düzeltme dosyası vardır (miniDSP sitesinden indirilir). Eşleştirmede UMIK referans alındığı için bu dosya yüklenirse hem UMIK ölçümleri hem de telefon profili daha doğru çıkar (fark genelde ±1 dB, 10 kHz üstünde birkaç dB). UMIK'iniz yoksa bu adımı atlayın; paylaşılan profil kodunu kullananların da yüklemesine gerek yok.</p>
+      <label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">Dosya seç (.txt)<input type="file" id="umikFile" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:0"></label>
+      <p class="muted" style="margin:6px 0 0">Listeden harici bir mikrofon (UMIK) seçildiğinde otomatik uygulanır.</p><input type="checkbox" id="umikOn" hidden>
+    </details>
     <h3>Telefonu UMIK ile eşleştir</h3>
     <ol class="muted" style="padding-left:18px;margin:0 0 8px;line-height:1.55">
       <li>Telefonu ve UMIK'i dinleme noktasında, yan yana ve aynı yöne bakacak şekilde sabitleyin (kılıfı çıkarın).</li>
@@ -303,13 +306,15 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px">
       <select id="msSm" style="width:auto"><option value="0">Yumuşatma yok</option><option value="48">1/48 oct</option><option value="24">1/24 oct</option><option value="12" selected>1/12 oct</option><option value="6">1/6 oct</option><option value="3">1/3 oct</option></select>
       <select id="msRange" style="width:auto"><option value="full">20 Hz – 20 kHz</option><option value="low">15 – 300 Hz</option></select>
-      <span id="msDiffSel" style="display:none" class="row"><select id="msA" style="width:auto"></select><span class="muted">−</span><select id="msB" style="width:auto"></select></span>
     </div>
-    <canvas id="msCv" height="300" style="margin-top:8px;border-radius:10px;background:#070d1a;touch-action:none"></canvas>
+    <canvas id="msCv" height="300" style="margin-top:8px;border-radius:10px;background:#070d1a;touch-action:pan-y"></canvas>
+    <div class="muted" style="font-size:12px;margin-top:4px">🔎 İki parmakla yakınlaştırın (yatay: frekans/zaman, dikey: dB) · tek parmakla yana kaydırın · çift dokunarak sıfırlayın. “Fark” için listeden 2 ölçüm işaretleyin.</div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="msAnaBtn">🔍 Seçili ölçümü analiz et</button></div>
+    <div id="msAna" class="res" style="display:none;margin-top:8px;line-height:1.5"></div>
     <div id="msList" style="margin-top:8px"></div>
     <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
     <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
-    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.14c</div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.14d</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -415,7 +420,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 
 <script>
 /* Güncelleme kontrolü: sunucudaki sürüm farklıysa sayfayı önbelleksiz yeniden aç */
-const APPVER='2026.11.14c';
+const APPVER='2026.11.14d';
 (function(){if(!/^https?:/.test(location.protocol)||/claude|usercontent/.test(location.host))return;
  fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(h=>{const m=h.match(/APPVER='([^']+)'/);
   if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+m[1]+location.hash)}}).catch(()=>{})})();
@@ -902,11 +907,11 @@ let lastDb=0,lastT=0,freqData,timeData,xoMaxV=-1e9;
 let corrBin=null,lastBands=null,capt=null,umikCal=store.get('umik',null),profile=store.get('profile',null),refBands=null;
 async function listMics(){try{const ds=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');const cur=$('#micSel').value;
   $('#micSel').innerHTML='<option value="">Varsayılan (telefon mikrofonu)</option>'+ds.filter(d=>d.deviceId&&d.deviceId!=='default').map(d=>`<option value="${d.deviceId}">${d.label||'Mikrofon'}</option>`).join('');$('#micSel').value=cur;
-  const sel=ds.find(d=>d.deviceId===$('#micSel').value);if(sel&&/umik|minidsp/i.test(sel.label)&&umikCal)$('#umikOn').checked=true}catch(e){}}
-$('#micSel').onchange=async()=>{const lab=$('#micSel').selectedOptions[0].textContent;$('#umikOn').checked=!!(umikCal&&/umik|minidsp/i.test(lab));buildCorr();if(mic){stopMic();await startMic()}};
+  $('#umikOn').checked=!!(umikCal&&$('#micSel').value)}catch(e){}}
+$('#micSel').onchange=async()=>{$('#umikOn').checked=!!(umikCal&&$('#micSel').value);buildCorr();if(mic){stopMic();await startMic()}};
 function parseCal(txt){const f=[],g=[];let sens=null;txt.split(/\r?\n/).forEach(l=>{const m=l.match(/Sens\s*Factor\s*=\s*(-?[\d.]+)/i);if(m){sens=parseFloat(m[1]);return}
   const n=l.trim().replace(/"/g,'').split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0)(f.push(n[0]),g.push(n[1]))});return f.length>10?{f,g,sens}:null}
-$('#umikFile').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;const c=parseCal(await fl.text());if(!c){$('#umikInfo').textContent='Dosya okunamadı';return}umikCal=c;store.set('umik',c);$('#umikOn').checked=true;showUmik();buildCorr()};
+$('#umikFile').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;const c=parseCal(await fl.text());if(!c){$('#umikInfo').textContent='Dosya okunamadı';return}umikCal=c;store.set('umik',c);$('#umikOn').checked=!!$('#micSel').value;showUmik();buildCorr()};
 function showUmik(){$('#umikInfo').textContent=umikCal?`✓ ${umikCal.f.length} nokta${umikCal.sens!=null?', Sens Factor '+umikCal.sens+' dB':''}`:''}
 $('#umikOn').onchange=buildCorr;$('#pfApply').onchange=()=>{store.set('pfApply',$('#pfApply').checked);buildCorr()};
 function interpLog(fs,gs,f){if(f<=fs[0])return gs[0];if(f>=fs[fs.length-1])return gs[gs.length-1];let lo=0,hi=fs.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(fs[m]>f)hi=m;else lo=m}const t=Math.log(f/fs[lo])/Math.log(fs[hi]/fs[lo]);return gs[lo]+(gs[hi]-gs[lo])*t}
@@ -1046,8 +1051,7 @@ function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div
     saveFile(new Blob([JSON.stringify(o)],{type:'application/json'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'.oal.json')});
   $$('#msList [data-rew]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.rew];let t=`* Objective Audio Labs ölçümü: ${m.name}\n* ${m.date} · ${m.ch} · ${m.mic}\n* Freq(Hz) SPL(dB)\n`;for(let j=0;j<LOGF.length;j++)if(LOGF[j]>=15&&LOGF[j]<=20500)t+=`${LOGF[j].toFixed(3)} ${m.db[j].toFixed(2)}\n`;
     saveFile(new Blob([t],{type:'text/plain'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'_REW.txt')});
-  const opts=meas.map((m,i)=>`<option value="${i}">${m.name}</option>`).join('');const a=$('#msA').value,b=$('#msB').value;$('#msA').innerHTML=opts;$('#msB').innerHTML=opts;
-  if(meas.length){$('#msA').value=a&&meas[a]?a:meas.length-1;$('#msB').value=b&&meas[b]?b:Math.max(0,meas.length-2)}}
+}
 async function saveFile(blob,name){try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 /* REW .mdat (Java serileştirme) ve Audyssey .ady (JSON) içe aktarma */
@@ -1126,42 +1130,145 @@ $('#msFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!f
   e.target.value='';try{msSave()}catch(er){}renderMsList();drawMs()}
  catch(er){notes.push('✗ Hata: '+(er&&er.message||er))}
  msNote(notes.join('  '),notes.some(t=>t[0]==='✗'));try{$('#mCard').scrollIntoView({behavior:'smooth',block:'start'})}catch(er){}};
-segBind('msView','v',v=>{msView=v;$('#msDiffSel').style.display=v==='diff'?'flex':'none';drawMs()});
-['#msSm','#msRange','#msA','#msB'].forEach(id=>$(id).onchange=drawMs);
+/* ---- grafik yakınlaştırma (parmakla), görünümler ---- */
+let msZ={},msLay=null,wfCache={},msRaf=0;const zget=v=>msZ[v]||(msZ[v]={u0:0,u1:1,v0:0,v1:1});
+function msReq(){if(!msRaf)msRaf=requestAnimationFrame(()=>{msRaf=0;drawMs()})}
+segBind('msView','v',v=>{msView=v;drawMs()});
+$('#msSm').onchange=()=>drawMs();$('#msRange').onchange=()=>{delete msZ.fr;delete msZ.diff;drawMs()};
 function smooth(db,n){if(!n)return db;const h=Math.round(96/n/2),P=Float64Array.from(db,v=>Math.pow(10,v/10)),cs=new Float64Array(P.length+1);for(let i=0;i<P.length;i++)cs[i+1]=cs[i]+P[i];
   return Float32Array.from(db,(_,i)=>{const a=Math.max(0,i-h),b=Math.min(P.length-1,i+h);return 10*Math.log10((cs[b+1]-cs[a])/(b-a+1))})}
-function drawMs(){const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=Math.max(300,cv.getBoundingClientRect().width)*d,H=cv.height=300*d,x=cv.getContext('2d');x.clearRect(0,0,W,H);
-  const pl=40*d,pr=10*d,pt=10*d,pb=22*d,PW=W-pl-pr,PH=H-pt-pb;x.font=`${10*d}px Inter`;x.lineWidth=1;
-  const vis=meas.filter(m=>m.on);if(!meas.length){x.fillStyle='#64748b';x.fillText('Ölçüm yapın veya dosya yükleyin',pl+10*d,H/2);return}
-  if(msView==='fr'||msView==='diff'){const low=$('#msRange').value==='low',fA=low?15:20,fB=low?300:20000,lx=f=>pl+Math.log(f/fA)/Math.log(fB/fA)*PW,sm=+$('#msSm').value;
-    let curves=[];if(msView==='fr')curves=vis.map(m=>({c:m.col,db:smooth(m.db,sm),n:m.name}));else{const A=meas[+$('#msA').value],B=meas[+$('#msB').value];if(A&&B){const a=smooth(A.db,sm),b=smooth(B.db,sm);curves=[{c:'#fde68a',db:a.map((v,i)=>v-b[i]),n:`${A.name} − ${B.name}`}]}}
-    let lo=1e9,hi=-1e9;curves.forEach(c=>LOGF.forEach((f,i)=>{if(f>=fA&&f<=fB){lo=Math.min(lo,c.db[i]);hi=Math.max(hi,c.db[i])}}));
+function niceStep(span,n){const r=span/n,p=Math.pow(10,Math.floor(Math.log10(r))),m=r/p;return(m<1.5?1:m<3?2:m<7?5:10)*p}
+const fLab=f=>f>=1000?(+(f/1000).toFixed(f<10000?1:0))+'k':String(+f.toFixed(f<10?1:0));
+function fGrid(x,fA,fB,lx,pt,PH,H,d){const dec=Math.log10(fB/fA);let lastX=-1e9;x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
+  for(let e=-1;e<=5;e++)for(const k of[1,1.5,2,2.5,3,4,5,6,7,8,9]){const f=k*Math.pow(10,e);if(f<fA||f>fB)continue;if(dec>1.2&&(k===1.5||k===2.5))continue;const X=lx(f);
+    x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();const lab=dec<1.2||[1,2,3,5].includes(k);if(lab&&X-lastX>30*d){x.fillText(fLab(f),X-7*d,H-6*d);lastX=X}}}
+function yGrid(x,lo,hi,ly,pl,PW,d,suf){const st=Math.max(.5,niceStep(hi-lo,6));x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
+  for(let v=Math.ceil(lo/st)*st;v<=hi+1e-9;v+=st){const Y=ly(v);x.beginPath();x.moveTo(pl,Y);x.lineTo(pl+PW,Y);x.stroke();x.fillText((Math.round(v*10)/10)+(suf||''),4*d,Y+3*d)}}
+function drawMs(){updAna();const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=Math.max(300,cv.getBoundingClientRect().width)*d,H=cv.height=300*d,x=cv.getContext('2d');x.clearRect(0,0,W,H);
+  const pl=40*d,pr=10*d,pt=10*d,pb=22*d,PW=W-pl-pr,PH=H-pt-pb;msLay={pl,pt,PW,PH,d};x.font=`${10*d}px Inter`;x.lineWidth=1;
+  const vis=meas.filter(m=>m.on),z=zget(msView),zoomed=z.u0>0||z.u1<1||z.v0>0||z.v1<1,txt=(t,y)=>{x.fillStyle='#8ea0bb';x.fillText(t,pl+4*d,y||pt+10*d)};
+  if(!meas.length){x.fillStyle='#64748b';x.fillText('Ölçüm yapın veya dosya yükleyin',pl+10*d,H/2);return}
+  const hint=()=>{if(zoomed){x.fillStyle='#38bdf8';x.textAlign='right';x.fillText('🔎 çift dokunun: sıfırla',pl+PW-4*d,pt+10*d);x.textAlign='left'}};
+  if(msView==='fr'||msView==='diff'){const low=$('#msRange').value==='low',FA=low?15:20,FB=low?300:20000,fA=FA*Math.pow(FB/FA,z.u0),fB=FA*Math.pow(FB/FA,z.u1),lx=f=>pl+Math.log(f/fA)/Math.log(fB/fA)*PW,sm=+$('#msSm').value;
+    let curves=[],title=msView==='diff'?'dB fark':'dB SPL';
+    if(msView==='fr')curves=vis.map(m=>({c:m.col,db:smooth(m.db,sm)}));
+    else{if(vis.length!==2){x.fillStyle='#fbbf24';x.fillText(`Fark için aşağıdaki listeden tam 2 ölçüm işaretleyin (şu an ${vis.length}).`,pl,H/2);return}
+      const[B,A]=vis,a=smooth(A.db,sm),b=smooth(B.db,sm);curves=[{c:'#fde68a',db:a.map((v,i)=>v-b[i])}];title=`dB fark: ${A.name} − ${B.name}`}
+    let lo=1e9,hi=-1e9;curves.forEach(c=>LOGF.forEach((f,i)=>{if(f>=FA&&f<=FB){lo=Math.min(lo,c.db[i]);hi=Math.max(hi,c.db[i])}}));
     if(msView==='diff'){const m=Math.max(6,Math.ceil(Math.max(Math.abs(lo),Math.abs(hi))/3)*3);lo=-m;hi=m}else{hi=Math.ceil((hi+3)/5)*5;lo=Math.max(hi-60,Math.floor((lo-3)/5)*5)}if(!(hi>lo)){lo=40;hi=100}
-    const ly=v=>pt+(hi-v)/(hi-lo)*PH;x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
-    [20,30,50,100,200,300,500,1000,2000,5000,10000,20000,15,40,60,80,150,250].forEach(f=>{if(f<fA||f>fB)return;const X=lx(f);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();if((low?[15,20,30,50,80,100,150,200,300]:[20,50,100,200,500,1000,2000,5000,10000,20000]).includes(f))x.fillText(f>=1000?f/1000+'k':f,X-6*d,H-6*d)});
-    const st=(hi-lo)>30?10:(hi-lo)>12?5:2;for(let v=Math.ceil(lo/st)*st;v<=hi;v+=st){const Y=ly(v);x.beginPath();x.moveTo(pl,Y);x.lineTo(pl+PW,Y);x.stroke();x.fillText(v+(msView==='diff'?'':''),4*d,Y+3*d)}
-    x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();curves.forEach(c=>{x.strokeStyle=c.c;x.lineWidth=1.6*d;x.beginPath();let s0=false;LOGF.forEach((f,i)=>{if(f<fA/1.02||f>fB*1.02)return;const X=lx(f),Y=ly(c.db[i]);s0?x.lineTo(X,Y):(x.moveTo(X,Y),s0=true)});x.stroke()});x.restore();
-    x.fillStyle='#8ea0bb';x.fillText(msView==='diff'?'dB fark':'dB SPL',pl+4*d,pt+10*d);return}
-  // zaman alanı
-  const ms=vis.filter(m=>m.ir);if(!ms.length){x.fillStyle='#64748b';x.fillText('Bu görünüm için darbe tepkisi olan bir ölçüm gerekir (REW .txt dosyalarında yok).',pl,H/2);return}
-  if(msView==='ir'||msView==='etc'){const t0=-5,t1=msView==='ir'?100:400,lx=t=>pl+(t-t0)/(t1-t0)*PW;x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';
-    for(let t=0;t<=t1;t+=msView==='ir'?10:50){const X=lx(t);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();x.fillText(t+' ms',X-8*d,H-6*d)}
+    const yLo=lo+(hi-lo)*z.v0,yHi=lo+(hi-lo)*z.v1,ly=v=>pt+(yHi-v)/(yHi-yLo)*PH;
+    fGrid(x,fA,fB,lx,pt,PH,H,d);yGrid(x,yLo,yHi,ly,pl,PW,d);
     x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();
+    if(msView==='fr'&&ana&&ana.regions&&vis.length===1&&ana.id===vis[0].id)ana.regions.forEach(r=>{const X0=lx(r.f0),X1=lx(r.f1);x.fillStyle=r.t>0?'rgba(251,146,60,.18)':'rgba(56,189,248,.18)';x.fillRect(X0,pt,X1-X0,PH);
+      x.fillStyle=r.t>0?'#fb923c':'#38bdf8';x.font=`bold ${10*d}px Inter`;x.fillText((r.ext>0?'+':'')+r.ext.toFixed(0),Math.max(X0,(X0+X1)/2-8*d),pt+24*d);x.font=`${10*d}px Inter`});
+    curves.forEach(c=>{x.strokeStyle=c.c;x.lineWidth=1.6*d;x.beginPath();let s0=false;for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f<fA/1.02||f>fB*1.02)continue;const X=lx(f),Y=ly(c.db[i]);s0?x.lineTo(X,Y):(x.moveTo(X,Y),s0=true)}x.stroke()});x.restore();
+    txt(title);hint();return}
+  const ms=vis.filter(m=>m.ir);if(!ms.length){x.fillStyle='#64748b';x.fillText('Bu görünüm için darbe tepkisi olan bir ölçüm gerekir (REW .txt dosyalarında yok).',pl,H/2);return}
+  if(msView==='ir'||msView==='etc'){const isIR=msView==='ir',D0=-5,D1=isIR?100:400,T0=D0+(D1-D0)*z.u0,T1=D0+(D1-D0)*z.u1,lx=t=>pl+(t-T0)/(T1-T0)*PW;
+    const yLo=isIR?-1.05+2.1*z.v0:-80+80*z.v0,yHi=isIR?-1.05+2.1*z.v1:-80+80*z.v1,ly=v=>pt+(yHi-v)/(yHi-yLo)*PH;
+    const st=niceStep(T1-T0,7);x.strokeStyle='rgba(148,163,184,.15)';x.fillStyle='#64748b';let lastX=-1e9;
+    for(let t=Math.ceil(T0/st)*st;t<=T1+1e-9;t+=st){const X=lx(t);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();if(X-lastX>30*d){x.fillText(String(+t.toFixed(st<1?2:st<10?1:0)),X-5*d,H-6*d);lastX=X}}
+    x.fillText('ms',pl+PW-12*d,H-6*d);if(!isIR)yGrid(x,yLo,yHi,ly,pl,PW,d,' dB');
+    x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();
+    if(ana&&ana.refl&&vis.length===1&&ana.id===vis[0].id)ana.refl.forEach(r=>{const X=lx(r.t);x.strokeStyle='rgba(251,191,36,.8)';x.setLineDash([4*d,4*d]);x.beginPath();x.moveTo(X,pt);x.lineTo(X,pt+PH);x.stroke();x.setLineDash([]);
+      x.fillStyle='#fbbf24';x.fillText(r.t.toFixed(1)+' ms',X+3*d,pt+22*d)});
     ms.forEach(m=>{const sr=m.sr,pk=m.ir.reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12);x.strokeStyle=m.col;x.lineWidth=1.2*d;x.beginPath();let first=true;
-      const i0=Math.max(0,m.ipk+Math.round(t0*sr/1000)),i1=Math.min(m.ir.length-1,m.ipk+Math.round(t1*sr/1000)),stp=Math.max(1,Math.floor((i1-i0)/(PW*1.5)));
-      for(let i=i0;i<=i1;i+=stp){let v=m.ir[i];if(msView==='etc'){let mm=0;for(let k=i;k<i+stp&&k<m.ir.length;k++)mm=Math.max(mm,Math.abs(m.ir[k]));v=mm}
-        const t=(i-m.ipk)/sr*1000,X=lx(t),Y=msView==='ir'?pt+PH/2-v/pk*PH*.48:pt+(-20*Math.log10(v/pk+1e-9))/80*PH;first?(x.moveTo(X,Y),first=false):x.lineTo(X,Y)}x.stroke()});
-    x.restore();if(msView==='etc'){x.fillStyle='#64748b';[0,-20,-40,-60,-80].forEach(v=>x.fillText(v+' dB',4*d,pt+(-v)/80*PH+3*d))}return}
-  // waterfall (CSD) — ilk görünür ölçüm, 15–300 Hz
-  const m=ms[ms.length-1],sr=m.sr,N=32768,fA=15,fB=300,S=16,stepMs=20,winS=Math.round(sr*.3),pts=120,fz=Array.from({length:pts},(_,i)=>fA*Math.pow(fB/fA,i/(pts-1)));
-  const slices=[];let ref=-1e9;for(let k=0;k<S;k++){const re=new Float64Array(N),im=new Float64Array(N),s0=m.ipk-Math.round(sr*.002)+Math.round(k*stepMs*sr/1000);
-    for(let i=0;i<winS;i++){const j=s0+i;if(j<0||j>=m.ir.length)continue;const w=i<winS/2?1:.5+.5*Math.cos(Math.PI*(i-winS/2)/(winS/2));re[i]=m.ir[j]*w}fft(re,im);
-    const row=fz.map(f=>{const b=Math.round(f*N/sr);return 10*Math.log10(re[b]*re[b]+im[b]*im[b]+1e-30)});slices.push(row);if(k===0)ref=Math.max(...row)}
-  const dx=PW*.25/S,dy=PH*.5/S,w0=PW*.75,h0=PH*.55;const lx=i=>pl+i/(pts-1)*w0,ly=v=>Math.max(-45,Math.min(0,v-ref));
-  for(let k=S-1;k>=0;k--){const ox=k*dx,oy=-k*dy,base=pt+PH-0+oy-(PH-h0-S*dy)*0;const yb=pt+PH+oy-PH*.05;x.beginPath();x.moveTo(lx(0)+ox,yb);slices[k].forEach((v,i)=>x.lineTo(lx(i)+ox,yb-(ly(v)+45)/45*h0));x.lineTo(lx(pts-1)+ox,yb);x.closePath();
+      const i0=Math.max(0,m.ipk+Math.floor(T0*sr/1000)),i1=Math.min(m.ir.length-1,m.ipk+Math.ceil(T1*sr/1000)),stp=Math.max(1,Math.floor((i1-i0)/(PW*1.5)));
+      for(let i=i0;i<=i1;i+=stp){let mn=1e9,mx=-1e9;for(let k=i;k<i+stp&&k<m.ir.length;k++){const v=isIR?m.ir[k]/pk:20*Math.log10(Math.abs(m.ir[k])/pk+1e-9);if(v<mn)mn=v;if(v>mx)mx=v}
+        const X=lx((i-m.ipk)/sr*1000);if(first){x.moveTo(X,ly(mx));first=false}else x.lineTo(X,ly(mx));if(isIR&&stp>1)x.lineTo(X,ly(mn))}x.stroke()});
+    x.restore();hint();return}
+  // waterfall (CSD) — son işaretli ölçüm, 15–300 Hz
+  const m=ms[ms.length-1],S=16,stepMs=20,pts=300,fA0=15,fB0=300;let C=wfCache[m.id];
+  if(!C){const sr=m.sr;let N=1;while(N<sr*.3*1.2)N<<=1;N=Math.max(N,4096);const winS=Math.round(sr*.3),fz=Array.from({length:pts},(_,i)=>fA0*Math.pow(fB0/fA0,i/(pts-1)));const slices=[];let ref=-1e9;
+    for(let k=0;k<S;k++){const re=new Float64Array(N),im=new Float64Array(N),s0=m.ipk-Math.round(sr*.002)+Math.round(k*stepMs*sr/1000);
+      for(let i=0;i<winS;i++){const j=s0+i;if(j<0||j>=m.ir.length)continue;const w=i<winS/2?1:.5+.5*Math.cos(Math.PI*(i-winS/2)/(winS/2));re[i]=m.ir[j]*w}fft(re,im);
+      const row=fz.map(f=>{const b=Math.round(f*N/sr);return 10*Math.log10(re[b]*re[b]+im[b]*im[b]+1e-30)});slices.push(row);if(k===0)ref=Math.max(...row)}
+    C=wfCache[m.id]={slices,ref}}
+  const j0=Math.floor(z.u0*(pts-1)),j1=Math.ceil(z.u1*(pts-1)),fA=fA0*Math.pow(fB0/fA0,j0/(pts-1)),fB=fA0*Math.pow(fB0/fA0,j1/(pts-1)),dyn=45*(z.v1-z.v0)||45,floor=-45+45*z.v0;
+  const dx=PW*.25/S,dy=PH*.5/S,w0=PW*.75,h0=PH*.55,lx=j=>pl+(j-j0)/Math.max(1,j1-j0)*w0,lv=v=>Math.max(0,Math.min(1,(v-C.ref-floor)/dyn));
+  for(let k=S-1;k>=0;k--){const ox=k*dx,oy=-k*dy,yb=pt+PH+oy-PH*.05;x.beginPath();x.moveTo(lx(j0)+ox,yb);for(let j=j0;j<=j1;j++)x.lineTo(lx(j)+ox,yb-lv(C.slices[k][j])*h0);x.lineTo(lx(j1)+ox,yb);x.closePath();
     const c=Math.round(255*(1-k/S));x.fillStyle=`rgba(${56+k*8},${120+c/3|0},${248-k*10},.55)`;x.fill();x.strokeStyle='rgba(226,232,240,.6)';x.lineWidth=d;x.stroke()}
-  x.fillStyle='#8ea0bb';[20,30,50,80,100,150,200,300].forEach(f=>{const i=Math.log(f/fA)/Math.log(fB/fA)*(pts-1);x.fillText(f,lx(i)-5*d,H-6*d)});
-  x.fillText(`Waterfall · ${m.name} · ${S} dilim × ${stepMs} ms (arkaya doğru zaman)`,pl,pt+10*d);x.fillText('Uzun süren tepeler = çınlama (ringing)',pl,pt+24*d)}
+  x.fillStyle='#8ea0bb';let lastX=-1e9;[15,20,25,30,40,50,60,80,100,120,150,200,250,300].forEach(f=>{if(f<fA||f>fB)return;const j=Math.log(f/fA0)/Math.log(fB0/fA0)*(pts-1),X=lx(j);if(X-lastX>24*d){x.fillText(f,X-5*d,H-6*d);lastX=X}});
+  txt(`Waterfall · ${m.name} · ${S} dilim × ${stepMs} ms`);txt('Uzun süren tepeler = çınlama (ringing)',pt+24*d);hint()}
+/* dokunma: iki parmak = yakınlaştır/kaydır (yatay → frekans/zaman, dikey → dB), tek parmak yatay = kaydır, çift dokunma = sıfırla */
+(function(){const cv=$('#msCv');cv.style.touchAction='pan-y';let g=null,lastTap=0,moved=false;
+  const fr=(cx,cy)=>{const r=cv.getBoundingClientRect(),L=msLay||{pl:40,pt:10,PW:r.width-50,PH:268,d:1};return[((cx-r.left)*L.d-L.pl)/L.PW,1-((cy-r.top)*L.d-L.pt)/L.PH]};
+  const fit=(a,w,mn)=>{w=Math.max(mn,Math.min(1,w));a=Math.max(0,Math.min(1-w,a));return[a,a+w]};
+  function start(ts){const z=zget(msView);g={z0:{...z},p:ts.map(t=>fr(t.clientX,t.clientY))}}
+  function move(ts){if(!g)return;const z=zget(msView),z0=g.z0,q=ts.map(t=>fr(t.clientX,t.clientY)),w0=z0.u1-z0.u0,h0=z0.v1-z0.v0;
+    if(q.length>=2&&g.p.length>=2){const [p1,p2]=g.p,[q1,q2]=q;
+      let w=w0,a=z0.u0;const ax1=z0.u0+p1[0]*w0,ax2=z0.u0+p2[0]*w0;if(Math.abs(p2[0]-p1[0])>.08&&Math.abs(q2[0]-q1[0])>.02){w=(ax2-ax1)/(q2[0]-q1[0]);a=ax1-q1[0]*w}else{a=(ax1+ax2)/2-(q1[0]+q2[0])/2*w}
+      let h=h0,b=z0.v0;const ay1=z0.v0+p1[1]*h0,ay2=z0.v0+p2[1]*h0;if(Math.abs(p2[1]-p1[1])>.12&&Math.abs(q2[1]-q1[1])>.03){h=(ay2-ay1)/(q2[1]-q1[1]);b=ay1-q1[1]*h}else{b=(ay1+ay2)/2-(q1[1]+q2[1])/2*h}
+      if(w>0)[z.u0,z.u1]=fit(a,w,.004);if(h>0&&msView!=='wf')[z.v0,z.v1]=fit(b,h,.02)}
+    else if(q.length===1&&g.p.length===1&&w0<1){const a=z0.u0-(q[0][0]-g.p[0][0])*w0;[z.u0,z.u1]=fit(a,w0,.004)}
+    msReq()}
+  cv.addEventListener('touchstart',e=>{moved=false;start(Array.from(e.touches))},{passive:true});
+  cv.addEventListener('touchmove',e=>{const ts=Array.from(e.touches);if(ts.length>=2||(g&&g.p.length===1&&zget(msView).u1-zget(msView).u0<1&&Math.abs(fr(ts[0].clientX,0)[0]-g.p[0][0])>.01)){e.preventDefault();moved=true;if(g&&g.p.length!==ts.length)start(ts);move(ts)}},{passive:false});
+  cv.addEventListener('touchend',e=>{if(e.touches.length){start(Array.from(e.touches));return}g=null;const now=Date.now();if(!moved){if(now-lastTap<320){delete msZ[msView];drawMs();lastTap=0}else lastTap=now}});
+  cv.addEventListener('wheel',e=>{e.preventDefault();const z=zget(msView),[px,py]=fr(e.clientX,e.clientY),k=Math.exp(e.deltaY*.0015);
+    if(e.shiftKey){if(msView==='wf')return;const a=z.v0+py*(z.v1-z.v0),h=(z.v1-z.v0)*k;[z.v0,z.v1]=fit(a-py*h,h,.02)}else{const a=z.u0+px*(z.u1-z.u0),w=(z.u1-z.u0)*k;[z.u0,z.u1]=fit(a-px*w,w,.004)}msReq()},{passive:false});
+  let md=null;cv.addEventListener('mousedown',e=>{md={x:e.clientX,z:{...zget(msView)}}});addEventListener('mouseup',()=>md=null);
+  cv.addEventListener('mousemove',e=>{if(!md)return;const z=zget(msView),w=md.z.u1-md.z.u0;if(w>=1)return;const r=cv.getBoundingClientRect(),L=msLay;const du=(e.clientX-md.x)*L.d/L.PW*w;[z.u0,z.u1]=fit(md.z.u0-du,w,.004);msReq()});
+  cv.addEventListener('dblclick',()=>{delete msZ[msView];drawMs()});
+})();
+/* ---- otomatik analiz (yapay zekâ yok: kural tabanlı sinyal işleme) ---- */
+let ana=null,anaOn=false;
+const isSubM=m=>/(^|[^a-z])(sw\d?|sub\w*|lfe)\b/i.test((m.ch||'')+' '+m.name)||(m.sr&&m.sr<8000);
+function bandAvg(db,fa,fb){let s=0,n=0;for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f>=fa&&f<=fb){s+=db[i];n++}}return n?s/n:NaN}
+const fmtF=f=>f>=1000?(f/1000).toFixed(f<10000?1:0)+' kHz':Math.round(f)+' Hz';
+function ifftC(re,im){for(let i=0;i<im.length;i++)im[i]=-im[i];fft(re,im);const n=re.length;for(let i=0;i<n;i++){re[i]/=n;im[i]=-im[i]/n}}
+function ringAnalysis(m,sub){const sr=m.sr,st=Math.max(0,m.ipk-Math.round(sr*.002)),L=m.ir.length-st;if(L<sr*.15)return null;let N=1;while(N<L)N<<=1;N=Math.min(N,1<<17);
+  const re=new Float64Array(N),im=new Float64Array(N);for(let i=0;i<Math.min(L,N);i++)re[i]=m.ir[st+i];fft(re,im);
+  const df=sr/N,K=Math.min(N/2,Math.ceil(900/df));let M=1;while(M<K)M<<=1;M=Math.min(M*2,N);const dt=N/M/sr*1000;
+  const t20=(xr,xi,fc)=>{const yr=new Float64Array(M),yi=new Float64Array(M),sg=.14;for(let k=1;k<K;k++){const w=Math.exp(-.5*Math.pow(Math.log2(k*df/fc)/sg,2));if(w<1e-4)continue;yr[k]=(xr?xr[k]:1)*w;yi[k]=(xi?xi[k]:0)*w}
+    ifftC(yr,yi);const e=Float64Array.from(yr,(v,i)=>v*v+yi[i]*yi[i]);let pk=0;for(let i=1;i<M/2;i++)if(e[i]>e[pk])pk=i;const end=Math.floor(M*.9);let tot=0;for(let i=pk;i<end;i++)tot+=e[i];
+    let acc=tot;for(let i=pk;i<end;i++){acc-=e[i];if(acc<=tot*.01)return(i-pk)*dt}return(end-pk)*dt};
+  const out=[];for(let fc=sub?16:20;fc<=(sub?160:300);fc*=Math.pow(2,1/6)){const tm=t20(re,im,fc),tf=t20(null,null,fc);out.push({f:fc,t:tm,ex:Math.max(0,tm-tf)})}
+  const med=[...out].map(o=>o.ex).sort((a,b)=>a-b)[out.length>>1]||1;out.forEach(o=>o.r=o.ex/Math.max(30,med));
+  const bad=out.filter(o=>o.ex>100&&o.r>2).sort((a,b)=>b.ex-a.ex);const pick=[];bad.forEach(o=>{if(pick.every(p=>Math.abs(Math.log2(o.f/p.f))>.3))pick.push(o)});
+  return{med:Math.round(med),bad:pick.slice(0,3)}}
+function reflAnalysis(m){const sr=m.sr,ir=m.ir,ip=m.ipk;let dir=0;for(let i=Math.max(0,ip-Math.round(sr*.0003));i<=ip+Math.round(sr*.0003)&&i<ir.length;i++)dir=Math.max(dir,Math.abs(ir[i]));
+  const b=Math.max(1,Math.round(sr*.0001)),s=ip+Math.round(sr*.0007),e=Math.min(ir.length-b,ip+Math.round(sr*.025)),env=[];for(let i=s;i<e;i+=b){let mx=0;for(let k=i;k<i+b;k++)mx=Math.max(mx,Math.abs(ir[k]));env.push({i,v:mx})}
+  const nb=Math.max(1,Math.round(.0004*sr/b)),c=[];for(let j=0;j<env.length;j++){let ok=true;for(let k=Math.max(0,j-nb);k<=Math.min(env.length-1,j+nb);k++)if(env[k].v>env[j].v){ok=false;break}
+    const db=20*Math.log10(env[j].v/dir+1e-12);if(ok&&db>=-20)c.push({t:(env[j].i-ip)/sr*1000,db})}
+  return c.sort((a,b)=>b.db-a.db).slice(0,4).sort((a,b)=>a.t-b.t)}
+function analyze(m){const sub=isSubM(m),R={id:m.id,regions:[],refl:null,html:''},s3=smooth(m.db,3),s6=smooth(m.db,6),base=smooth(m.db,.5);
+  const ref=sub?bandAvg(s3,35,80):bandAvg(s3,200,2000);let lo=sub?15:20,hi=sub?250:16000;
+  const LF=Array.from(LOGF),S3=Array.from(s3),v3=f=>interpLog(LF,S3,f);for(let f=sub?35:150;f>lo;f/=1.01){if(v3(f)<ref-10){lo=f;break}}
+  if(sub)for(let f=80;f<hi;f*=1.01){if(v3(f)<ref-10){hi=f;break}}
+  const A=lo*1.15,B=hi/1.15,segs=[];let cur=null;
+  for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f<A||f>B){if(cur){segs.push(cur);cur=null}continue}const dv=s6[i]-base[i],t=dv>=3?1:dv<=-3?-1:0;
+    if(t&&cur&&cur.t===t){cur.i1=i;if(Math.abs(dv)>Math.abs(cur.ext)){cur.ext=dv;cur.ic=i}}else{if(cur)segs.push(cur);cur=t?{t,i0:i,i1:i,ext:dv,ic:i}:null}}if(cur)segs.push(cur);
+  segs.forEach(s=>{const dv=i=>s6[i]-base[i],h=Math.abs(s.ext)/2;let a=s.ic,b=s.ic;while(a>0&&LOGF[a-1]>=A&&Math.sign(dv(a-1))===s.t&&Math.abs(dv(a-1))>=h&&Math.abs(dv(a-1))<=Math.abs(dv(a))+.3)a--;while(b<LOGF.length-1&&LOGF[b+1]<=B&&Math.sign(dv(b+1))===s.t&&Math.abs(dv(b+1))>=h&&Math.abs(dv(b+1))<=Math.abs(dv(b))+.3)b++;
+    s.f0=LOGF[a];s.f1=LOGF[b];s.fc=LOGF[s.ic];s.w=Math.log2(s.f1/s.f0);s.Q=Math.max(.5,Math.min(10,s.fc/Math.max(.5,s.f1-s.f0)))});
+  const wide=segs.filter(s=>s.w>=.25),narrow=segs.length-wide.length,score=s=>Math.abs(s.ext)*s.w;
+  const dd=arr=>{const k=[];arr.sort((a,b)=>score(b)-score(a)).forEach(s=>{if(k.every(o=>s.f1<=o.f0||s.f0>=o.f1))k.push(s)});return k};
+  const pk=dd(wide.filter(s=>s.t>0)).slice(0,3).sort((a,b)=>a.fc-b.fc),dp=dd(wide.filter(s=>s.t<0)).slice(0,3).sort((a,b)=>a.fc-b.fc);
+  R.regions=[...pk,...dp];
+  const L=[];const li=t=>`<li>${t}</li>`;
+  // genel
+  const span=sub?[25,120]:[100,10000];let mn=1e9,mx=-1e9;LOGF.forEach((f,i)=>{if(f>=Math.max(span[0],lo)&&f<=Math.min(span[1],hi)){mn=Math.min(mn,s3[i]);mx=Math.max(mx,s3[i])}});
+  let ext=null;for(let f=sub?40:100;f>12;f/=1.01){if(v3(f)<ref-6){ext=f;break}}
+  L.push(`<b>Genel</b><ul>${li(`${fmtF(Math.max(span[0],lo))}–${fmtF(Math.min(span[1],hi))} arası sapma ±${((mx-mn)/2).toFixed(1)} dB (1/3 oktav).`)}${li(ext?`Bas uzanımı (−6 dB): <b>${fmtF(ext)}</b>${sub?'':(ext>60?' — bas yönetimiyle sub\'a devredilmesi uygun.':'.')}`:'Bas uzanımı ölçüm aralığının altında.')}${!sub&&bandAvg(s3,25,80)-ref>6?li(`Bas bölgesi (25–80 Hz) orta frekanslardan ${(bandAvg(s3,25,80)-ref).toFixed(0)} dB yüksek — sub/bas seviyesi fazla olabilir.`):''}</ul>`);
+  if(pk.length)L.push(`<b>Geniş tepeler</b> <span class="muted">(EQ ile kesilebilir)</span><ul>${pk.map(s=>{const Q=s.Q;
+    return li(`<b>${fmtF(s.fc)}</b> +${s.ext.toFixed(1)} dB (${fmtF(s.f0)}–${fmtF(s.f1)}) → PEQ: ${fmtF(s.fc)}, Q ${Q.toFixed(1)}, −${s.ext.toFixed(1)} dB${s.fc<300?' · oda modu olası':s.fc<2000?' · hoparlör–oda etkileşimi':' · hoparlör karakteri / mikrofon açısı'}`)}).join('')}</ul>`);
+  if(dp.length)L.push(`<b>Geniş dipler</b> <span class="muted">(EQ ile yükseltmeyin)</span><ul>${dp.map(s=>{const q=343/(4*s.fc);let w;
+    if(s.fc<300)w=sub?'sub konumu, faz/gecikme ayarı veya ikinci sub ile düzelir':`SBIR olası: hoparlörün ~${q<1?Math.round(q*100)+' cm':q.toFixed(1)+' m'} gerisindeki/yanındaki duvar ya da koltuk arkası duvar; konumu değiştirin`;
+    else if(s.fc<1000)w='zemin/tavan yansıması veya crossover bölgesi olası';else w='hoparlör yönü (toe-in), mikrofon açısı veya yakın yüzey';
+    return li(`<b>${fmtF(s.fc)}</b> ${s.ext.toFixed(1)} dB (${fmtF(s.f0)}–${fmtF(s.f1)}) → ${w}`)}).join('')}</ul>`);
+  if(!pk.length&&!dp.length)L.push(`<b>Tepe/dip</b><ul>${li('±3 dB\'yi aşan geniş bir tepe ya da dip yok. 👍')}</ul>`);
+  if(narrow)L.push(`<p class="muted" style="margin:4px 0">${narrow} dar tepe/çentik yok sayıldı: konuma bağlıdır, EQ ile düzeltilmemelidir.</p>`);
+  if(m.ir&&m.sr){const rg=ringAnalysis(m,sub);if(rg)L.push(`<b>Çınlama (ringing)</b><ul>${rg.bad.length?rg.bad.map(o=>{const pkHit=pk.find(s=>o.f>=s.f0/1.1&&o.f<=s.f1*1.1);
+      return li(`<b>${fmtF(o.f)}</b>: ~${Math.round(o.ex/10)*10} ms fazladan çınlıyor (diğer bas frekanslarının ~${o.r.toFixed(1)} katı) — oda modu${pkHit?'; bu tepeyi EQ ile kesmek çınlamayı da azaltır':'; bas tuzağı veya sub konumu'}`)}).join(''):li('Belirgin uzun çınlama yok.')}${li(rg.med<30?'Diğer bas frekanslarında belirgin ek çınlama yok.':`Diğer bas frekanslarında ek çınlama ~${Math.round(rg.med/10)*10} ms.`)}</ul>`)
+    if(!sub&&m.sr>=16000){R.refl=reflAnalysis(m);L.push(`<b>Erken yansımalar</b> <span class="muted">(Darbe/ETC grafiğinde sarı çizgiler)</span><ul>${R.refl.length?R.refl.map(r=>{const p=r.t*.343;
+      const wh=r.t<1?'hoparlörün hemen yanındaki yüzey (TV, raf, kabin kenarı)':r.t<5?'yakın yüzey: sehpa, zemin/tavan veya koltuk arkası duvar':r.t<15?'yan/arka duvar veya tavan':'uzak duvar';
+      return li(`<b>${r.t.toFixed(1)} ms</b>, ${r.db.toFixed(0)} dB → yansıyan yol ${p.toFixed(2)} m daha uzun; yüzey yaklaşık <b>${(p/2).toFixed(2)} m</b> ötede olabilir (${wh})`)}).join(''):li('−20 dB üzerinde erken yansıma yok.')}</ul>${R.refl.some(r=>r.db>-10&&r.t<10)?'<p style="margin:4px 0;color:#fbbf24">Güçlü erken yansıma var (−10 dB üstü, 10 ms içinde): yansıma noktasına akustik panel netliği ve stereo görüntüyü iyileştirir.</p>':''}`)}}
+  else L.push('<p class="muted">Çınlama ve yansıma analizi için darbe tepkisi olan bir ölçüm gerekir (.txt dosyalarında yok).</p>');
+  R.html=`<div style="font-weight:700;margin-bottom:6px">🔍 ${m.name}${sub?' <span class="muted">(subwoofer)</span>':''}</div>`+L.join('')+'<p class="muted" style="margin:6px 0 0">Kural tabanlı otomatik değerlendirme; kesin teşhis değil, yol göstericidir.</p>';return R}
+function updAna(){const el=$('#msAna');if(!el)return;if(!anaOn){el.style.display='none';return}el.style.display='block';const vis=meas.filter(m=>m.on);
+  if(vis.length!==1){ana=null;el.innerHTML=`<span style="color:#fbbf24">Analiz için aşağıdaki listeden <b>yalnızca bir</b> ölçüm işaretleyin (şu an ${vis.length} işaretli).</span>`;return}
+  if(!ana||ana.id!==vis[0].id){try{ana=analyze(vis[0])}catch(e){ana=null;el.textContent='Analiz yapılamadı: '+e.message;return}}el.innerHTML=ana.html}
+$('#msAnaBtn').onclick=()=>{anaOn=!anaOn;ana=null;$('#msAnaBtn').textContent=anaOn?'✕ Analizi kapat':'🔍 Seçili ölçümü analiz et';drawMs();if(anaOn)setTimeout(()=>$('#msAna').scrollIntoView({behavior:'smooth',block:'nearest'}),50)};
 msLoad();
 /* ---------------- placement AR ----------------
    Tam 3B yönelim: cihazın dönüş matrisi (alpha/beta/gamma) ile her hedef, kameranın gerçek açısına göre
