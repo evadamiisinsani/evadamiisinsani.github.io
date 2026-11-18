@@ -1,0 +1,2 @@
+Duyo eklenti güncellemeleri. Dosyalar yalnızca homecinematurkiye.com sunucusunun anahtarıyla açılır
+(libsodium mühürlü kutu); sürüm bilgisi Ed25519 ile imzalıdır. Başka bir işe yaramaz.
