@@ -131,7 +131,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 <header>
   <div class="brand">
     <h1>Objective Audio <span>Labs</span></h1>
-    <span class="badge">ÖNİZLEME · v2026.11.25a</span>
+    <span class="badge">ÖNİZLEME · v2026.11.25b</span>
   </div>
   <div class="row" style="margin-top:8px">
     <div class="seg" id="modeSeg" style="flex:1">
@@ -322,7 +322,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px"><button class="btn sm" id="playerOpen">📺 Bu cihazı oynatıcı yap (TV / bilgisayar)</button></div>
     <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
     <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
-    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25a</div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25b</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -438,7 +438,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 
 <script>
 /* Güncelleme kontrolü: sunucudaki sürüm farklıysa sayfayı önbelleksiz yeniden aç */
-const APPVER='2026.11.25a';
+const APPVER='2026.11.25b';
 (function(){if(!/^https?:/.test(location.protocol)||/claude|usercontent/.test(location.host))return;
  fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(h=>{const m=h.match(/APPVER='([^']+)'/);
   if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}).catch(()=>{})})();
@@ -1149,7 +1149,7 @@ function pvPlay(m){ensureCtx();if(ctx.state!=='running')return{t:'err',msg:'Oyna
   if(!mk(m.spk,m.T,m.f1,m.f2,at)){vs.forEach(v=>v.stop(0));return{t:'err',msg:`${m.spk.id} oynatıcının çıkışında yok${m.spk.g==='height'?' (tavan kanalları Atmos uyumlu test dosyalarıyla ve TV uygulamasıyla gelecek)':''}.`}}
   setTimeout(()=>vs.forEach(v=>v.stop(.05)),(at+m.T-ctx.currentTime+.5)*1000);pvLog(`▶ ${m.ref?m.ref.id+' (referans) → ':''}${m.spk.id} taraması`);
   return{t:'ok',vol:volDb,sr,mode,mcN}}
-async function startPlayer(){$('#playerView').hidden=false;document.body.style.overflow='hidden';$('#pvMode').value=mode==='st'?'st':'mc';pvStatus();
+async function startPlayer(){$('#playerView').hidden=false;document.body.style.overflow='hidden';if(mode==='hp'){const mb=$('#modeSeg button[data-m="mc"]');mb&&mb.click()}$('#pvMode').value=mode==='st'?'st':'mc';pvStatus();
   if(peer&&peer.__player)return;try{await loadJs(PEERJS)}catch(e){$('#pvSt').textContent=e.message;return}
   const go=()=>{const code=String(Math.floor(100000+Math.random()*900000));try{peer&&peer.destroy()}catch(e){}peer=new Peer(pairId(code));peer.__player=true;
     peer.on('open',async()=>{$('#pvCode').textContent=code;const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('eslestir',code);
