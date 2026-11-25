@@ -125,13 +125,18 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 .tl{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:11px 12px;margin-bottom:8px;color:var(--tx);text-decoration:none}
 .tl b{display:block;font-size:14px}
 .mrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.mrow i{width:14px;height:14px;border-radius:4px;flex:none}.mrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mrow .nm small{color:var(--mut);margin-left:6px}.mrow button{border:1px solid var(--line);background:#0d1628;border-radius:8px;padding:4px 7px;font-size:12px}.tl span{display:block;color:var(--mut);font-size:12px;margin-top:3px;line-height:1.4}
+details.info{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.25);border-radius:10px;padding:8px 10px}
+details.info summary{cursor:pointer;font-weight:600}details.info details{margin:6px 0 0;border-top:1px solid rgba(148,163,184,.15);padding-top:6px}
+details.info details summary{font-weight:600}details.info ul{margin:6px 0 0;padding-left:18px;line-height:1.5}details.info p{margin:6px 0}
+.mchip{display:inline-block;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600;cursor:pointer}
+.mchip.raw{background:rgba(251,191,36,.15);color:#fbbf24}.mchip.profile{background:rgba(56,189,248,.15);color:#38bdf8}.mchip.umik,.mchip.file{background:rgba(74,222,128,.15);color:#4ade80}.mchip.ext{background:rgba(251,146,60,.15);color:#fb923c}
 </style>
 </head>
 <body>
 <header>
   <div class="brand">
     <h1>Objective Audio <span>Labs</span></h1>
-    <span class="badge">ÖNİZLEME · v2026.11.25c</span>
+    <span class="badge">ÖNİZLEME · v2026.11.25d</span>
   </div>
   <div class="row" style="margin-top:8px">
     <div class="seg" id="modeSeg" style="flex:1">
@@ -308,6 +313,39 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
         <div class="row"><input id="msPairCode" inputmode="numeric" maxlength="6" placeholder="123456" style="width:110px"><button class="btn sm" id="msPairGo">Bağlan</button><span id="msPairSt" class="muted"></span></div></div>
     </div>
     <p class="muted" id="msPairHelp" style="display:none;margin:6px 0 0;font-size:12px">Amfiye HDMI ile bağlı bilgisayarda (veya tarayıcılı TV'de) bu sayfayı açıp aşağıdaki <b>📺 Bu cihazı oynatıcı yap</b> düğmesine basın. Telefon kumanda ve mikrofon olur; ses oradan çalar. Kanallar arası gecikme, “Zaman referansı” kanalından çalınan kısa bir referans sesine göre ölçülür.</p>
+    <div id="msMicState" style="margin-top:10px"></div>
+    <details class="info" id="msInfo" style="margin-top:6px">
+      <summary>ℹ️ Telefon mikrofonuyla neler doğru ölçülür? <span class="muted">(dokunun)</span></summary>
+      <div class="infobody">
+        <p>Telefon mikrofonunun hatası bütün kanallara aynı şekilde yansır. Bu yüzden kanalları <b>birbiriyle karşılaştıran</b> ölçümler güvenilirdir; <b>mutlak</b> değerler (kaç dB, kaç Hz'e kadar bas) ise mikrofona bağlıdır.</p>
+        <details><summary>✅ Kalibrasyonsuz telefonda da güvenilir</summary><ul>
+          <li><b>Mesafe ve gecikme farkı:</b> santimetre hassasiyetinde. Bu bir zaman ölçümüdür; mikrofonun kalitesi etkilemez.</li>
+          <li><b>Ters faz uyarısı:</b> ana hoparlörlerde güvenilir.</li>
+          <li><b>Kanal seviyesi eşitleme:</b> 500 Hz–2 kHz bandına bakıldığı için yaklaşık ±0,5–1 dB tutarlı.</li>
+          <li><b>Önce/sonra karşılaştırması:</b> aynı telefon aynı yerde kaldığı sürece “Fark” grafiği güvenilirdir; yaptığınız değişikliğin etkisini gösterir.</li>
+          <li><b>Sağ/sol ve kanallar arası fark:</b> stereo için en önemli bilgi.</li>
+          <li><b>Yansımaların zamanı</b> ve yüzeye uzaklık (seviyeleri yaklaşık).</li>
+          <li><b>Oda modlarının frekansı ve çınlama süresi:</b> yaklaşık 40 Hz'e kadar.</li></ul></details>
+        <details><summary>⚠️ Kalibrasyonsuz telefonda yanıltıcı</summary><ul>
+          <li><b>Mutlak SPL (dB) değeri:</b> modele göre birkaç dB, bazen daha fazla sapabilir.</li>
+          <li><b>Derin bas:</b> 50–80 Hz'in altında telefon mikrofonları zayıf duyar; bas olduğundan az görünür. “Sub yetersiz” sonucuna buradan varmayın.</li>
+          <li><b>Tiz:</b> 8–10 kHz üstünde mikrofon deliği, kılıf ve tutuş yönü eğriyi bozar.</li>
+          <li><b>Genel eğim yorumları:</b> “bas fazla”, “tiz az” gibi.</li></ul>
+          <p class="muted">Grafikte bu bölgeler gri gösterilir; analiz de bu bölgeler için yorum yapmaz.</p></details>
+        <details><summary>📱 Telefon modeli profili varsa</summary><ul>
+          <li>Frekans tepkisi yaklaşık <b>30 Hz–12 kHz</b> arasında ±1–2 dB'ye iner (aynı modelin telefonları arasında küçük farklar kalır).</li>
+          <li>Mutlak SPL de makul hale gelir: yaklaşık ±1–2 dB.</li>
+          <li>25 Hz altı ve 15 kHz üstü yine sınırlıdır; kesin sonuç için UMIK gerekir.</li>
+          <li>Profil, yukarıdaki “Mikrofon ve eşleştirme” bölümünde UMIK ile bir kez çıkarılır ve aynı model telefonu olanlarla kodla paylaşılabilir.</li></ul></details>
+        <details><summary>🎯 UMIK (kalibrasyon dosyasıyla)</summary><ul>
+          <li>Frekans tepkisi ve SPL için referans doğruluk: yaklaşık 20 Hz–20 kHz, ±1 dB.</li></ul></details>
+        <details><summary>📌 Doğru ölçüm için</summary><ul>
+          <li>Telefonu dinleme noktasında, kulak hizasında, <b>tavana bakacak şekilde</b> sehpaya ya da tripoda sabitleyin; bütün kanalları aynı noktada ölçün.</li>
+          <li>Kılıfı çıkarın; ölçüm sırasında telefona dokunmayın ve konuşmayın.</li>
+          <li>Amfinin oda düzeltmesi (Audyssey, Dirac vb.) açıksa düzeltilmiş sonucu ölçersiniz.</li>
+          <li>Web sürümü iPhone'un ses işlemesini tamamen kapatamaz; uygulama sürümü “ölçüm modu”nu kullanacaktır.</li></ul></details>
+      </div>
+    </details>
     <div class="row" style="margin-top:10px"><button class="btn pri" id="msGo">▶ Ölç</button><button class="btn" id="msAll">▶▶ Tüm kanalları sırayla ölç</button><span id="msStat" class="muted"></span></div>
     <div id="msSum" style="margin-top:8px"></div>
     <div class="seg" id="msView" style="margin-top:12px"><button data-v="fr" class="on">Frekans tepkisi</button><button data-v="diff">Fark</button><button data-v="ir">Darbe</button><button data-v="etc">ETC</button><button data-v="wf">Waterfall</button></div>
@@ -323,7 +361,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px"><button class="btn sm" id="playerOpen">📺 Bu cihazı oynatıcı yap (TV / bilgisayar)</button></div>
     <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
     <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
-    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25c</div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25d</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -439,7 +477,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 
 <script>
 /* Güncelleme kontrolü: sunucudaki sürüm farklıysa sayfayı önbelleksiz yeniden aç */
-const APPVER='2026.11.25c';
+const APPVER='2026.11.25d';
 (function(){if(!/^https?:/.test(location.protocol)||/claude|usercontent/.test(location.host))return;
  fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(h=>{const m=h.match(/APPVER='([^']+)'/);
   if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}).catch(()=>{})})();
@@ -1023,7 +1061,7 @@ const LOGF=(()=>{const a=[];for(let f=10;f<=24000;f*=Math.pow(2,1/96))a.push(f);
 let meas=[],msView='fr';
 function b64f(a){const u=new Uint8Array(a.buffer);let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)}
 function f64b(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Float32Array(u.buffer)}
-function msSave(){const pack=m=>({id:m.id,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,on:m.on,col:m.col,db:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk});
+function msSave(){const pack=m=>({id:m.id,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,on:m.on,col:m.col,db:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk,ms:m.ms,dly:m.dly,dref:m.dref,pol:m.pol});
   try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(pack)))}catch(e){try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(m=>Object.assign(pack(m),{ir:null}))))}catch(e2){}}}
 function msLoad(){try{const a=JSON.parse(localStorage.getItem('oal_meas')||'[]');meas=a.map(m=>Object.assign(m,{db:Float32Array.from(m.db),ir:m.ir?f64b(m.ir):null}))}catch(e){meas=[]}}
 function fillMsCh(){const cur=$('#msCh').value;$('#msCh').innerHTML=speakers.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');if(cur&&speakers.find(s=>s.id===cur))$('#msCh').value=cur;
@@ -1046,6 +1084,16 @@ function frFromIR(ir,ipk,sr){// REW benzeri pencere: tepeden 10 ms önce, 500 ms
   const df=sr/N,out=new Float32Array(LOGF.length);const cs=new Float64Array(N/2+1);for(let k=0;k<N/2;k++)cs[k+1]=cs[k]+P[k];
   for(let j=0;j<LOGF.length;j++){const f=LOGF[j],a=Math.max(0,Math.floor(f*Math.pow(2,-1/192)/df)),b=Math.min(N/2-1,Math.max(a,Math.ceil(f*Math.pow(2,1/192)/df)));const pw=(cs[b+1]-cs[a])/(b-a+1);out[j]=10*Math.log10(pw+1e-30)}
   return out}
+/* ---- mikrofon durumu: sonuçların ne kadar güvenilir olduğunu belirler ---- */
+const MSTATE={raw:{t:'Kalibrasyonsuz telefon',i:'🟡',lo:50,hi:10000,abs:false},ext:{t:'Harici mikrofon, kalibrasyon dosyası yok',i:'🟠',lo:30,hi:15000,abs:false},
+  profile:{t:'Telefon modeli profili',i:'🔵',lo:30,hi:12000,abs:true},umik:{t:'UMIK + kalibrasyon',i:'🟢',lo:15,hi:20000,abs:true},file:{t:'İçe aktarılan dosya',i:'🟢',lo:15,hi:20000,abs:true}};
+function micState(){const ext=!!$('#micSel').value;if(ext)return($('#umikOn').checked&&umikCal)?'umik':'ext';return($('#pfApply').checked&&profile)?'profile':'raw'}
+const msOf=m=>MSTATE[m.ms||'file']||MSTATE.file;
+function msChip(k,open){const x=MSTATE[k]||MSTATE.file;return`<span class="mchip ${k}" ${open?'onclick="openMicInfo()"':''} title="Ne anlama geldiğini görmek için dokunun">${x.i} ${x.t}</span>`}
+function openMicInfo(){const d=$('#msInfo');d.open=true;const k=micState();$$('#msInfo details').forEach((x,i)=>x.open=(k==='raw'||k==='ext')?i<2:k==='profile'?i===2:i===3);d.scrollIntoView({behavior:'smooth',block:'start'})}
+function updMicState(){const el=$('#msMicState');if(!el)return;const k=micState(),x=MSTATE[k];
+  el.innerHTML=`<span class="muted">Mikrofon durumu:</span> ${msChip(k,true)} <span class="muted" style="font-size:12px">${x.abs?`Güvenilir aralık ≈ ${fmtF(x.lo)}–${fmtF(x.hi)}`:`Karşılaştırmalar güvenilir; mutlak dB ve ${fmtF(x.lo)} altı / ${fmtF(x.hi)} üstü yaklaşık`}</span>`}
+setTimeout(()=>{['#micSel','#pfApply','#umikOn'].forEach(id=>{const e=$(id);e&&e.addEventListener('change',updMicState)});updMicState();setInterval(updMicState,3000)},0);
 /* ---- ölçüm çekirdeği: bu cihazdan veya eşli oynatıcıdan (TV/bilgisayar) ---- */
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const SWT=(1<<18)/48000,REFT=1.0,GAP=.8,RF1=200,RF2=12000;
@@ -1093,7 +1141,7 @@ async function measureOne(spk,opts={}){
   else if(opts.refSpk&&opts.refSpk.id===spk.id){dly=0;dref=spk.id}
   const snr=20*Math.log10(pk/(ir.slice(Math.round(sr*.45)).reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12)));
   const m={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:`${spk.id}${remote?' (oynatıcı)':''} ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`,date:new Date().toISOString(),ch:spk.id,
-    mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk,dly,dref,pol:ir[ipk]>=0?1:-1};
+    mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk,dly,dref,pol:ir[ipk]>=0?1:-1,ms:micState()};
   return{m,snr}}
 function msBusy(b){$('#msGo').disabled=b;$('#msAll').textContent=b?'■ Durdur':'▶▶ Tüm kanalları sırayla ölç'}
 let allRun=false;
@@ -1122,6 +1170,7 @@ function renderSummary(res,errs){
   if(res.length){h+=`<table class="tbl" style="width:100%;font-size:13px;border-collapse:collapse"><tr style="text-align:left"><th>Kanal</th><th>Seviye</th><th>Amfide öneri</th>${hasD?'<th>Mesafe farkı</th>':''}<th>Faz</th></tr>`+
     res.map(m=>{const l=lv(m),t=base-l,dd=hasD?(m.dly-d0):0;return`<tr style="border-top:1px solid rgba(148,163,184,.15)"><td><b>${m.ch}</b></td><td>${l.toFixed(1)} dB</td><td>${Math.abs(t)<.5?'✓ uygun':(t>0?'+':'')+t.toFixed(1)+' dB'}${isSub(m)?' <span class="muted">(yaklaşık)</span>':''}</td>${hasD?`<td>${dd<.05?'en yakın':'+'+Math.round(dd*34.3)+' cm'}</td>`:''}<td>${isSub(m)?'—':m.pol===maj?'✓':'<span style="color:#fbbf24">⚠ ters?</span>'}</td></tr>`}).join('')+'</table>';
     h+=`<p class="muted" style="font-size:12px;margin:6px 0 0">Seviye: ana kanallarda 500 Hz–2 kHz, subwoofer'da 40–80 Hz ortalaması. “Amfide öneri”, kanalı diğerlerinin ortalamasına eşitlemek için gereken düzeltmedir.${hasD?' Mesafe farkı, sesin en yakın hoparlöre göre ne kadar geç geldiğidir; amfinin mesafe ayarlarındaki farklar buna yakın olmalı. Subwoofer kendi işlem gecikmesi nedeniyle fiziksel mesafesinden uzak görünür; bu normaldir.':''} Ölçüm sırasında amfinin oda düzeltmesi (Audyssey, Dirac vb.) açıksa düzeltilmiş sonuç ölçülür.</p>`}
+  if(res.length){const k=res[0].ms||'raw';h=`<div style="margin-bottom:6px">${msChip(k,true)} <span class="muted" style="font-size:12px">Seviye farkı, mesafe ve faz bu mikrofonla da güvenilirdir${MSTATE[k].abs?'.':'; mutlak dB değerleri yaklaşıktır.'}</span></div>`+h}
   if(errs.length)h+=`<p style="color:#fbbf24;font-size:12px;margin:6px 0 0">Atlanan kanallar: ${errs.join(' · ')}</p>`;
   $('#msSum').innerHTML=h}
 /* ---- eşleştirme: PeerJS (WebRTC veri kanalı) ---- */
@@ -1175,10 +1224,10 @@ $('#pvTest').onclick=()=>{const r=pvPlay({ref:null,spk:pickSpk(refSpeaker()),lvl
   const code=q.get('eslestir');if(code){setTimeout(()=>{const t=$('#tabs button[data-t="t-meas"]');t&&t.click();$('#msPlay').value='remote';pairUi();$('#msPairCode').value=code;pairConnect(code);
     setTimeout(()=>{const c=$('#mCard');c&&c.scrollIntoView({block:'start'})},400)},400)}
   else{const c=store.get('pairCode',null);if(c)$('#msPairCode').value=c}})();
-function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div class="mrow"><input type="checkbox" data-i="${i}" ${m.on?'checked':''}><i style="background:${m.col}"></i><span class="nm">${m.name}<small>${m.ch||''} · ${new Date(m.date).toLocaleDateString('tr-TR')}${m.ir?'':' · yalnız FR'}</small></span><button data-dl="${i}" title="İndir">⬇</button><button data-rew="${i}" title="REW için .txt">REW</button><button data-rm="${i}" title="Sil">✕</button></div>`).join(''):'<p class="muted">Henüz ölçüm yok.</p>';
+function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div class="mrow"><input type="checkbox" data-i="${i}" ${m.on?'checked':''}><i style="background:${m.col}"></i><span class="nm">${m.name}<small>${m.ch||''} · ${new Date(m.date).toLocaleDateString('tr-TR')}${m.ir?'':' · yalnız FR'}${m.ms&&m.ms!=='file'?' · '+MSTATE[m.ms].i+' '+MSTATE[m.ms].t:''}</small></span><button data-dl="${i}" title="İndir">⬇</button><button data-rew="${i}" title="REW için .txt">REW</button><button data-rm="${i}" title="Sil">✕</button></div>`).join(''):'<p class="muted">Henüz ölçüm yok.</p>';
   $$('#msList input').forEach(c=>c.onchange=()=>{meas[+c.dataset.i].on=c.checked;msSave();drawMs()});
   $$('#msList [data-rm]').forEach(b=>b.onclick=()=>{meas.splice(+b.dataset.rm,1);msSave();renderMsList();drawMs()});
-  $$('#msList [data-dl]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.dl];const o={format:'objective-audio-labs-measurement',v:1,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,freq:Array.from(LOGF,f=>Math.round(f*100)/100),spl:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk};
+  $$('#msList [data-dl]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.dl];const o={format:'objective-audio-labs-measurement',v:1,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,freq:Array.from(LOGF,f=>Math.round(f*100)/100),spl:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk,ms:m.ms};
     saveFile(new Blob([JSON.stringify(o)],{type:'application/json'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'.oal.json')});
   $$('#msList [data-rew]').forEach(b=>b.onclick=()=>{const m=meas[+b.dataset.rew];let t=`* Objective Audio Labs ölçümü: ${m.name}\n* ${m.date} · ${m.ch} · ${m.mic}\n* Freq(Hz) SPL(dB)\n`;for(let j=0;j<LOGF.length;j++)if(LOGF[j]>=15&&LOGF[j]<=20500)t+=`${LOGF[j].toFixed(3)} ${m.db[j].toFixed(2)}\n`;
     saveFile(new Blob([t],{type:'text/plain'}),m.name.replace(/[^\wığüşöçİĞÜŞÖÇ -]/g,'_')+'_REW.txt')});
@@ -1251,7 +1300,7 @@ $('#msFile').onchange=async e=>{const files=Array.from(e.target.files||[]);if(!f
   try{if(buf[0]===0xAC&&buf[1]===0xED){adds=importMdat(buf,base)}
     else{const t=new TextDecoder().decode(buf);let o=null;try{o=JSON.parse(t)}catch(er){}
       if(o&&o.detectedChannels)adds=importAdy(o,base);
-      else if(o&&o.format==='objective-audio-labs-measurement'){adds=[{name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db:Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f)),ir:o.ir?f64b(o.ir):null,ipk:o.ipk}]}
+      else if(o&&o.format==='objective-audio-labs-measurement'){adds=[{name:o.name,date:o.date,ch:o.ch,mic:o.mic,sr:o.sr,db:Float32Array.from(LOGF,f=>interpLog(o.freq,o.spl,f)),ir:o.ir?f64b(o.ir):null,ipk:o.ipk,ms:o.ms}]}
       else{const f=[],g=[];t.split(/\r?\n/).forEach(l=>{if(/^\s*[*#;]/.test(l))return;const n=l.trim().split(/[\s,;]+/).map(Number);if(n.length>=2&&isFinite(n[0])&&isFinite(n[1])&&n[0]>0){f.push(n[0]);g.push(n[1])}});
         if(f.length>10)adds=[{name:base,date:new Date().toISOString(),ch:'REW',mic:'',db:Float32Array.from(LOGF,x=>interpLog(f,g,x)),ir:null}]}}}
   catch(er){notes.push(`✗ ${fl.name}: okunamadı (${er.message})`);continue}
@@ -1281,7 +1330,7 @@ function drawMs(){updAna();const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=
   if(!meas.length){x.fillStyle='#64748b';x.fillText('Ölçüm yapın veya dosya yükleyin',pl+10*d,H/2);return}
   const hint=()=>{if(zoomed){x.fillStyle='#38bdf8';x.textAlign='right';x.fillText('🔎 çift dokunun: sıfırla',pl+PW-4*d,pt+10*d);x.textAlign='left'}};
   if(msView==='fr'||msView==='diff'){const low=$('#msRange').value==='low',FA=low?15:20,FB=low?300:20000,fA=FA*Math.pow(FB/FA,z.u0),fB=FA*Math.pow(FB/FA,z.u1),lx=f=>pl+Math.log(f/fA)/Math.log(fB/fA)*PW,sm=+$('#msSm').value;
-    let curves=[],title=msView==='diff'?'dB fark':'dB SPL';
+    let curves=[],title=msView==='diff'?'dB fark':(vis.some(m=>!msOf(m).abs)?'dB SPL (yaklaşık — kalibrasyonsuz mikrofon)':'dB SPL');
     if(msView==='fr')curves=vis.map(m=>({c:m.col,db:smooth(m.db,sm)}));
     else{if(vis.length!==2){x.fillStyle='#fbbf24';x.fillText(`Fark için aşağıdaki listeden tam 2 ölçüm işaretleyin (şu an ${vis.length}).`,pl,H/2);return}
       const[B,A]=vis,a=smooth(A.db,sm),b=smooth(B.db,sm);curves=[{c:'#fde68a',db:a.map((v,i)=>v-b[i])}];title=`dB fark: ${A.name} − ${B.name}`}
@@ -1290,6 +1339,9 @@ function drawMs(){updAna();const cv=$('#msCv'),d=devicePixelRatio||1,W=cv.width=
     const yLo=lo+(hi-lo)*z.v0,yHi=lo+(hi-lo)*z.v1,ly=v=>pt+(yHi-v)/(yHi-yLo)*PH;
     fGrid(x,fA,fB,lx,pt,PH,H,d);yGrid(x,yLo,yHi,ly,pl,PW,d);
     x.save();x.beginPath();x.rect(pl,pt,PW,PH);x.clip();
+    if(msView==='fr'&&vis.length){const rl=Math.max(...vis.map(m=>msOf(m).lo)),rh=Math.min(...vis.map(m=>msOf(m).hi));if(rl>20||rh<20000){x.fillStyle='rgba(148,163,184,.13)';
+      if(rl>fA){x.fillRect(pl,pt,lx(rl)-pl,PH)}if(rh<fB){x.fillRect(lx(rh),pt,pl+PW-lx(rh),PH)}x.fillStyle='#94a3b8';x.font=`${9*d}px Inter`;
+      if(rl>fA&&lx(rl)-pl>40*d)x.fillText('mikrofon güvenilmez',pl+3*d,pt+PH-6*d);if(rh<fB&&pl+PW-lx(rh)>40*d)x.fillText('güvenilmez',lx(rh)+3*d,pt+PH-6*d);x.font=`${10*d}px Inter`}}
     if(msView==='fr'&&ana&&ana.regions&&vis.length===1&&ana.id===vis[0].id)ana.regions.forEach(r=>{const X0=lx(r.f0),X1=lx(r.f1);x.fillStyle=r.t>0?'rgba(251,146,60,.18)':'rgba(56,189,248,.18)';x.fillRect(X0,pt,X1-X0,PH);
       x.fillStyle=r.t>0?'#fb923c':'#38bdf8';x.font=`bold ${10*d}px Inter`;x.fillText((r.ext>0?'+':'')+r.ext.toFixed(0),Math.max(X0,(X0+X1)/2-8*d),pt+24*d);x.font=`${10*d}px Inter`});
     curves.forEach(c=>{x.strokeStyle=c.c;x.lineWidth=1.6*d;x.beginPath();let s0=false;for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f<fA/1.02||f>fB*1.02)continue;const X=lx(f),Y=ly(c.db[i]);s0?x.lineTo(X,Y):(x.moveTo(X,Y),s0=true)}x.stroke()});x.restore();
@@ -1348,13 +1400,13 @@ const isSubM=m=>/(^|[^a-z])(sw\d?|sub\w*|lfe)\b/i.test((m.ch||'')+' '+m.name)||(
 function bandAvg(db,fa,fb){let s=0,n=0;for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f>=fa&&f<=fb){s+=db[i];n++}}return n?s/n:NaN}
 const fmtF=f=>f>=1000?(f/1000).toFixed(f<10000?1:0)+' kHz':Math.round(f)+' Hz';
 function ifftC(re,im){for(let i=0;i<im.length;i++)im[i]=-im[i];fft(re,im);const n=re.length;for(let i=0;i<n;i++){re[i]/=n;im[i]=-im[i]/n}}
-function ringAnalysis(m,sub){const sr=m.sr,st=Math.max(0,m.ipk-Math.round(sr*.002)),L=m.ir.length-st;if(L<sr*.15)return null;let N=1;while(N<L)N<<=1;N=Math.min(N,1<<17);
+function ringAnalysis(m,sub,fmin=0){const sr=m.sr,st=Math.max(0,m.ipk-Math.round(sr*.002)),L=m.ir.length-st;if(L<sr*.15)return null;let N=1;while(N<L)N<<=1;N=Math.min(N,1<<17);
   const re=new Float64Array(N),im=new Float64Array(N);for(let i=0;i<Math.min(L,N);i++)re[i]=m.ir[st+i];fft(re,im);
   const df=sr/N,K=Math.min(N/2,Math.ceil(900/df));let M=1;while(M<K)M<<=1;M=Math.min(M*2,N);const dt=N/M/sr*1000;
   const t20=(xr,xi,fc)=>{const yr=new Float64Array(M),yi=new Float64Array(M),sg=.14;for(let k=1;k<K;k++){const w=Math.exp(-.5*Math.pow(Math.log2(k*df/fc)/sg,2));if(w<1e-4)continue;yr[k]=(xr?xr[k]:1)*w;yi[k]=(xi?xi[k]:0)*w}
     ifftC(yr,yi);const e=Float64Array.from(yr,(v,i)=>v*v+yi[i]*yi[i]);let pk=0;for(let i=1;i<M/2;i++)if(e[i]>e[pk])pk=i;const end=Math.floor(M*.9);let tot=0;for(let i=pk;i<end;i++)tot+=e[i];
     let acc=tot;for(let i=pk;i<end;i++){acc-=e[i];if(acc<=tot*.01)return(i-pk)*dt}return(end-pk)*dt};
-  const out=[];for(let fc=sub?16:20;fc<=(sub?160:300);fc*=Math.pow(2,1/6)){const tm=t20(re,im,fc),tf=t20(null,null,fc);out.push({f:fc,t:tm,ex:Math.max(0,tm-tf)})}
+  const out=[];for(let fc=Math.max(fmin,sub?16:20);fc<=(sub?160:300);fc*=Math.pow(2,1/6)){const tm=t20(re,im,fc),tf=t20(null,null,fc);out.push({f:fc,t:tm,ex:Math.max(0,tm-tf)})}
   const med=[...out].map(o=>o.ex).sort((a,b)=>a-b)[out.length>>1]||1;out.forEach(o=>o.r=o.ex/Math.max(30,med));
   const bad=out.filter(o=>o.ex>100&&o.r>2).sort((a,b)=>b.ex-a.ex);const pick=[];bad.forEach(o=>{if(pick.every(p=>Math.abs(Math.log2(o.f/p.f))>.3))pick.push(o)});
   return{med:Math.round(med),bad:pick.slice(0,3)}}
@@ -1367,6 +1419,7 @@ function analyze(m){const sub=isSubM(m),R={id:m.id,regions:[],refl:null,html:''}
   const ref=sub?bandAvg(s3,35,80):bandAvg(s3,200,2000);let lo=sub?15:20,hi=sub?250:16000;
   const LF=Array.from(LOGF),S3=Array.from(s3),v3=f=>interpLog(LF,S3,f);for(let f=sub?35:150;f>lo;f/=1.01){if(v3(f)<ref-10){lo=f;break}}
   if(sub)for(let f=80;f<hi;f*=1.01){if(v3(f)<ref-10){hi=f;break}}
+  const MS=msOf(m);lo=Math.max(lo,MS.lo);hi=Math.min(hi,MS.hi);
   const A=lo*1.15,B=hi/1.15,segs=[];let cur=null;
   for(let i=0;i<LOGF.length;i++){const f=LOGF[i];if(f<A||f>B){if(cur){segs.push(cur);cur=null}continue}const dv=s6[i]-base[i],t=dv>=3?1:dv<=-3?-1:0;
     if(t&&cur&&cur.t===t){cur.i1=i;if(Math.abs(dv)>Math.abs(cur.ext)){cur.ext=dv;cur.ic=i}}else{if(cur)segs.push(cur);cur=t?{t,i0:i,i1:i,ext:dv,ic:i}:null}}if(cur)segs.push(cur);
@@ -1379,8 +1432,8 @@ function analyze(m){const sub=isSubM(m),R={id:m.id,regions:[],refl:null,html:''}
   const L=[];const li=t=>`<li>${t}</li>`;
   // genel
   const span=sub?[25,120]:[100,10000];let mn=1e9,mx=-1e9;LOGF.forEach((f,i)=>{if(f>=Math.max(span[0],lo)&&f<=Math.min(span[1],hi)){mn=Math.min(mn,s3[i]);mx=Math.max(mx,s3[i])}});
-  let ext=null;for(let f=sub?40:100;f>12;f/=1.01){if(v3(f)<ref-6){ext=f;break}}
-  L.push(`<b>Genel</b><ul>${li(`${fmtF(Math.max(span[0],lo))}–${fmtF(Math.min(span[1],hi))} arası sapma ±${((mx-mn)/2).toFixed(1)} dB (1/3 oktav).`)}${li(ext?`Bas uzanımı (−6 dB): <b>${fmtF(ext)}</b>${sub?'':(ext>60?' — bas yönetimiyle sub\'a devredilmesi uygun.':'.')}`:'Bas uzanımı ölçüm aralığının altında.')}${!sub&&bandAvg(s3,25,80)-ref>6?li(`Bas bölgesi (25–80 Hz) orta frekanslardan ${(bandAvg(s3,25,80)-ref).toFixed(0)} dB yüksek — sub/bas seviyesi fazla olabilir.`):''}</ul>`);
+  let ext=null;for(let f=sub?40:100;f>Math.max(12,MS.lo);f/=1.01){if(v3(f)<ref-6){ext=f;break}}
+  L.push(`<b>Genel</b><ul>${li(`${fmtF(Math.max(span[0],lo))}–${fmtF(Math.min(span[1],hi))} arası sapma ±${((mx-mn)/2).toFixed(1)} dB (1/3 oktav).`)}${li(ext?`Bas uzanımı (−6 dB): <b>${fmtF(ext)}</b>${sub?'':(ext>60?' — bas yönetimiyle sub\'a devredilmesi uygun.':'.')}`:MS.lo>30?`Bas uzanımı bu mikrofonla ölçülemez: ${fmtF(MS.lo)} altını telefon mikrofonu zayıf duyar.`:'Bas uzanımı ölçüm aralığının altında.')}${MS.abs&&!sub&&bandAvg(s3,25,80)-ref>6?li(`Bas bölgesi (25–80 Hz) orta frekanslardan ${(bandAvg(s3,25,80)-ref).toFixed(0)} dB yüksek — sub/bas seviyesi fazla olabilir.`):''}</ul>`);
   if(pk.length)L.push(`<b>Geniş tepeler</b> <span class="muted">(EQ ile kesilebilir)</span><ul>${pk.map(s=>{const Q=s.Q;
     return li(`<b>${fmtF(s.fc)}</b> +${s.ext.toFixed(1)} dB (${fmtF(s.f0)}–${fmtF(s.f1)}) → PEQ: ${fmtF(s.fc)}, Q ${Q.toFixed(1)}, −${s.ext.toFixed(1)} dB${s.fc<300?' · oda modu olası':s.fc<2000?' · hoparlör–oda etkileşimi':' · hoparlör karakteri / mikrofon açısı'}`)}).join('')}</ul>`);
   if(dp.length)L.push(`<b>Geniş dipler</b> <span class="muted">(EQ ile yükseltmeyin)</span><ul>${dp.map(s=>{const q=343/(4*s.fc);let w;
@@ -1389,13 +1442,13 @@ function analyze(m){const sub=isSubM(m),R={id:m.id,regions:[],refl:null,html:''}
     return li(`<b>${fmtF(s.fc)}</b> ${s.ext.toFixed(1)} dB (${fmtF(s.f0)}–${fmtF(s.f1)}) → ${w}`)}).join('')}</ul>`);
   if(!pk.length&&!dp.length)L.push(`<b>Tepe/dip</b><ul>${li('±3 dB\'yi aşan geniş bir tepe ya da dip yok. 👍')}</ul>`);
   if(narrow)L.push(`<p class="muted" style="margin:4px 0">${narrow} dar tepe/çentik yok sayıldı: konuma bağlıdır, EQ ile düzeltilmemelidir.</p>`);
-  if(m.ir&&m.sr){const rg=ringAnalysis(m,sub);if(rg)L.push(`<b>Çınlama (ringing)</b><ul>${rg.bad.length?rg.bad.map(o=>{const pkHit=pk.find(s=>o.f>=s.f0/1.1&&o.f<=s.f1*1.1);
+  if(m.ir&&m.sr){const rg=ringAnalysis(m,sub,MS.lo>30?40:0);if(rg)L.push(`<b>Çınlama (ringing)</b><ul>${rg.bad.length?rg.bad.map(o=>{const pkHit=pk.find(s=>o.f>=s.f0/1.1&&o.f<=s.f1*1.1);
       return li(`<b>${fmtF(o.f)}</b>: ~${Math.round(o.ex/10)*10} ms fazladan çınlıyor (diğer bas frekanslarının ~${o.r.toFixed(1)} katı) — oda modu${pkHit?'; bu tepeyi EQ ile kesmek çınlamayı da azaltır':'; bas tuzağı veya sub konumu'}`)}).join(''):li('Belirgin uzun çınlama yok.')}${li(rg.med<30?'Diğer bas frekanslarında belirgin ek çınlama yok.':`Diğer bas frekanslarında ek çınlama ~${Math.round(rg.med/10)*10} ms.`)}</ul>`)
     if(!sub&&m.sr>=16000){R.refl=reflAnalysis(m);L.push(`<b>Erken yansımalar</b> <span class="muted">(Darbe/ETC grafiğinde sarı çizgiler)</span><ul>${R.refl.length?R.refl.map(r=>{const p=r.t*.343;
       const wh=r.t<1?'hoparlörün hemen yanındaki yüzey (TV, raf, kabin kenarı)':r.t<5?'yakın yüzey: sehpa, zemin/tavan veya koltuk arkası duvar':r.t<15?'yan/arka duvar veya tavan':'uzak duvar';
       return li(`<b>${r.t.toFixed(1)} ms</b>, ${r.db.toFixed(0)} dB → yansıyan yol ${p.toFixed(2)} m daha uzun; yüzey yaklaşık <b>${(p/2).toFixed(2)} m</b> ötede olabilir (${wh})`)}).join(''):li('−20 dB üzerinde erken yansıma yok.')}</ul>${R.refl.some(r=>r.db>-10&&r.t<10)?'<p style="margin:4px 0;color:#fbbf24">Güçlü erken yansıma var (−10 dB üstü, 10 ms içinde): yansıma noktasına akustik panel netliği ve stereo görüntüyü iyileştirir.</p>':''}`)}}
   else L.push('<p class="muted">Çınlama ve yansıma analizi için darbe tepkisi olan bir ölçüm gerekir (.txt dosyalarında yok).</p>');
-  R.html=`<div style="font-weight:700;margin-bottom:6px">🔍 ${m.name}${sub?' <span class="muted">(subwoofer)</span>':''}</div>`+L.join('')+'<p class="muted" style="margin:6px 0 0">Kural tabanlı otomatik değerlendirme; kesin teşhis değil, yol göstericidir.</p>';return R}
+  R.html=`<div style="font-weight:700;margin-bottom:6px">🔍 ${m.name}${sub?' <span class="muted">(subwoofer)</span>':''}</div><div style="margin-bottom:6px">${msChip(m.ms||'file',true)}${MS.abs?'':` <span class="muted" style="font-size:12px">Yorumlar ${fmtF(MS.lo)}–${fmtF(MS.hi)} ile sınırlı; dB değerleri yaklaşık.</span>`}</div>`+L.join('')+'<p class="muted" style="margin:6px 0 0">Kural tabanlı otomatik değerlendirme; kesin teşhis değil, yol göstericidir.</p>';return R}
 function updAna(){const el=$('#msAna');if(!el)return;if(!anaOn){el.style.display='none';return}el.style.display='block';const vis=meas.filter(m=>m.on);
   if(vis.length!==1){ana=null;el.innerHTML=`<span style="color:#fbbf24">Analiz için aşağıdaki listeden <b>yalnızca bir</b> ölçüm işaretleyin (şu an ${vis.length} işaretli).</span>`;return}
   if(!ana||ana.id!==vis[0].id){try{ana=analyze(vis[0])}catch(e){ana=null;el.textContent='Analiz yapılamadı: '+e.message;return}}el.innerHTML=ana.html}
