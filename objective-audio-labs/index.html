@@ -131,7 +131,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 <header>
   <div class="brand">
     <h1>Objective Audio <span>Labs</span></h1>
-    <span class="badge">ÖNİZLEME · v2026.11.14d</span>
+    <span class="badge">ÖNİZLEME · v2026.11.25a</span>
   </div>
   <div class="row" style="margin-top:8px">
     <div class="seg" id="modeSeg" style="flex:1">
@@ -301,7 +301,14 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
       <div><label class="f">Tarama seviyesi</label><select id="msLvl"><option value="-24">-24 dBFS</option><option value="-18">-18 dBFS</option><option value="-12" selected>-12 dBFS</option><option value="-6">-6 dBFS</option></select></div>
       <div><label class="f">Ölçüm adı</label><input type="text" id="msName" placeholder="örn. Sub önce"></div>
     </div>
-    <div class="row" style="margin-top:10px"><button class="btn pri" id="msGo">▶ Ölç</button><span id="msStat" class="muted"></span></div>
+    <div class="grid g3" style="margin-top:8px">
+      <div><label class="f">Sesi çalan cihaz</label><select id="msPlay"><option value="local">Bu cihaz</option><option value="remote">Eşli TV / bilgisayar</option></select></div>
+      <div id="msPairBox" style="display:none;grid-column:span 2"><label class="f">Eşleştirme kodu (oynatıcı ekranındaki 6 hane)</label>
+        <div class="row"><input id="msPairCode" inputmode="numeric" maxlength="6" placeholder="123456" style="width:110px"><button class="btn sm" id="msPairGo">Bağlan</button><span id="msPairSt" class="muted"></span></div></div>
+    </div>
+    <p class="muted" id="msPairHelp" style="display:none;margin:6px 0 0;font-size:12px">Amfiye HDMI ile bağlı bilgisayarda (veya tarayıcılı TV'de) bu sayfayı açıp aşağıdaki <b>📺 Bu cihazı oynatıcı yap</b> düğmesine basın. Telefon kumanda ve mikrofon olur; ses oradan çalar. Kanallar arası gecikme, merkez (C) kanalından çalınan kısa bir referans sesine göre ölçülür.</p>
+    <div class="row" style="margin-top:10px"><button class="btn pri" id="msGo">▶ Ölç</button><button class="btn" id="msAll">▶▶ Tüm kanalları sırayla ölç</button><span id="msStat" class="muted"></span></div>
+    <div id="msSum" style="margin-top:8px"></div>
     <div class="seg" id="msView" style="margin-top:12px"><button data-v="fr" class="on">Frekans tepkisi</button><button data-v="diff">Fark</button><button data-v="ir">Darbe</button><button data-v="etc">ETC</button><button data-v="wf">Waterfall</button></div>
     <div class="row" style="margin-top:8px">
       <select id="msSm" style="width:auto"><option value="0">Yumuşatma yok</option><option value="48">1/48 oct</option><option value="24">1/24 oct</option><option value="12" selected>1/12 oct</option><option value="6">1/6 oct</option><option value="3">1/3 oct</option></select>
@@ -312,9 +319,10 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px"><button class="btn" id="msAnaBtn">🔍 Seçili ölçümü analiz et</button></div>
     <div id="msAna" class="res" style="display:none;margin-top:8px;line-height:1.5"></div>
     <div id="msList" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:8px"><button class="btn sm" id="playerOpen">📺 Bu cihazı oynatıcı yap (TV / bilgisayar)</button></div>
     <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
     <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
-    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.14d</div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25a</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -409,6 +417,16 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 </div>
 </main>
 
+<div id="playerView" hidden style="position:fixed;inset:0;z-index:80;background:#070d1a;overflow:auto;padding:24px 20px 40px">
+  <div style="max-width:760px;margin:0 auto">
+    <h2 style="margin-top:0">📺 Oynatıcı modu</h2>
+    <p class="muted">Bu cihaz amfiye bağlı olmalı (bilgisayar → HDMI). Telefonda <b>Ölçüm → Sesi çalan cihaz: Eşli TV / bilgisayar</b> seçip bu kodu girin ya da QR kodu telefon kamerasıyla okutun.</p>
+    <div class="row" style="gap:24px;align-items:center;flex-wrap:wrap"><div><div class="muted">Eşleştirme kodu</div><div id="pvCode" style="font-size:56px;font-weight:800;letter-spacing:8px;color:#38bdf8">······</div></div><div id="pvQr" style="background:#fff;border-radius:12px;padding:6px;line-height:0"></div></div>
+    <div class="row" style="margin-top:14px;flex-wrap:wrap"><button class="btn pri" id="pvAudio">🔊 Sesi etkinleştir</button><select id="pvMode" style="width:auto"><option value="mc">Çok kanal (HDMI)</option><option value="st">Stereo</option></select><button class="btn" id="pvTest">Merkezden deneme sesi</button><button class="btn" id="pvClose">Kapat</button></div>
+    <div id="pvSt" style="margin-top:12px"></div>
+    <div id="pvLog" class="muted" style="margin-top:8px;font-size:13px;line-height:1.6"></div>
+  </div>
+</div>
 <nav class="tabs" id="tabs">
   <button data-t="t-ch" class="on"><span class="i">◎</span>Kanallar</button>
   <button data-t="t-lfe"><span class="i">〰</span>LFE</button>
@@ -420,10 +438,10 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 
 <script>
 /* Güncelleme kontrolü: sunucudaki sürüm farklıysa sayfayı önbelleksiz yeniden aç */
-const APPVER='2026.11.14d';
+const APPVER='2026.11.25a';
 (function(){if(!/^https?:/.test(location.protocol)||/claude|usercontent/.test(location.host))return;
  fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(h=>{const m=h.match(/APPVER='([^']+)'/);
-  if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}location.replace(location.pathname+'?v='+m[1]+location.hash)}}).catch(()=>{})})();
+  if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}).catch(()=>{})})();
 
 "use strict";
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -1010,15 +1028,15 @@ function msLoad(){try{const a=JSON.parse(localStorage.getItem('oal_meas')||'[]')
 function fillMsCh(){const cur=$('#msCh').value;$('#msCh').innerHTML=speakers.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');if(cur&&speakers.find(s=>s.id===cur))$('#msCh').value=cur}
 function makeSweep(sr,L,f1,f2){const x=new Float32Array(L),T=L/sr,K=Math.log(f2/f1);for(let i=0;i<L;i++){const t=i/sr;x[i]=Math.sin(2*Math.PI*f1*T/K*(Math.exp(t/T*K)-1))}
   const fi=Math.round(sr*.1),fo=Math.round(sr*.01);for(let i=0;i<fi;i++)x[i]*=.5-.5*Math.cos(Math.PI*i/fi);for(let i=0;i<fo;i++)x[L-1-i]*=.5-.5*Math.cos(Math.PI*i/fo);return x}
-async function recordFor(sec,onStart){const sr=ctx.sampleRate,len=Math.round(sr*sec),rec=new Float32Array(len);let w=0;
+async function recordFor(sec,onStart,ab){const sr=ctx.sampleRate,len=Math.round(sr*sec),rec=new Float32Array(len);let w=0;
   const sp=ctx.createScriptProcessor(4096,1,1);const z=ctx.createGain();z.gain.value=0;micSrc.connect(sp);sp.connect(z);z.connect(ctx.destination);let started=false;
-  await new Promise(res=>{sp.onaudioprocess=e=>{if(!started){started=true;onStart&&onStart()}const d=e.inputBuffer.getChannelData(0);for(let i=0;i<d.length&&w<len;i++)rec[w++]=d[i];if(w>=len)res()}});
+  await new Promise(res=>{sp.onaudioprocess=e=>{if(!started){started=true;onStart&&onStart()}const d=e.inputBuffer.getChannelData(0);for(let i=0;i<d.length&&w<len;i++)rec[w++]=d[i];if(w>=len||(ab&&ab.stop))res()}});
   sp.onaudioprocess=null;sp.disconnect();z.disconnect();return rec}
 function nextPow2(n){let p=1;while(p<n)p<<=1;return p}
-function deconv(rec,sweep,sr,f1,f2){const L=sweep.length,N=nextPow2(rec.length+L),Rr=new Float64Array(N),Ri=new Float64Array(N),Sr=new Float64Array(N),Si=new Float64Array(N);Rr.set(rec);Sr.set(sweep);fft(Rr,Ri);fft(Sr,Si);
+function deconv(rec,sweep,sr,f1,f2,limSec=1.6){const L=sweep.length,N=nextPow2(rec.length+L),Rr=new Float64Array(N),Ri=new Float64Array(N),Sr=new Float64Array(N),Si=new Float64Array(N);Rr.set(rec);Sr.set(sweep);fft(Rr,Ri);fft(Sr,Si);
   let mx=0;for(let k=0;k<N;k++){const m=Sr[k]*Sr[k]+Si[k]*Si[k];if(m>mx)mx=m}const eps=mx*1e-4,df=sr/N;
   for(let k=0;k<N;k++){const kk=k<=N/2?k:N-k,f=kk*df,m=Sr[k]*Sr[k]+Si[k]*Si[k];let hr=(Rr[k]*Sr[k]+Ri[k]*Si[k])/(m+eps),hi=(Ri[k]*Sr[k]-Rr[k]*Si[k])/(m+eps);if(f<f1/1.3||f>f2){hr=0;hi=0}Rr[k]=hr;Ri[k]=-hi}
-  fft(Rr,Ri);for(let k=0;k<N;k++)Rr[k]/=N;let pk=0,pi=0;const lim=Math.min(N,Math.round(sr*1.6));for(let k=0;k<lim;k++){const a=Math.abs(Rr[k]);if(a>pk){pk=a;pi=k}}return{h:Rr,pk,pi}}
+  fft(Rr,Ri);for(let k=0;k<N;k++)Rr[k]/=N;let pk=0,pi=0;const lim=Math.min(N,Math.round(sr*limSec));for(let k=0;k<lim;k++){const a=Math.abs(Rr[k]);if(a>pk){pk=a;pi=k}}return{h:Rr,pk,pi}}
 function frFromIR(ir,ipk,sr){// REW benzeri pencere: tepeden 10 ms önce, 500 ms sonra
   const L0=Math.round(sr*.01),R=Math.round(sr*.5),N=nextPow2(L0+R),re=new Float64Array(N),im=new Float64Array(N);
   for(let i=0;i<L0+R;i++){const j=ipk-L0+i;if(j<0||j>=ir.length)continue;let w=1;if(i<L0)w=.5-.5*Math.cos(Math.PI*i/L0);const tf=Math.round(R*.2);if(i>L0+R-tf)w=.5+.5*Math.cos(Math.PI*(i-(L0+R-tf))/tf);re[i]=ir[j]*w}
@@ -1026,24 +1044,131 @@ function frFromIR(ir,ipk,sr){// REW benzeri pencere: tepeden 10 ms önce, 500 ms
   const df=sr/N,out=new Float32Array(LOGF.length);const cs=new Float64Array(N/2+1);for(let k=0;k<N/2;k++)cs[k+1]=cs[k]+P[k];
   for(let j=0;j<LOGF.length;j++){const f=LOGF[j],a=Math.max(0,Math.floor(f*Math.pow(2,-1/192)/df)),b=Math.min(N/2-1,Math.max(a,Math.ceil(f*Math.pow(2,1/192)/df)));const pw=(cs[b+1]-cs[a])/(b-a+1);out[j]=10*Math.log10(pw+1e-30)}
   return out}
-$('#msGo').onclick=async()=>{if(!(await startMic()))return;const st=$('#msStat');if(mode==='hp'){st.innerHTML='<span style="color:var(--warn)">Kulaklık modunda ölçüm yapılmaz; Stereo amfi veya Çok kanal seçin.</span>';return}
-  stopSeq();stopAll();lfeStop();genStop();stopObj();$('#msGo').disabled=true;const sr=ctx.sampleRate,L=1<<18,f1=15,f2=Math.min(22000,sr*.46);const sweep=makeSweep(sr,L,f1,f2);
-  const lvl=+$('#msLvl').value,A=dbg(lvl);const spk=speakers.find(x=>x.id===$('#msCh').value)||speakers[0];
-  const v=new Voice();const b=ctx.createBuffer(1,L,sr);b.copyToChannel(sweep,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);const g=ctx.createGain();g.gain.value=A;src.connect(g);g.connect(v.env);v.env.gain.value=1;
-  if(!routeMono(v.env,spk,v)){st.textContent='Bu kanal seçili çıkışta yok.';$('#msGo').disabled=false;return}
-  st.textContent='Hazırlanıyor… sessiz olun';await new Promise(r=>setTimeout(r,400));
-  const recSec=L/sr+2.2;let t0=0;const p=recordFor(recSec,()=>{t0=ctx.currentTime;src.start(ctx.currentTime+.3)});
-  const tick=setInterval(()=>{if(t0)st.textContent=`Ölçülüyor… ${Math.max(0,Math.ceil(recSec-(ctx.currentTime-t0)))} sn`},250);
-  const rec=await p;clearInterval(tick);v.stop(.05);st.textContent='Hesaplanıyor…';await new Promise(r=>setTimeout(r,30));
-  const D=deconv(rec,sweep,sr,f1,f2),pk=D.pk,pi=D.pi,Rr=D.h,N=D.h.length;
-  if(pk<1e-6){st.innerHTML='<span style="color:var(--warn)">Tarama mikrofonda algılanamadı. Ses seviyesini artırın.</span>';$('#msGo').disabled=false;return}
+/* ---- ölçüm çekirdeği: bu cihazdan veya eşli oynatıcıdan (TV/bilgisayar) ---- */
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const SWT=(1<<18)/48000,REFT=1.0,GAP=.8,RF1=200,RF2=12000;
+const pickSpk=s=>({id:s.id,n:s.n,az:s.az,el:s.el,g:s.g});
+const refSpeaker=()=>speakers.find(s=>s.id==='C')||speakers.find(s=>s.id==='L')||speakers[0];
+const fmtDly=ms=>`${ms>=0?'+':''}${ms.toFixed(2)} ms (${ms>=0?'+':''}${Math.round(ms*34.3)} cm)`;
+async function measureOne(spk,opts={}){
+  const remote=$('#msPlay').value==='remote',st=opts.status||(t=>{$('#msStat').textContent=t});
+  const sr=ctx.sampleRate,f1=15,f2=remote?20000:Math.min(22000,sr*.46),T=SWT,L=Math.round(T*sr),sweep=makeSweep(sr,L,f1,f2),lvl=+$('#msLvl').value,A=dbg(lvl);
+  let rec,playVol=volDb,refUsed=false,lim=1.6;
+  if(!remote){
+    if(mode==='hp')throw new Error('Kulaklık modunda ölçüm yapılmaz; Stereo amfi veya Çok kanal seçin.');
+    const v=new Voice();const b=ctx.createBuffer(1,L,sr);b.copyToChannel(sweep,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);const g=ctx.createGain();g.gain.value=A;src.connect(g);g.connect(v.env);v.env.gain.value=1;
+    if(!routeMono(v.env,spk,v))throw new Error(`${spk.id} bu cihazın çıkışında yok.`);
+    st(`Hazırlanıyor: ${spk.id}… sessiz olun`);await wait(400);
+    const recSec=T+2.2;let t0=0;const p=recordFor(recSec,()=>{t0=ctx.currentTime;src.start(ctx.currentTime+.3)});
+    const tick=setInterval(()=>{if(t0)st(`Ölçülüyor: ${spk.id}… ${Math.max(0,Math.ceil(recSec-(ctx.currentTime-t0)))} sn`)},250);
+    rec=await p;clearInterval(tick);v.stop(.05);
+  }else{
+    if(!conn||!conn.open)throw new Error('Eşli oynatıcıya bağlı değilsiniz: oynatıcı ekranındaki kodu girip “Bağlan”a basın.');
+    const refSpk=opts.refSpk;refUsed=!!refSpk&&refSpk.id!==spk.id;
+    const lead=1.6,recSec=lead+(refUsed?REFT+GAP:0)+T+2.2,ab={stop:false};let reply=null,t0=0;lim=recSec;
+    st(`Oynatıcıya gönderiliyor: ${spk.id}… sessiz olun`);
+    const p=recordFor(recSec,()=>{t0=ctx.currentTime;remoteCall({t:'play',spk:pickSpk(spk),ref:refUsed?pickSpk(refSpk):null,lvl,T,f1,f2,refT:REFT,gap:GAP,rf1:RF1,rf2:RF2},3500)
+      .then(r=>{reply=r;if(r.t==='err')ab.stop=true}).catch(e=>{reply={t:'err',msg:e.message};ab.stop=true})},ab);
+    const tick=setInterval(()=>{if(t0)st(`Ölçülüyor (oynatıcı): ${spk.id}… ${Math.max(0,Math.ceil(recSec-(ctx.currentTime-t0)))} sn`)},250);
+    rec=await p;clearInterval(tick);
+    if(!reply||reply.t==='err')throw new Error(reply?reply.msg:'Oynatıcı yanıt vermedi.');
+    playVol=reply.vol;
+  }
+  st('Hesaplanıyor…');await wait(30);
+  const D=deconv(rec,sweep,sr,f1,f2,lim),pk=D.pk,pi=D.pi,Rr=D.h,N=Rr.length;
+  if(pk<1e-6)throw new Error(`${spk.id}: tarama mikrofonda algılanamadı. Ses seviyesini artırın.`);
   const st0=Math.max(0,pi-Math.round(sr*.05)),irLen=Math.round(sr*.65),ir=new Float32Array(irLen);for(let k=0;k<irLen&&st0+k<N;k++)ir[k]=Rr[st0+k];const ipk=pi-st0;
-  // SPL ölçeği: tarama genliği × ses seviyesi; mikrofon ofseti ve düzeltmeler
-  const Aeff=A*dbg(volDb),fr=frFromIR(ir,ipk,sr);const useU=$('#umikOn').checked&&umikCal,useP=$('#pfApply').checked&&profile&&!$('#micSel').value;
+  const Aeff=A*dbg(playVol),fr=frFromIR(ir,ipk,sr);const useU=$('#umikOn').checked&&umikCal,useP=$('#pfApply').checked&&profile&&!$('#micSel').value;
   for(let j=0;j<LOGF.length;j++){const f=LOGF[j];let d=fr[j]+20*Math.log10(Aeff/Math.SQRT2)+calOff;if(useU)d-=interpLog(umikCal.f,umikCal.g,f);if(useP)d+=interpLog(BANDS,profile.b,Math.max(20,Math.min(20000,f)));fr[j]=d}
-  const m={id:Date.now().toString(36),name:$('#msName').value.trim()||`${spk.id} ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`,date:new Date().toISOString(),ch:spk.id,mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk};
-  meas.push(m);msSave();renderMsList();drawMs();$('#msGo').disabled=false;
-  const snr=20*Math.log10(pk/(ir.slice(Math.round(sr*.45)).reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12)));st.innerHTML=`✓ Tamam · ${spk.id} · gecikme ${(pi/sr*1000).toFixed(1)} ms · darbe/gürültü ${snr.toFixed(0)} dB${snr<30?' <span style="color:var(--warn)">(gürültülü; seviyeyi artırın)</span>':''}`};
+  let dly=null,dref=null;
+  if(refUsed){const end=Math.max(Math.round(sr*.3),pi-Math.round(GAP*.5*sr));const R=deconv(rec.subarray(0,end),makeSweep(sr,Math.round(REFT*sr),RF1,RF2),sr,RF1,RF2,end/sr);
+    if(R.pk>1e-7){dly=((pi-R.pi)/sr-(REFT+GAP))*1000;dref=opts.refSpk.id}}
+  else if(remote&&opts.refSpk&&opts.refSpk.id===spk.id){dly=0;dref=spk.id}
+  else if(!remote){dly=pi/sr*1000;dref='abs'}
+  const snr=20*Math.log10(pk/(ir.slice(Math.round(sr*.45)).reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12)));
+  const m={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:`${spk.id}${remote?' (oynatıcı)':''} ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`,date:new Date().toISOString(),ch:spk.id,
+    mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk,dly,dref,pol:ir[ipk]>=0?1:-1};
+  return{m,snr}}
+function msBusy(b){$('#msGo').disabled=b;$('#msAll').textContent=b?'■ Durdur':'▶▶ Tüm kanalları sırayla ölç'}
+let allRun=false;
+$('#msGo').onclick=async()=>{if(allRun)return;if(!(await startMic()))return;stopSeq();stopAll();lfeStop();genStop();stopObj();msBusy(true);$('#msAll').disabled=true;
+  const spk=speakers.find(x=>x.id===$('#msCh').value)||speakers[0];
+  try{const r=await measureOne(spk,{refSpk:refSpeaker()}),m=r.m;if($('#msName').value.trim())m.name=$('#msName').value.trim();meas.push(m);msSave();renderMsList();drawMs();
+    $('#msStat').innerHTML=`✓ Tamam · ${spk.id}${m.dref&&m.dref!=='abs'&&m.dref!==spk.id?` · ${m.dref}'ye göre ${fmtDly(m.dly)}`:''} · darbe/gürültü ${r.snr.toFixed(0)} dB${r.snr<30?' <span style="color:var(--warn)">(gürültülü; seviyeyi artırın)</span>':''}`}
+  catch(e){$('#msStat').innerHTML=`<span style="color:var(--warn)">${e.message}</span>`}
+  msBusy(false);$('#msAll').disabled=false};
+$('#msAll').onclick=async()=>{if(allRun){allRun=false;$('#msStat').textContent='Durduruluyor… (bu kanal bitince)';return}
+  if(!(await startMic()))return;stopSeq();stopAll();lfeStop();genStop();stopObj();allRun=true;msBusy(true);
+  const remote=$('#msPlay').value==='remote',list=speakers.filter(s=>remote||available(s)),ref=refSpeaker(),tag=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}),res=[],errs=[];
+  $('#msSum').innerHTML='';
+  for(let i=0;i<list.length&&allRun;i++){const s=list[i];
+    try{const r=await measureOne(s,{refSpk:ref,status:t=>{$('#msStat').textContent=`(${i+1}/${list.length}) ${t}`}});r.m.name=`${s.id} · sıralı ${tag}`;r.m.on=false;meas.push(r.m);res.push(r.m)}
+    catch(e){errs.push(e.message)}
+    if(allRun&&i<list.length-1)await wait(700)}
+  allRun=false;msBusy(false);if(res[0])res[0].on=true;msSave();renderMsList();drawMs();
+  $('#msStat').textContent=`✓ ${res.length} kanal ölçüldü${errs.length?`, ${errs.length} kanal atlandı`:''}.`;renderSummary(res,errs)};
+function renderSummary(res,errs){
+  const isSub=m=>/^SW|^LFE/i.test(m.ch),lv=m=>isSub(m)?bandAvg(m.db,40,80):bandAvg(m.db,500,2000);
+  const mains=res.filter(m=>!isSub(m)),base=mains.length?mains.reduce((a,m)=>a+lv(m),0)/mains.length:(res[0]?lv(res[0]):0);
+  const hasD=res.length>1&&res.every(m=>m.dly!=null),d0=hasD?Math.min(...res.map(m=>m.dly)):0;
+  const pols=mains.map(m=>m.pol),maj=pols.filter(p=>p>0).length>=pols.length/2?1:-1;
+  let h='';
+  if(res.length){h+=`<table class="tbl" style="width:100%;font-size:13px;border-collapse:collapse"><tr style="text-align:left"><th>Kanal</th><th>Seviye</th><th>Amfide öneri</th>${hasD?'<th>Mesafe farkı</th>':''}<th>Faz</th></tr>`+
+    res.map(m=>{const l=lv(m),t=base-l,dd=hasD?(m.dly-d0):0;return`<tr style="border-top:1px solid rgba(148,163,184,.15)"><td><b>${m.ch}</b></td><td>${l.toFixed(1)} dB</td><td>${Math.abs(t)<.5?'✓ uygun':(t>0?'+':'')+t.toFixed(1)+' dB'}${isSub(m)?' <span class="muted">(yaklaşık)</span>':''}</td>${hasD?`<td>${dd<.05?'en yakın':'+'+Math.round(dd*34.3)+' cm'}</td>`:''}<td>${isSub(m)?'—':m.pol===maj?'✓':'<span style="color:#fbbf24">⚠ ters?</span>'}</td></tr>`}).join('')+'</table>';
+    h+=`<p class="muted" style="font-size:12px;margin:6px 0 0">Seviye: ana kanallarda 500 Hz–2 kHz, subwoofer'da 40–80 Hz ortalaması. “Amfide öneri”, kanalı diğerlerinin ortalamasına eşitlemek için gereken düzeltmedir.${hasD?' Mesafe farkı, sesin en yakın hoparlöre göre ne kadar geç geldiğidir; amfinin mesafe ayarlarındaki farklar buna yakın olmalı. Subwoofer kendi işlem gecikmesi nedeniyle fiziksel mesafesinden uzak görünür; bu normaldir.':''} Ölçüm sırasında amfinin oda düzeltmesi (Audyssey, Dirac vb.) açıksa düzeltilmiş sonuç ölçülür.</p>`}
+  if(errs.length)h+=`<p style="color:#fbbf24;font-size:12px;margin:6px 0 0">Atlanan kanallar: ${errs.join(' · ')}</p>`;
+  $('#msSum').innerHTML=h}
+/* ---- eşleştirme: PeerJS (WebRTC veri kanalı) ---- */
+const PEERJS='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js',QRJS='https://unpkg.com/qrcode-generator@1.4.4/qrcode.js',pairId=c=>'oal-labs-'+c;
+let peer=null,conn=null,pending={},pvConns=[];
+const loadJs=src=>new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`)&&window.__ld&&window.__ld[src])return res();const s=document.createElement('script');s.src=src;s.onload=()=>{(window.__ld=window.__ld||{})[src]=1;res()};s.onerror=()=>rej(new Error('Bağlantı kütüphanesi yüklenemedi (internet?)'));document.head.appendChild(s)});
+function remoteCall(msg,ms){return new Promise((res,rej)=>{const id=Math.random().toString(36).slice(2);msg.id=id;pending[id]=res;try{conn.send(msg)}catch(e){delete pending[id];return rej(new Error('Gönderilemedi: bağlantı koptu.'))}
+  setTimeout(()=>{if(pending[id]){delete pending[id];rej(new Error('Oynatıcı yanıt vermedi.'))}},ms)})}
+function pairUi(){const r=$('#msPlay').value==='remote';$('#msPairBox').style.display=r?'block':'none';$('#msPairHelp').style.display=r?'block':'none'}
+$('#msPlay').onchange=pairUi;
+async function pairConnect(code){code=(code||'').replace(/\D/g,'');const ps=$('#msPairSt');if(code.length!==6){ps.textContent='6 haneli kodu girin.';return}
+  ps.textContent='Bağlanıyor…';try{await loadJs(PEERJS)}catch(e){ps.textContent=e.message;return}
+  try{conn&&conn.close();peer&&peer.destroy()}catch(e){}conn=null;
+  peer=new Peer();peer.on('error',e=>{ps.innerHTML=`<span style="color:var(--warn)">${e.type==='peer-unavailable'?'Bu kodla açık bir oynatıcı bulunamadı.':'Bağlantı hatası: '+(e.type||e.message)}</span>`});
+  peer.on('open',()=>{const c=peer.connect(pairId(code),{reliable:true});
+    c.on('open',()=>{conn=c;store.set('pairCode',code);ps.innerHTML='<span style="color:#4ade80">✓ Bağlandı</span>'});
+    c.on('data',m=>{if(m&&m.id&&pending[m.id]){const f=pending[m.id];delete pending[m.id];f(m)}else if(m&&m.t==='hello'){ps.innerHTML=`<span style="color:#4ade80">✓ Bağlandı</span> · oynatıcı: ${m.mode==='mc'?m.mcN+' kanal':m.mode==='st'?'stereo':'kulaklık modu (değiştirin)'}${m.ready?'':' · <b>oynatıcıda “Sesi etkinleştir”e basın</b>'}`}});
+    c.on('close',()=>{if(conn===c){conn=null;ps.innerHTML='<span style="color:var(--warn)">Bağlantı koptu.</span>'}})})}
+$('#msPairGo').onclick=()=>pairConnect($('#msPairCode').value);
+/* oynatıcı tarafı */
+function pvLog(t){const el=$('#pvLog');el.innerHTML=`${new Date().toLocaleTimeString('tr-TR')} · ${t}<br>`+el.innerHTML.split('<br>').slice(0,12).join('<br>')}
+function pvStatus(){const ok=ctx&&ctx.state==='running';$('#pvSt').innerHTML=`${ok?'<span style="color:#4ade80">✓ Ses etkin</span>':'<span style="color:#fbbf24">Ses kilitli: “Sesi etkinleştir”e basın</span>'} · çıkış: ${ctx?(mode==='mc'?(mcN>2?mcN+' kanal':'çok kanal desteklenmiyor → stereo'):mode==='st'?'stereo':'kulaklık'):'—'} · ${pvConns.filter(c=>c.open).length?'<span style="color:#4ade80">telefon bağlı</span>':'telefon bekleniyor'}`}
+function pvHello(c){try{c.send({t:'hello',mode,mcN,ready:!!(ctx&&ctx.state==='running')})}catch(e){}}
+function pvPlay(m){ensureCtx();if(ctx.state!=='running')return{t:'err',msg:'Oynatıcıda ses kilitli: TV/bilgisayarda “Sesi etkinleştir”e basın.'};
+  if(mode==='hp')return{t:'err',msg:'Oynatıcı kulaklık modunda: oynatıcıda Çok kanal veya Stereo seçin.'};
+  stopSeq();stopAll();lfeStop();genStop();stopObj();
+  const sr=ctx.sampleRate,A=dbg(m.lvl),vs=[];let at=ctx.currentTime+.4;
+  const mk=(spk,len,f1,f2,t)=>{const x=makeSweep(sr,Math.round(len*sr),f1,Math.min(f2,sr*.46)),b=ctx.createBuffer(1,x.length,sr);b.copyToChannel(x,0);const v=new Voice(),s=new AudioBufferSourceNode(ctx,{buffer:b}),g=ctx.createGain();v.srcs.push(s);g.gain.value=A;s.connect(g);g.connect(v.env);v.env.gain.value=1;
+    if(!routeMono(v.env,spk,v)){v.stop(0);return false}s.start(t);vs.push(v);return true};
+  if(m.ref){if(!mk(m.ref,m.refT,m.rf1,m.rf2,at))return{t:'err',msg:`Referans kanal ${m.ref.id} oynatıcının çıkışında yok.`};at+=m.refT+m.gap}
+  if(!mk(m.spk,m.T,m.f1,m.f2,at)){vs.forEach(v=>v.stop(0));return{t:'err',msg:`${m.spk.id} oynatıcının çıkışında yok${m.spk.g==='height'?' (tavan kanalları Atmos uyumlu test dosyalarıyla ve TV uygulamasıyla gelecek)':''}.`}}
+  setTimeout(()=>vs.forEach(v=>v.stop(.05)),(at+m.T-ctx.currentTime+.5)*1000);pvLog(`▶ ${m.ref?m.ref.id+' (referans) → ':''}${m.spk.id} taraması`);
+  return{t:'ok',vol:volDb,sr,mode,mcN}}
+async function startPlayer(){$('#playerView').hidden=false;document.body.style.overflow='hidden';$('#pvMode').value=mode==='st'?'st':'mc';pvStatus();
+  if(peer&&peer.__player)return;try{await loadJs(PEERJS)}catch(e){$('#pvSt').textContent=e.message;return}
+  const go=()=>{const code=String(Math.floor(100000+Math.random()*900000));try{peer&&peer.destroy()}catch(e){}peer=new Peer(pairId(code));peer.__player=true;
+    peer.on('open',async()=>{$('#pvCode').textContent=code;const u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('eslestir',code);
+      try{await loadJs(QRJS);const q=qrcode(0,'M');q.addData(u.toString());q.make();$('#pvQr').innerHTML=q.createSvgTag({cellSize:5,margin:2})}catch(e){$('#pvQr').textContent=''}pvLog('Hazır, telefon bekleniyor.')});
+    peer.on('error',e=>{if(e.type==='unavailable-id')go();else pvLog('Hata: '+(e.type||e.message))});
+    peer.on('connection',c=>{pvConns.push(c);c.on('open',()=>{pvLog('📱 Telefon bağlandı');pvHello(c);pvStatus()});
+      c.on('data',m=>{if(!m||!m.t)return;let r;try{r=m.t==='play'?pvPlay(m):m.t==='stop'?(stopAll(),{t:'ok'}):{t:'ok'}}catch(e){r={t:'err',msg:'Oynatıcı hatası: '+e.message}}r.id=m.id;try{c.send(r)}catch(e){}pvStatus()});
+      c.on('close',()=>{pvLog('Telefon ayrıldı');pvStatus()})})};
+  go()}
+$('#playerOpen').onclick=startPlayer;
+$('#pvClose').onclick=()=>{$('#playerView').hidden=true;document.body.style.overflow=''};
+$('#pvAudio').onclick=()=>{ensureCtx();if(ctx.resume)ctx.resume();setTimeout(()=>{configureOut();pvStatus();pvConns.forEach(c=>c.open&&pvHello(c))},300)};
+$('#pvMode').onchange=()=>{const b=$(`#modeSeg button[data-m="${$('#pvMode').value}"]`);b&&b.click();setTimeout(()=>{pvStatus();pvConns.forEach(c=>c.open&&pvHello(c))},300)};
+$('#pvTest').onclick=()=>{const r=pvPlay({ref:null,spk:pickSpk(refSpeaker()),lvl:-18,T:2,f1:100,f2:8000});pvLog(r.t==='ok'?'Deneme sesi: merkez':r.msg)};
+(function(){const q=new URLSearchParams(location.search);
+  if(q.has('oynatici')||location.hash==='#oynatici')setTimeout(startPlayer,300);
+  const code=q.get('eslestir');if(code){setTimeout(()=>{const t=$('#tabs button[data-t="t-meas"]');t&&t.click();$('#msPlay').value='remote';pairUi();$('#msPairCode').value=code;pairConnect(code);
+    setTimeout(()=>{const c=$('#mCard');c&&c.scrollIntoView({block:'start'})},400)},400)}
+  else{const c=store.get('pairCode',null);if(c)$('#msPairCode').value=c}})();
 function renderMsList(){$('#msList').innerHTML=meas.length?meas.map((m,i)=>`<div class="mrow"><input type="checkbox" data-i="${i}" ${m.on?'checked':''}><i style="background:${m.col}"></i><span class="nm">${m.name}<small>${m.ch||''} · ${new Date(m.date).toLocaleDateString('tr-TR')}${m.ir?'':' · yalnız FR'}</small></span><button data-dl="${i}" title="İndir">⬇</button><button data-rew="${i}" title="REW için .txt">REW</button><button data-rm="${i}" title="Sil">✕</button></div>`).join(''):'<p class="muted">Henüz ölçüm yok.</p>';
   $$('#msList input').forEach(c=>c.onchange=()=>{meas[+c.dataset.i].on=c.checked;msSave();drawMs()});
   $$('#msList [data-rm]').forEach(b=>b.onclick=()=>{meas.splice(+b.dataset.rm,1);msSave();renderMsList();drawMs()});
