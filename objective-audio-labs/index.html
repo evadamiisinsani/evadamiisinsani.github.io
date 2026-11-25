@@ -131,7 +131,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 <header>
   <div class="brand">
     <h1>Objective Audio <span>Labs</span></h1>
-    <span class="badge">ÖNİZLEME · v2026.11.25b</span>
+    <span class="badge">ÖNİZLEME · v2026.11.25c</span>
   </div>
   <div class="row" style="margin-top:8px">
     <div class="seg" id="modeSeg" style="flex:1">
@@ -303,10 +303,11 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     </div>
     <div class="grid g3" style="margin-top:8px">
       <div><label class="f">Sesi çalan cihaz</label><select id="msPlay"><option value="local">Bu cihaz</option><option value="remote">Eşli TV / bilgisayar</option></select></div>
+      <div><label class="f">Zaman referansı</label><select id="msRef"></select></div>
       <div id="msPairBox" style="display:none;grid-column:span 2"><label class="f">Eşleştirme kodu (oynatıcı ekranındaki 6 hane)</label>
         <div class="row"><input id="msPairCode" inputmode="numeric" maxlength="6" placeholder="123456" style="width:110px"><button class="btn sm" id="msPairGo">Bağlan</button><span id="msPairSt" class="muted"></span></div></div>
     </div>
-    <p class="muted" id="msPairHelp" style="display:none;margin:6px 0 0;font-size:12px">Amfiye HDMI ile bağlı bilgisayarda (veya tarayıcılı TV'de) bu sayfayı açıp aşağıdaki <b>📺 Bu cihazı oynatıcı yap</b> düğmesine basın. Telefon kumanda ve mikrofon olur; ses oradan çalar. Kanallar arası gecikme, merkez (C) kanalından çalınan kısa bir referans sesine göre ölçülür.</p>
+    <p class="muted" id="msPairHelp" style="display:none;margin:6px 0 0;font-size:12px">Amfiye HDMI ile bağlı bilgisayarda (veya tarayıcılı TV'de) bu sayfayı açıp aşağıdaki <b>📺 Bu cihazı oynatıcı yap</b> düğmesine basın. Telefon kumanda ve mikrofon olur; ses oradan çalar. Kanallar arası gecikme, “Zaman referansı” kanalından çalınan kısa bir referans sesine göre ölçülür.</p>
     <div class="row" style="margin-top:10px"><button class="btn pri" id="msGo">▶ Ölç</button><button class="btn" id="msAll">▶▶ Tüm kanalları sırayla ölç</button><span id="msStat" class="muted"></span></div>
     <div id="msSum" style="margin-top:8px"></div>
     <div class="seg" id="msView" style="margin-top:12px"><button data-v="fr" class="on">Frekans tepkisi</button><button data-v="diff">Fark</button><button data-v="ir">Darbe</button><button data-v="etc">ETC</button><button data-v="wf">Waterfall</button></div>
@@ -322,7 +323,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
     <div class="row" style="margin-top:8px"><button class="btn sm" id="playerOpen">📺 Bu cihazı oynatıcı yap (TV / bilgisayar)</button></div>
     <div class="row" style="margin-top:8px"><label class="btn sm" style="cursor:pointer;position:relative;overflow:hidden">📂 Ölçüm dosyası yükle (REW .mdat / .txt, Audyssey .ady, .oal.json)<input type="file" id="msFile" multiple style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0"></label></div>
     <div id="msFileStat" class="small" style="margin-top:6px;min-height:1em"></div>
-    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25b</div>
+    <div class="small" style="opacity:.55;margin-top:4px">iPhone: “Dosyalar”dan seçin (Fotoğraf Arşivi değil). Dosya gri görünüyorsa sayfayı yenileyin. · Sürüm 2026.11.25c</div>
     <p class="muted">Karşılaştırma: hoparlör/sub yerini, faz/mesafe ayarını veya kalibrasyonu değiştirdikten sonra aynı adla tekrar ölçün ya da eski dosyayı yükleyin. Grafikte üst üste görünürler; “Fark” sekmesi iki ölçümün farkını çizer. Ölçümler bu cihazda saklanır; ⬇ ile dosya olarak indirip REW'e de aktarabilirsiniz.</p>
   </div>
   <div class="card">
@@ -438,7 +439,7 @@ details summary{cursor:pointer;font-weight:700;padding:4px 0}
 
 <script>
 /* Güncelleme kontrolü: sunucudaki sürüm farklıysa sayfayı önbelleksiz yeniden aç */
-const APPVER='2026.11.25b';
+const APPVER='2026.11.25c';
 (function(){if(!/^https?:/.test(location.protocol)||/claude|usercontent/.test(location.host))return;
  fetch(location.pathname+'?chk='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(h=>{const m=h.match(/APPVER='([^']+)'/);
   if(m&&m[1]!==APPVER){let k='oal_upd_'+m[1];try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}const u=new URL(location.href);u.searchParams.set('v',m[1]);location.replace(u.toString())}}).catch(()=>{})})();
@@ -1025,7 +1026,8 @@ function f64b(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.leng
 function msSave(){const pack=m=>({id:m.id,name:m.name,date:m.date,ch:m.ch,mic:m.mic,sr:m.sr,on:m.on,col:m.col,db:Array.from(m.db,v=>Math.round(v*100)/100),ir:m.ir?b64f(m.ir):null,ipk:m.ipk});
   try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(pack)))}catch(e){try{localStorage.setItem('oal_meas',JSON.stringify(meas.map(m=>Object.assign(pack(m),{ir:null}))))}catch(e2){}}}
 function msLoad(){try{const a=JSON.parse(localStorage.getItem('oal_meas')||'[]');meas=a.map(m=>Object.assign(m,{db:Float32Array.from(m.db),ir:m.ir?f64b(m.ir):null}))}catch(e){meas=[]}}
-function fillMsCh(){const cur=$('#msCh').value;$('#msCh').innerHTML=speakers.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');if(cur&&speakers.find(s=>s.id===cur))$('#msCh').value=cur}
+function fillMsCh(){const cur=$('#msCh').value;$('#msCh').innerHTML=speakers.map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');if(cur&&speakers.find(s=>s.id===cur))$('#msCh').value=cur;
+  const r=$('#msRef');if(r){const rc=r.value||store.get('msRef','auto');r.innerHTML='<option value="auto">Otomatik (C; yoksa R)</option>'+speakers.filter(s=>s.g!=='sub').map(s=>`<option value="${s.id}">${s.id} — ${s.n}</option>`).join('');r.value=[...r.options].some(o=>o.value===rc)?rc:'auto'}}
 function makeSweep(sr,L,f1,f2){const x=new Float32Array(L),T=L/sr,K=Math.log(f2/f1);for(let i=0;i<L;i++){const t=i/sr;x[i]=Math.sin(2*Math.PI*f1*T/K*(Math.exp(t/T*K)-1))}
   const fi=Math.round(sr*.1),fo=Math.round(sr*.01);for(let i=0;i<fi;i++)x[i]*=.5-.5*Math.cos(Math.PI*i/fi);for(let i=0;i<fo;i++)x[L-1-i]*=.5-.5*Math.cos(Math.PI*i/fo);return x}
 async function recordFor(sec,onStart,ab){const sr=ctx.sampleRate,len=Math.round(sr*sec),rec=new Float32Array(len);let w=0;
@@ -1048,7 +1050,8 @@ function frFromIR(ir,ipk,sr){// REW benzeri pencere: tepeden 10 ms önce, 500 ms
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const SWT=(1<<18)/48000,REFT=1.0,GAP=.8,RF1=200,RF2=12000;
 const pickSpk=s=>({id:s.id,n:s.n,az:s.az,el:s.el,g:s.g});
-const refSpeaker=()=>speakers.find(s=>s.id==='C')||speakers.find(s=>s.id==='L')||speakers[0];
+const refSpeaker=()=>{const v=($('#msRef')||{}).value;return(v&&v!=='auto'&&speakers.find(s=>s.id===v))||speakers.find(s=>s.id==='C')||speakers.find(s=>s.id==='R')||speakers.find(s=>s.id==='L')||speakers[0]};
+setTimeout(()=>{const r=$('#msRef');if(r)r.onchange=()=>store.set('msRef',r.value)},0);
 const fmtDly=ms=>`${ms>=0?'+':''}${ms.toFixed(2)} ms (${ms>=0?'+':''}${Math.round(ms*34.3)} cm)`;
 async function measureOne(spk,opts={}){
   const remote=$('#msPlay').value==='remote',st=opts.status||(t=>{$('#msStat').textContent=t});
@@ -1056,12 +1059,16 @@ async function measureOne(spk,opts={}){
   let rec,playVol=volDb,refUsed=false,lim=1.6;
   if(!remote){
     if(mode==='hp')throw new Error('Kulaklık modunda ölçüm yapılmaz; Stereo amfi veya Çok kanal seçin.');
-    const v=new Voice();const b=ctx.createBuffer(1,L,sr);b.copyToChannel(sweep,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);const g=ctx.createGain();g.gain.value=A;src.connect(g);g.connect(v.env);v.env.gain.value=1;
-    if(!routeMono(v.env,spk,v))throw new Error(`${spk.id} bu cihazın çıkışında yok.`);
+    const refSpk=opts.refSpk;refUsed=!!refSpk&&refSpk.id!==spk.id;const vs=[];
+    const mk=(sp,x)=>{const v=new Voice();const b=ctx.createBuffer(1,x.length,sr);b.copyToChannel(x,0);const src=new AudioBufferSourceNode(ctx,{buffer:b});v.srcs.push(src);const g=ctx.createGain();g.gain.value=A;src.connect(g);g.connect(v.env);v.env.gain.value=1;
+      if(!routeMono(v.env,sp,v)){v.stop(0);return null}vs.push(v);return src};
+    const mainSrc=mk(spk,sweep);if(!mainSrc)throw new Error(`${spk.id} bu cihazın çıkışında yok.`);
+    let refSrc=null;if(refUsed){refSrc=mk(refSpk,makeSweep(sr,Math.round(REFT*sr),RF1,RF2));if(!refSrc)refUsed=false}
     st(`Hazırlanıyor: ${spk.id}… sessiz olun`);await wait(400);
-    const recSec=T+2.2;let t0=0;const p=recordFor(recSec,()=>{t0=ctx.currentTime;src.start(ctx.currentTime+.3)});
+    const recSec=.3+(refUsed?REFT+GAP:0)+T+2.2+2.5;lim=recSec;let t0=0;/* +2,5 sn: Bluetooth/AirPlay gecikmesi payı */
+    const p=recordFor(recSec,()=>{t0=ctx.currentTime;const at=ctx.currentTime+.3;if(refSrc)refSrc.start(at);mainSrc.start(at+(refUsed?REFT+GAP:0))});
     const tick=setInterval(()=>{if(t0)st(`Ölçülüyor: ${spk.id}… ${Math.max(0,Math.ceil(recSec-(ctx.currentTime-t0)))} sn`)},250);
-    rec=await p;clearInterval(tick);v.stop(.05);
+    rec=await p;clearInterval(tick);vs.forEach(v=>v.stop(.05));
   }else{
     if(!conn||!conn.open)throw new Error('Eşli oynatıcıya bağlı değilsiniz: oynatıcı ekranındaki kodu girip “Bağlan”a basın.');
     const refSpk=opts.refSpk;refUsed=!!refSpk&&refSpk.id!==spk.id;
@@ -1083,8 +1090,7 @@ async function measureOne(spk,opts={}){
   let dly=null,dref=null;
   if(refUsed){const end=Math.max(Math.round(sr*.3),pi-Math.round(GAP*.5*sr));const R=deconv(rec.subarray(0,end),makeSweep(sr,Math.round(REFT*sr),RF1,RF2),sr,RF1,RF2,end/sr);
     if(R.pk>1e-7){dly=((pi-R.pi)/sr-(REFT+GAP))*1000;dref=opts.refSpk.id}}
-  else if(remote&&opts.refSpk&&opts.refSpk.id===spk.id){dly=0;dref=spk.id}
-  else if(!remote){dly=pi/sr*1000;dref='abs'}
+  else if(opts.refSpk&&opts.refSpk.id===spk.id){dly=0;dref=spk.id}
   const snr=20*Math.log10(pk/(ir.slice(Math.round(sr*.45)).reduce((a,b)=>Math.max(a,Math.abs(b)),1e-12)));
   const m={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:`${spk.id}${remote?' (oynatıcı)':''} ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`,date:new Date().toISOString(),ch:spk.id,
     mic:($('#micSel').selectedOptions[0]||{}).textContent||'',sr,on:true,col:MCOL[meas.length%MCOL.length],db:fr,ir,ipk,dly,dref,pol:ir[ipk]>=0?1:-1};
